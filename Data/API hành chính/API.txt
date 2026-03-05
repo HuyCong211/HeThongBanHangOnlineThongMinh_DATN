@@ -1,0 +1,3 @@
+Hiện để cập nhật 34 tỉnh và 3321 xã/phường mới mình công khai API miễn phí cho anh em
+Link tra cứu: [https://vietnamlabs.com/vietnam-province](https://vietnamlabs.com/vietnam-province...)
+Link docs: [https://vietnamlabs.com/vietnam-province-api](https://vietnamlabs.com/vietnam-province-api...)

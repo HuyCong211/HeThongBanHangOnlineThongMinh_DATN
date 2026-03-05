@@ -1,0 +1,240 @@
+﻿@model List<DoAn_Ver2.Models.SanPham>
+
+@if (Model != null && Model.Count > 0)
+{
+    <div id="history-widget" class="history-widget-wrapper">
+
+        <div class="history-trigger" onclick="toggleHistoryPanel()">
+            <div class="icon-box">
+                <i class="fas fa-history"></i>
+                <span class="badge-count">@Model.Count</span>
+            </div>
+            <div class="text-vertical">Vừa xem</div>
+        </div>
+
+        <div class="history-panel shadow-lg">
+            <div class="panel-header">
+                <span>Sản phẩm vừa xem</span>
+                <button type="button" class="close-btn" onclick="toggleHistoryPanel()">&times;</button>
+            </div>
+
+            <div class="panel-body">
+                @foreach (var item in Model)
+                {
+                    // Lấy URL ảnh từ ViewData đã xử lý ở Controller
+                    string imgUrl = ViewData["Img_" + item.ID] as string;
+
+                    <a href="@Url.Action("Detail", "Product", new { id = item.ID })" class="history-item">
+                        <div class="item-img">
+                            <img src="@imgUrl" alt="@item.TenSanPham" onerror="this.src='https://via.placeholder.com/60'">
+                        </div>
+                        <div class="item-info">
+                            <div class="item-name">@item.TenSanPham</div>
+                            <div class="item-price">
+                                @(item.GiaBan.HasValue ? item.GiaBan.Value.ToString("N0") : "Liên hệ")đ
+                            </div>
+                        </div>
+                    </a>
+                }
+            </div>
+
+            <div class="panel-footer">
+                <a href="@Url.Action("History", "Product")" class="view-all-link">Xem tất cả lịch sử <i class="fas fa-arrow-right ml-1"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleHistoryPanel() {
+            var widget = document.getElementById('history-widget');
+            widget.classList.toggle('open');
+        }
+    </script>
+
+    <style>
+        /* Container cố định bên phải */
+        .history-widget-wrapper {
+            position: fixed;
+            right: 0;
+            top: 40%;
+            z-index: 9999;
+            display: flex;
+            align-items: flex-start;
+            transition: all 0.3s ease;
+        }
+
+            /* Trạng thái mở: Đẩy cả cụm sang trái để hiện Panel */
+            .history-widget-wrapper.open {
+                right: 300px; /* Bằng chiều rộng panel */
+            }
+
+        /* Nút kích hoạt đẹp hơn */
+        .history-trigger {
+            background-color: #333;
+            color: #fff;
+            width: 45px;
+            padding: 10px 0;
+            border-top-left-radius: 8px;
+            border-bottom-left-radius: 8px;
+            cursor: pointer;
+            box-shadow: -4px 4px 10px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: background 0.2s;
+        }
+
+            .history-trigger:hover {
+                background-color: #d63031;
+            }
+
+        .icon-box {
+            position: relative;
+            margin-bottom: 5px;
+        }
+
+            .icon-box i {
+                font-size: 22px;
+            }
+
+        .badge-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #d63031;
+            color: #fff;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 2px 5px;
+            border-radius: 10px;
+            border: 1px solid #fff;
+        }
+
+        .text-vertical {
+            writing-mode: vertical-rl;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Panel nội dung */
+        .history-panel {
+            position: fixed;
+            top: 40%;
+            transform: translateY(-30%); /* Căn chỉnh vị trí panel */
+            right: -300px; /* Ẩn sâu bên phải */
+            width: 300px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px 0 0 8px;
+            display: flex;
+            flex-direction: column;
+            transition: right 0.3s ease;
+            max-height: 500px;
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        /* Khi wrapper có class 'open' -> Panel hiện ra */
+        .history-widget-wrapper.open .history-panel {
+            right: 0;
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Header */
+        .panel-header {
+            padding: 12px 15px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .close-btn {
+            border: none;
+            background: none;
+            font-size: 20px;
+            color: #999;
+            cursor: pointer;
+        }
+
+            .close-btn:hover {
+                color: #d63031;
+            }
+
+        /* Body danh sách */
+        .panel-body {
+            overflow-y: auto;
+            max-height: 400px;
+            padding: 0;
+        }
+
+        .history-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            border-bottom: 1px solid #f1f1f1;
+            text-decoration: none !important;
+            transition: 0.2s;
+        }
+
+            .history-item:hover {
+                background-color: #f0f8ff;
+            }
+        /* Màu xanh nhạt khi hover item */
+
+        .item-img img {
+            width: 60px;
+            height: auto;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        .item-info {
+            margin-left: 12px;
+            flex: 1;
+        }
+
+        .item-name {
+            font-size: 13px;
+            color: #333;
+            font-weight: 500;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: 4px;
+            line-height: 1.3;
+        }
+
+        .item-price {
+            color: #d63031;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        /* Footer */
+        .panel-footer {
+            padding: 10px;
+            text-align: center;
+            background: #f8f9fa;
+            border-top: 1px solid #eee;
+        }
+
+        .view-all-link {
+            font-size: 13px;
+            color: #007bff;
+            font-weight: 600;
+        }
+
+            .view-all-link:hover {
+                text-decoration: underline !important;
+            }
+    </style>
+}

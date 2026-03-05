@@ -1,0 +1,84 @@
+﻿@model DoAn_Ver2.Models.PhuongThucThanhToan
+
+@{
+    ViewBag.Title = "Cập nhật phương thức thanh toán";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Cập nhật phương thức thanh toán</h6>
+    </div>
+    <div class="card-body">
+        @using (Html.BeginForm("Edit", "Payment", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="form-group">
+                        <label>Tên phương thức <span class="text-danger">*</span></label>
+                        @Html.EditorFor(model => model.TenPhuongThuc, new { htmlAttributes = new { @class = "form-control", required = "required", placeholder = "VD: Thanh toán khi nhận hàng (COD)" } })
+                    </div>
+
+                    <div class="form-group">
+                        <label>Mã Code (System) <span class="text-danger">*</span></label>
+                        @Html.EditorFor(model => model.MaCode, new { htmlAttributes = new { @class = "form-control text-uppercase", required = "required", placeholder = "VD: COD, VNPAY, MOMO..." } })
+                        <small class="text-muted font-italic">Mã dùng để xử lý logic trong code (Viết liền không dấu, in hoa)</small>
+                        @Html.ValidationMessageFor(model => model.MaCode, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="form-group">
+                        <label>Mô tả / Hướng dẫn chuyển khoản</label>
+                        @Html.TextAreaFor(model => model.MoTa, new { @class = "form-control", rows = "4", placeholder = "VD: Quý khách vui lòng chuyển khoản vào STK..." })
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Logo hiển thị</label> <br />
+                        <img id="imgPreview" src="@(string.IsNullOrEmpty(Model.HinhAnh) ? "/Content/images/no-image.png" : Model.HinhAnh)"
+                             style="width: 100%; max-width: 200px; border: 1px solid #ddd; padding: 5px; border-radius: 5px;" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Thay đổi Logo</label>
+                        <input type="file" name="uploadBtn" class="form-control-file" accept="image/*" onchange="previewImage(this)" />
+                    </div>
+
+                    <div class="custom-control custom-switch mt-3">
+                        @{
+                            bool isChecked = Model.TrangThai.GetValueOrDefault(false);
+                        }
+                        @Html.CheckBox("TrangThai", isChecked, new { @class = "custom-control-input", @id = "switchStatus" })
+                        <label class="custom-control-label" for="switchStatus">Đang hoạt động</label>
+                    </div>
+                </div>
+            </div>
+
+            <hr />
+            <button type="submit" class="btn btn-success btn-icon-split px-4">
+                <span class="icon text-white-50"><i class="fas fa-save"></i></span>
+                <span class="text font-weight-bold">Lưu lại</span>
+            </button>
+            <a href="@Url.Action("Index")" class="btn btn-secondary ml-2">Hủy bỏ</a>
+        }
+    </div>
+</div>
+
+
+<script>
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                // Gán đường dẫn ảnh mới vào thẻ img có id="imgPreview"
+                document.getElementById('imgPreview').src = e.target.result;
+            }
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>

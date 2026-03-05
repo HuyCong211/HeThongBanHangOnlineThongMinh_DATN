@@ -1,0 +1,56 @@
+﻿@model DoAn_Ver2.Models.DonHang
+@{
+    ViewBag.Title = "Tra cứu đơn hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    // Ép kiểu về ViewModel mới
+    var chiTiet = ViewBag.ChiTiet as List<DoAn_Ver2.Models.ViewModel.OrderDetailDisplayVM>;
+}
+
+@if (Model != null)
+{
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <div class="table-responsive mt-3">
+                <table class="table table-bordered mb-0 align-middle">
+                    <thead class="bg-light text-center">
+                        <tr>
+                            <th>Sản phẩm</th>
+                            <th width="100">SL</th>
+                            <th width="150">Đơn giá</th>
+                            <th width="150">Thành tiền</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (chiTiet != null)
+                        {
+                            foreach (var item in chiTiet)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="@item.HinhAnh" alt="@item.TenSanPham"
+                                                 class="rounded border mr-3"
+                                                 style="width: 60px; height: 60px; object-fit: cover;">
+
+                                            <div>
+                                                <h6 class="mb-1 font-weight-bold text-dark">
+                                                    <a href="/Product/Detail/@item.SanPhamID" target="_blank" class="text-dark text-decoration-none">
+                                                        @item.TenSanPham
+                                                    </a>
+                                                </h6>
+                                                <small class="text-muted">Phân loại: @item.TenPhanLoai</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center font-weight-bold">x @item.SoLuong</td>
+                                    <td class="text-right">@item.DonGia.ToString("N0")đ</td>
+                                    <td class="text-right text-danger font-weight-bold">@item.ThanhTien.ToString("N0")đ</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}

@@ -1,0 +1,320 @@
+﻿@model DoAn_Ver2.Models.ViewModel.ShoppingCartViewModel
+
+@{
+    ViewBag.Title = "Giỏ hàng của bạn";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="bg-light py-4 mb-5 border-bottom">
+    <div class="container">
+        <h3 class="font-weight-bold text-uppercase m-0">Giỏ hàng</h3>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb bg-transparent p-0 m-0 small">
+                <li class="breadcrumb-item"><a href="/" class="text-muted">Trang chủ</a></li>
+                <li class="breadcrumb-item active text-dark">Giỏ hàng</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="container pb-5">
+    @if (Model != null && Model.Items.Count > 0)
+    {
+        <div class="row">
+            <div class="col-lg-8 mb-4">
+                <div class="table-responsive shadow-sm border rounded">
+                    <table class="table table-borderless table-hover mb-0 bg-white align-middle">
+                        <thead class="bg-light border-bottom">
+                            <tr class="text-uppercase small font-weight-bold text-muted">
+                                <th scope="col" class="text-center py-3" style="width: 5%">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="checkAll" checked>
+                                        <label class="custom-control-label" for="checkAll"></label>
+                                    </div>
+                                </th>
+                                <th scope="col" class="pl-2 py-3" style="width: 40%">Sản phẩm</th>
+                                <th scope="col" class="py-3 text-center" style="width: 15%">Đơn giá</th>
+                                <th scope="col" class="py-3 text-center" style="width: 20%">Số lượng</th>
+                                <th scope="col" class="py-3 text-right" style="width: 15%">Thành tiền</th>
+                                <th scope="col" class="py-3 text-center" style="width: 5%"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Items)
+                            {
+                                <tr class="border-bottom" id="row-@item.SKU_ID">
+                                    <td class="text-center align-middle">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input check-item"
+                                                   id="chk-@item.SKU_ID"
+                                                   value="@item.SKU_ID"
+                                                   data-price="@item.ThanhTien"
+                                                   data-name="@item.TenSanPham"
+                                                   data-qty="@item.SoLuong"
+                                                   checked>
+                                            <label class="custom-control-label" for="chk-@item.SKU_ID"></label>
+                                        </div>
+                                    </td>
+                                    <td class="pl-2 py-3">
+                                        <div class="d-flex align-items-center">
+                                            <a href="@Url.Action("Detail", "Product", new { id = item.SanPhamID })">
+                                                <img src="@item.HinhAnh" alt="@item.TenSanPham" width="80" height="80" class="img-fluid rounded border mr-3" style="object-fit: cover;">
+                                            </a>
+                                            <div>
+                                                <h6 class="mb-1 font-weight-bold">
+                                                    <a href="@Url.Action("Detail", "Product", new { id = item.SanPhamID })" class="text-dark text-decoration-none">@item.TenSanPham</a>
+                                                </h6>
+                                                <small class="text-muted d-block mb-1">Phân loại: <span class="text-dark font-weight-bold">@item.TenPhanLoai</span></small>
+                                                @if (item.TonKho < 5)
+                                                {
+                                                    <small class="text-danger font-italic"><i class="fas fa-exclamation-circle"></i> Chỉ còn @item.TonKho sản phẩm</small>
+                                                }
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-3 align-middle text-center font-weight-bold text-muted">
+                                        @item.DonGia.ToString("N0")đ
+                                    </td>
+                                    <td class="py-3 align-middle">
+                                        <div class="input-group input-group-sm mx-auto" style="width: 110px;">
+                                            <div class="input-group-prepend">
+                                                <button class="btn btn-outline-secondary" type="button" onclick="updateCart(@item.SKU_ID, -1)">-</button>
+                                            </div>
+                                            <input type="text" class="form-control text-center bg-white font-weight-bold border-secondary" id="qty-@item.SKU_ID" value="@item.SoLuong" readonly>
+                                            <div class="input-group-append">
+                                                <button class="btn btn-outline-secondary" type="button" onclick="updateCart(@item.SKU_ID, 1)">+</button>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-3 align-middle text-right font-weight-bold text-dark" id="total-@item.SKU_ID">
+                                        @item.ThanhTien.ToString("N0")đ
+                                    </td>
+                                    <td class="py-3 align-middle text-center">
+                                        <button class="btn btn-link text-muted p-0 hover-danger" onclick="removeItem(@item.SKU_ID)" title="Xóa sản phẩm">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-4">
+                    <a href="/" class="btn btn-outline-dark px-4"><i class="fas fa-arrow-left mr-2"></i> Tiếp tục mua sắm</a>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="sticky-top" style="top: 100px; z-index: 1;">
+                    <div class="card border-0 shadow-sm bg-white">
+                        <div class="card-header bg-dark text-white text-uppercase font-weight-bold py-3">
+                            Thanh toán
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="selected-products mb-3 pb-3 border-bottom" style="max-height: 150px; overflow-y: auto;">
+                                <h6 class="font-weight-bold text-muted small text-uppercase mb-2">Sản phẩm đã chọn (<span id="countSelected">0</span>):</h6>
+                                <ul class="list-unstyled mb-0 small text-secondary" id="selectedList">
+                                </ul>
+                            </div>
+
+                            <ul class="list-unstyled mb-4">
+                                <li class="d-flex justify-content-between py-3 border-bottom">
+                                    <span class="text-muted">Tạm tính:</span>
+                                    <strong class="text-dark" id="subTotal">@Model.TongTienHang.ToString("N0")đ</strong>
+                                </li>
+                                <li class="d-flex justify-content-between py-3 align-items-center">
+                                    <span class="text-muted font-weight-bold">Tổng cộng:</span>
+                                    <h4 class="font-weight-bold text-danger m-0" id="finalTotal">@Model.TongTienHang.ToString("N0")đ</h4>
+                                </li>
+                            </ul>
+                            <div class="alert alert-info small mb-4">
+                                <i class="fas fa-info-circle mr-1"></i> Giá chưa bao gồm mã giảm giá. Bạn có thể nhập mã ở bước thanh toán (nếu có).
+                            </div>
+                            <form id="checkoutForm" action="@Url.Action("Checkout", "Cart")" method="get">
+                                <input type="hidden" name="selectedIds" id="selectedIdsInput" />
+                                <button type="button" onclick="proceedCheckout()" class="btn btn-danger btn-block py-3 font-weight-bold text-uppercase shadow-sm hover-up">
+                                    Tiến hành thanh toán <i class="fas fa-arrow-right ml-2"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 row text-center small text-muted">
+                        <div class="col-4"><i class="fas fa-shield-alt fa-2x mb-2 text-dark"></i><br>Bảo mật</div>
+                        <div class="col-4 border-left border-right"><i class="fas fa-sync-alt fa-2x mb-2 text-dark"></i><br>Đổi trả</div>
+                        <div class="col-4"><i class="fas fa-truck fa-2x mb-2 text-dark"></i><br>Giao nhanh</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5 bg-white rounded shadow-sm">
+            <div class="mb-4">
+                <img src="https://cdn-icons-png.flaticon.com/512/11329/11329060.png" width="120" class="opacity-75" style="opacity: 0.8">
+            </div>
+            <h4 class="font-weight-bold mb-2">Giỏ hàng của bạn đang trống!</h4>
+            <a href="/" class="btn btn-dark px-5 py-2 shadow-sm text-uppercase font-weight-bold">Mua sắm ngay</a>
+        </div>
+    }
+</div>
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            calculateTotal(); // Chạy ngay khi load trang
+
+            $('#checkAll').change(function () {
+                var isChecked = $(this).is(':checked');
+                $('.check-item').prop('checked', isChecked);
+                calculateTotal();
+            });
+
+            $('.check-item').change(function () {
+                var allChecked = $('.check-item:checked').length === $('.check-item').length;
+                $('#checkAll').prop('checked', allChecked);
+                calculateTotal();
+            });
+        });
+
+        function calculateTotal() {
+            var total = 0;
+            var count = 0;
+            var htmlList = '';
+
+            $('.check-item:checked').each(function () {
+                // Lấy giá trị từ attribute data mới nhất
+                var price = parseFloat($(this).attr('data-price')) || 0;
+                var name = $(this).attr('data-name');
+                var qty = $(this).attr('data-qty');
+
+                total += price;
+                count++;
+
+                // Render danh sách tên sản phẩm bên cột phải
+                htmlList += `<li class="mb-1 d-flex justify-content-between">
+                        <span class="text-truncate" style="max-width: 180px;" title="${name}">${name}</span>
+                        <span class="font-weight-bold">x${qty}</span>
+                     </li>`;
+            });
+
+            // Format tiền tệ VNĐ
+            var formatted = total.toLocaleString('vi-VN') + 'đ';
+
+            // Hiển thị ra giao diện
+            $('#subTotal').text(formatted);
+            $('#finalTotal').text(formatted);
+            $('#countSelected').text(count);
+            $('#selectedList').html(htmlList);
+        }
+
+        function updateCart(skuId, change) {
+            var input = $('#qty-' + skuId);
+            var currentQty = parseInt(input.val());
+            var newQty = currentQty + change;
+
+            // Validate số lượng tối thiểu
+            if (newQty < 1) return;
+
+            // Khóa input để tránh click liên tục
+            input.prop('disabled', true);
+
+            $.ajax({
+                url: '/Cart/UpdateQuantity',
+                type: 'POST',
+                data: { skuId: skuId, quantity: newQty },
+                success: function (res) {
+                    input.prop('disabled', false);
+
+                    if (res.success) {
+                        // 1. Cập nhật số lượng trong ô input
+                        input.val(newQty);
+
+                        // 2. Cập nhật thành tiền hiển thị ở cột bên phải
+                        $('#total-' + skuId).text(res.itemTotal);
+
+                        // 3. [QUAN TRỌNG] Cập nhật lại data attribute cho checkbox để tính toán đúng
+                        // Parse giá tiền từ chuỗi "500.000đ" -> 500000
+                        // Logic: Xóa hết dấu chấm và chữ 'đ', sau đó parse float
+                        var rawPrice = parseFloat(res.itemTotal.replace(/\./g, '').replace(/[^\d]/g, ''));
+
+                        var checkbox = $('#chk-' + skuId);
+                        checkbox.attr('data-price', rawPrice); // Cập nhật giá mới (tổng tiền của dòng đó)
+                        checkbox.attr('data-qty', newQty);     // Cập nhật số lượng mới
+
+                        // 4. Gọi hàm tính tổng lại ngay lập tức
+                        calculateTotal();
+                    } else {
+                        alert(res.msg || 'Có lỗi xảy ra!');
+                        // Reset lại số lượng cũ nếu lỗi
+                        input.val(currentQty);
+                    }
+                },
+                error: function () {
+                    input.prop('disabled', false);
+                    alert('Lỗi kết nối server!');
+                }
+            });
+        }
+
+        // ... (Các hàm khác giữ nguyên) ...
+        function removeItem(skuId) {
+            if (!confirm('Bạn có chắc muốn xóa sản phẩm này khỏi giỏ hàng?')) return;
+            $.ajax({
+                url: '/Cart/Remove',
+                type: 'POST',
+                data: { skuId: skuId },
+                success: function (res) {
+                    if (res.success) {
+                        $('#row-' + skuId).fadeOut(300, function () {
+                            $(this).remove();
+                            calculateTotal();
+                            if (res.count == 0) location.reload();
+                        });
+                    }
+                }
+            });
+        }
+
+        function proceedCheckout() {
+            var selectedIds = [];
+            $('.check-item:checked').each(function () {
+                selectedIds.push($(this).val());
+            });
+
+            if (selectedIds.length === 0) {
+                alert('Vui lòng chọn ít nhất một sản phẩm để thanh toán!');
+                return;
+            }
+
+            $('#selectedIdsInput').val(selectedIds.join(','));
+            $('#checkoutForm').submit();
+        }
+    </script>
+}
+
+<style>
+    /* ... (CSS cũ giữ nguyên) ... */
+    .selected-products::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .selected-products::-webkit-scrollbar-thumb {
+        background: #ccc;
+        border-radius: 4px;
+    }
+</style>
+
+
+
+
+
+
+
+
+
+
+
+
+

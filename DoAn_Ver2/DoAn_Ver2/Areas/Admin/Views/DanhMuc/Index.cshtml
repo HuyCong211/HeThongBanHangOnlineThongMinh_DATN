@@ -1,0 +1,197 @@
+﻿@using PagedList.Mvc
+@using PagedList
+@model IPagedList<DoAn_Ver2.Models.DanhMuc>
+
+@{
+    ViewBag.Title = "Quản lý Danh mục";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+
+    // 1. Ép kiểu Dictionary để tra cứu tên cha (Lấy từ Controller)
+    var tenChaMap = ViewBag.TenDanhMucChaMap as Dictionary<int, string>;
+}
+
+<style>
+    .pagination-container ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+    }
+
+    .pagination-container li {
+        margin-right: 5px;
+    }
+
+        .pagination-container li a, .pagination-container li span {
+            position: relative;
+            display: block;
+            padding: 0.5rem 0.75rem;
+            margin-left: -1px;
+            line-height: 1.25;
+            color: #007bff;
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            text-decoration: none;
+            border-radius: 3px;
+        }
+
+    .pagination-container .active span {
+        z-index: 1;
+        color: #fff;
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+</style>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+        <h5 class="m-0 font-weight-bold text-primary">QUẢN LÝ DANH MỤC</h5>
+        <a href="@Url.Action("Create")" class="btn btn-primary btn-sm">
+            <i class="fas fa-plus"></i> Thêm mới
+        </a>
+    </div>
+    <div class="card-body">
+
+        @using (Html.BeginForm("Index", "DanhMuc", FormMethod.Get, new { @class = "mb-3" }))
+        {
+            <div class="form-row align-items-end">
+                <div class="col-md-4 mb-2">
+                    <label class="small text-muted mb-1">Từ khóa (Tên, Slug)</label>
+                    <div class="input-group">
+                        <input type="text" name="searchString" value="@ViewBag.CurrentFilter" class="form-control" placeholder="Nhập tên danh mục..." />
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-2">
+                    <label class="small text-muted mb-1">Lọc theo Cha</label>
+                    @* --- SỬA LỖI TẠI ĐÂY: Dùng ViewBag.ListDanhMuc --- *@
+                    @Html.DropDownList("danhMucChaId", (SelectList)ViewBag.ListDanhMuc, "--- Tất cả danh mục cha ---", new { @class = "form-control" })
+                </div>
+
+                <div class="col-md-2 mb-2">
+                    <label class="small text-muted mb-1">Hiển thị</label>
+                    <select name="pageSize" class="form-control">
+                        <option value="5" @(ViewBag.PageSize == 5 ? "selected" : "")>5 dòng</option>
+                        <option value="10" @(ViewBag.PageSize == 10 ? "selected" : "")>10 dòng</option>
+                        <option value="20" @(ViewBag.PageSize == 20 ? "selected" : "")>20 dòng</option>
+                        <option value="50" @(ViewBag.PageSize == 50 ? "selected" : "")>50 dòng</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3 mb-2">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> Tìm</button>
+                    <a href="@Url.Action("Index")" class="btn btn-secondary" title="Làm mới"><i class="fas fa-sync-alt"></i></a>
+                </div>
+            </div>
+        }
+
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover" width="100%" cellspacing="0">
+                <thead class="thead-light">
+                    <tr>
+                        <th style="width: 50px;">STT</th>
+                        <th style="width: 80px;">Ảnh</th>
+                        <th>Tên danh mục</th>
+                        <th>Slug</th>
+                        <th>Mô tả</th>
+                        <th>Danh mục cha</th>
+                        @*<th>Ngày tạo</th>
+                        <th>Ngày cập nhật</th>*@
+                        <th class="text-center" style="width: 150px;">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Count > 0)
+                    {
+                        // Khai báo biến đếm
+                        int i = 0;
+                        int pageSize = ViewBag.PageSize;
+                        int pageNumber = Model.PageNumber;
+                        foreach (var item in Model)
+                        {
+                            // Tính toán STT
+                            i++;
+                            int stt = (pageNumber - 1) * pageSize + i;
+                            <tr>
+                                <td class="text-center font-weight-bold">@stt</td>
+                                <td class="text-center">
+                                    @if (!string.IsNullOrEmpty(item.HinhAnh))
+                                    {
+                                        <img src="@item.HinhAnh" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;" />
+                                    }
+                                </td>
+                                <td>
+                                    <span class="font-weight-bold">@item.TenDanhMuc</span>
+                                    <div class="small text-muted">
+                                        <i class="far fa-clock"></i> @(item.NgayTao.HasValue ? item.NgayTao.Value.ToString("dd/MM/yyyy") : "")
+                                    </div>
+                                </td>
+                                <td>@item.Slug</td>
+                                <td>@item.MoTa</td>
+
+                                @* --- HIỂN THỊ TÊN DANH MỤC CHA --- *@
+                                <td>
+                                    @if (item.DanhMucChaID != null)
+                                    {
+                                        // Kiểm tra trong Dictionary xem có tên không
+                                        if (tenChaMap != null && tenChaMap.ContainsKey(item.DanhMucChaID.Value))
+                                        {
+                                            <span class="badge badge-info">@tenChaMap[item.DanhMucChaID.Value]</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge badge-warning">ID: @item.DanhMucChaID (Không tìm thấy)</span>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small">-- Gốc --</span>
+                                    }
+                                </td>
+                                @* ---------------------------------- *@
+
+                                @*<td>@item.NgayTao</td>
+                                <td>@item.NgayCapNhat</td>*@
+                                <td class="text-center">
+                                    <a href="@Url.Action("Details", new { id = item.ID })" class="btn btn-warning btn-sm" title="Xem">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="@Url.Action("Edit", new { id = item.ID })" class="btn btn-info btn-sm" title="Sửa">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="@Url.Action("Delete", new { id = item.ID })" class="btn btn-danger btn-sm" title="Xóa">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-4">Không tìm thấy dữ liệu phù hợp</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <div class="small text-muted">
+                Trang @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) / @Model.PageCount
+                (Tổng: @Model.TotalItemCount bản ghi)
+            </div>
+            <div class="d-flex align-items-center">
+                <div class="mr-3">
+                    @Html.PagedListPager(Model, page => Url.Action("Index", new
+                    {
+                        page,
+                        pageSize = ViewBag.PageSize,
+                        searchString = ViewBag.CurrentFilter,
+                        danhMucChaId = ViewBag.CurrentParent // Giữ bộ lọc khi chuyển trang
+                    }))
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

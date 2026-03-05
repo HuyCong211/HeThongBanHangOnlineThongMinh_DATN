@@ -1,0 +1,105 @@
+﻿@model DoAn_Ver2.Models.SanPham
+
+@{
+    ViewBag.Title = "Xác nhận xóa sản phẩm";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    bool daPhatSinhDonHang = ViewBag.DaPhatSinhDonHang != null && (bool)ViewBag.DaPhatSinhDonHang;
+}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-danger">XÁC NHẬN XÓA SẢN PHẨM</h6>
+    </div>
+    <div class="card-body">
+
+        @if (daPhatSinhDonHang)
+        {
+            <div class="alert alert-warning border-left-warning" role="alert">
+                <h4 class="alert-heading"><i class="fas fa-exclamation-triangle"></i> Cảnh báo nghiệp vụ!</h4>
+                <p>
+                    Sản phẩm <strong>"@Model.TenSanPham"</strong> đã phát sinh đơn hàng trong hệ thống.
+                    Để đảm bảo tính toàn vẹn dữ liệu lịch sử mua hàng, bạn <strong>KHÔNG THỂ XÓA VĨNH VIỄN</strong> sản phẩm này.
+                </p>
+                <hr>
+                <p class="mb-0">Hệ thống đề xuất: Chuyển trạng thái sang <strong>"Ngừng kinh doanh"</strong>. Sản phẩm sẽ ẩn khỏi trang bán hàng nhưng vẫn lưu trong báo cáo.</p>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-danger border-left-danger" role="alert">
+                <i class="fas fa-trash"></i> Bạn đang thực hiện xóa vĩnh viễn sản phẩm. Hành động này không thể hoàn tác!
+            </div>
+        }
+
+        <div class="row mb-4">
+            <div class="col-md-4 text-center">
+                @{
+                    string imgUrl = ViewBag.AnhDaiDien as string;
+                }
+
+                <div class="p-2 border rounded d-inline-block bg-white shadow-sm mb-2">
+                    <img src="@(string.IsNullOrEmpty(imgUrl) ? "https://via.placeholder.com/200x200?text=No+Image" : imgUrl)"
+                         alt="@Model.TenSanPham"
+                         class="img-fluid"
+                         style="width: 180px; height: 180px; object-fit: cover;" />
+                </div>
+
+                <h5 class="font-weight-bold text-primary mt-2">@Model.TenSanPham</h5>
+                <p class="text-muted"><small>Mã SP: @(Model.MaSanPham ?? "---")</small></p>
+            </div>
+            <div class="col-md-8">
+                <dl class="row">
+                    <dt class="col-sm-4">Tên sản phẩm:</dt>
+                    <dd class="col-sm-8 font-weight-bold text-primary">@Model.TenSanPham</dd>
+
+                    <dt class="col-sm-4">Giá bán:</dt>
+                    <dd class="col-sm-8 text-danger">@(Model.GiaBan.HasValue ? Model.GiaBan.Value.ToString("N0") + " đ" : "Liên hệ")</dd>
+
+                    <dt class="col-sm-4">Ngày tạo:</dt>
+                    <dd class="col-sm-8">@Model.NgayTao.Value.ToString("dd/MM/yyyy")</dd>
+
+                    <dt class="col-sm-4">Trạng thái hiện tại:</dt>
+                    <dd class="col-sm-8">
+                        @if (Model.TrangThai == 1)
+                        {<span class="badge badge-success">Đang bán</span> }
+                        else if (Model.TrangThai == 2)
+                        { <span class="badge badge-warning">Hết hàng</span> }
+                        else
+                        { <span class="badge badge-secondary">Ngừng kinh doanh</span>}
+                    </dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end">
+            <a href="@Url.Action("Index")" class="btn btn-secondary mr-2">
+                <i class="fas fa-arrow-left"></i> Quay lại
+            </a>
+
+            @if (daPhatSinhDonHang)
+            {
+                // TRƯỜNG HỢP 1: ĐÃ CÓ ĐƠN HÀNG -> CHỈ CHO CHUYỂN TRẠNG THÁI
+                using (Html.BeginForm("Deactive", "SanPham", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.Hidden("id", Model.ID)
+                    <button type="submit" class="btn btn-warning text-dark font-weight-bold">
+                        <i class="fas fa-ban"></i> Chuyển sang "Ngừng kinh doanh"
+                    </button>
+                }
+            }
+            else
+            {
+                // TRƯỜNG HỢP 2: CHƯA CÓ ĐƠN HÀNG -> CHO PHÉP XÓA
+                using (Html.BeginForm("Delete", "SanPham", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.Hidden("id", Model.ID)
+                    <button type="submit" class="btn btn-danger font-weight-bold">
+                        <i class="fas fa-trash"></i> Xác nhận Xóa Vĩnh Viễn
+                    </button>
+                }
+            }
+        </div>
+    </div>
+</div>

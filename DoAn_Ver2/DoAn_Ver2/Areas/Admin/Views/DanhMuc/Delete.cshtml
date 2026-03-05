@@ -1,0 +1,44 @@
+﻿@model DoAn_Ver2.Models.DanhMuc
+
+@{
+    ViewBag.Title = "Xác nhận xóa";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-danger">Bạn có chắc muốn xóa Danh mục này?</h6>
+    </div>
+    <div class="card-body">
+        <div class="alert alert-warning" role="alert">
+            <i class="fas fa-exclamation-triangle"></i> Cảnh báo: Hành động này không thể hoàn tác!
+        </div>
+
+        <dl class="row">
+            <dt class="col-sm-3">Tên danh mục:</dt>
+            <dd class="col-sm-9 font-weight-bold">@Model.TenDanhMuc</dd>
+
+            <dt class="col-sm-3">Slug:</dt>
+            <dd class="col-sm-9">@Model.Slug</dd>
+
+            <dt class="col-sm-3">Ngày tạo:</dt>
+            <dd class="col-sm-9">@(Model.NgayTao.HasValue ? Model.NgayTao.Value.ToString("dd/MM/yyyy HH:mm") : "")</dd>
+
+            <dt class="col-sm-3">Mô tả:</dt>
+            <dd class="col-sm-9">@Model.MoTa</dd>
+        </dl>
+
+        @using (Html.BeginForm())
+        {
+            @Html.AntiForgeryToken()
+            <div class="form-actions no-color mt-4">
+                <a href="@Url.Action("Index")" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Quay lại
+                </a>
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> Xác nhận Xóa
+                </button>
+            </div>
+        }
+    </div>
+</div>

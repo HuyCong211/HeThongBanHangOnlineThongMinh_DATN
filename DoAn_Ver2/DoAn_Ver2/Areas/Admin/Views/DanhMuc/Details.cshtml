@@ -1,0 +1,172 @@
+﻿@model DoAn_Ver2.Models.DanhMuc
+
+@{
+    ViewBag.Title = "Chi tiết Danh mục";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+
+    var listCon = ViewBag.ListDanhMucCon as List<DoAn_Ver2.Models.DanhMuc>;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0 text-gray-800">
+        Chi tiết: <span class="text-primary">@Model.TenDanhMuc</span>
+    </h1>
+    <div>
+        <a href="@Url.Action("Edit", new { id = Model.ID })" class="btn btn-warning btn-sm">
+            <i class="fas fa-edit"></i> Sửa
+        </a>
+        <a href="@Url.Action("Index")" class="btn btn-secondary btn-sm">
+            <i class="fas fa-arrow-left"></i> Quay lại
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Thông tin chung</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped">
+                        <tr>
+                            <th style="width: 140px;">ID</th>
+                            <td>@Model.ID</td>
+                        </tr>
+                        <tr>
+                            <th>Tên danh mục</th>
+                            <td class="font-weight-bold text-dark">@Model.TenDanhMuc</td>
+                        </tr>
+                        <tr>
+                            <th>Slug (SEO)</th>
+                            <td class="text-muted font-italic">@Model.Slug</td>
+                        </tr>
+                        <tr>
+                            <th>Danh mục cha</th>
+                            <td>
+                                @if (Model.DanhMucChaID.HasValue)
+                                {
+                                    <a href="@Url.Action("Details", new { id = Model.DanhMucChaID })" class="btn btn-sm btn-info">
+                                        <i class="fas fa-level-up-alt"></i> @ViewBag.TenDanhMucCha
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-success p-2">@ViewBag.TenDanhMucCha</span>
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Hình ảnh</th>
+                            <td class="text-center">
+                                @if (!string.IsNullOrEmpty(Model.HinhAnh))
+                                {
+                                    <img src="@Model.HinhAnh" class="img-fluid rounded" style="max-height: 150px; border: 1px solid #ddd; padding: 2px;" />
+                                }
+                                else
+                                {
+                                    <div class="text-muted font-italic py-3 bg-light rounded">Chưa cập nhật ảnh</div>
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Mô tả</th>
+                            <td>
+                                @if (!string.IsNullOrEmpty(Model.MoTa))
+                                {
+                                    @Model.MoTa
+                                }
+                                else
+                                {
+                                    <span class="text-muted font-italic">Không có mô tả</span>
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Thống kê</th>
+                            <td>
+                                Tổng cộng <span class="text-danger font-weight-bold" style="font-size: 1.1rem;">@ViewBag.SoLuongSanPham</span> sản phẩm
+                                <br />
+                                <small class="text-muted">(Bao gồm cả sản phẩm của các danh mục con)</small>
+
+                                @if (ViewBag.SoLuongSanPham > 0)
+                                {
+                                    <div class="mt-2">
+                                        <a href="@Url.Action("Index", "SanPham", new { danhMucId = Model.ID })" class="btn btn-sm btn-primary">
+                                            Xem danh sách chi tiết <i class="fas fa-arrow-right"></i>
+                                        </a>
+                                    </div>
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Ngày tạo</th>
+                            <td>@(Model.NgayTao.HasValue ? Model.NgayTao.Value.ToString("dd/MM/yyyy HH:mm") : "---")</td>
+                        </tr>
+                        <tr>
+                            <th>Cập nhật cuối</th>
+                            <td>@(Model.NgayCapNhat.HasValue ? Model.NgayCapNhat.Value.ToString("dd/MM/yyyy HH:mm") : "---")</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-success">
+                    Danh mục con trực thuộc
+                    <span class="badge badge-success ml-1">@(listCon != null ? listCon.Count : 0)</span>
+                </h6>
+
+                <a href="@Url.Action("Create", new { parentId = Model.ID })" class="btn btn-sm btn-success shadow-sm">
+                    <i class="fas fa-plus"></i> Thêm con
+                </a>
+            </div>
+            <div class="card-body p-0">
+                @if (listCon != null && listCon.Count > 0)
+                {
+                    <div class="list-group list-group-flush">
+                        @foreach (var item in listCon)
+                        {
+                            <a href="@Url.Action("Details", new { id = item.ID })" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    @if (!string.IsNullOrEmpty(item.HinhAnh))
+                                    {
+                                        <img src="@item.HinhAnh" style="width: 40px; height: 40px; border-radius: 4px; object-fit: cover; margin-right: 15px; border: 1px solid #eee;" />
+                                    }
+                                    else
+                                    {
+                                        <div class="bg-light rounded d-flex align-items-center justify-content-center text-muted" style="width: 40px; height: 40px; margin-right: 15px; border: 1px solid #eee;">
+                                            <i class="fas fa-image"></i>
+                                        </div>
+                                    }
+                                    <div>
+                                        <span class="font-weight-bold text-dark">@item.TenDanhMuc</span>
+                                        <div class="small text-muted">
+                                            ID: @item.ID
+                                        </div>
+                                    </div>
+                                </div>
+                                <i class="fas fa-chevron-right text-gray-400"></i>
+                            </a>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-5">
+
+
+                        [Image of folder icon]
+
+                        <p class="text-muted mt-3">Danh mục này hiện chưa có danh mục con nào.</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

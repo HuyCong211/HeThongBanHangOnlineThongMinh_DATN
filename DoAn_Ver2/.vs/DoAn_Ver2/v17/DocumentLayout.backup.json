@@ -1,0 +1,148 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\DoAnTotNghiep\\DoAn_Ver2\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|d:\\doantotnghiep\\doan_ver2\\doan_ver2\\areas\\admin\\controllers\\dashboardcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\areas\\admin\\controllers\\dashboardcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|d:\\doantotnghiep\\doan_ver2\\doan_ver2\\areas\\admin\\views\\dashboard\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\areas\\admin\\views\\dashboard\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|d:\\doantotnghiep\\doan_ver2\\doan_ver2\\services\\recommendationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\services\\recommendationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|d:\\doantotnghiep\\doan_ver2\\doan_ver2\\controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|d:\\doantotnghiep\\doan_ver2\\doan_ver2\\controllers\\productcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\controllers\\productcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|d:\\doantotnghiep\\doan_ver2\\doan_ver2\\controllers\\cartcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\controllers\\cartcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 1,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedHeight": 398,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "DashboardController.cs",
+              "DocumentMoniker": "D:\\DoAnTotNghiep\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Controllers\\DashboardController.cs",
+              "RelativeDocumentMoniker": "DoAn_Ver2\\Areas\\Admin\\Controllers\\DashboardController.cs",
+              "ToolTip": "D:\\DoAnTotNghiep\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Controllers\\DashboardController.cs*",
+              "RelativeToolTip": "DoAn_Ver2\\Areas\\Admin\\Controllers\\DashboardController.cs*",
+              "ViewState": "AgIAAD4AAAAAAAAAAAAQwGEAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-05T06:13:54.022Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "D:\\DoAnTotNghiep\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Views\\Dashboard\\Index.cshtml",
+              "RelativeDocumentMoniker": "DoAn_Ver2\\Areas\\Admin\\Views\\Dashboard\\Index.cshtml",
+              "ToolTip": "D:\\DoAnTotNghiep\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Views\\Dashboard\\Index.cshtml",
+              "RelativeToolTip": "DoAn_Ver2\\Areas\\Admin\\Views\\Dashboard\\Index.cshtml",
+              "ViewState": "AgIAAOcAAAAAAAAAAAAAAPsAAAAVAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-03-05T06:14:07.997Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "RecommendationService.cs",
+              "DocumentMoniker": "D:\\DoAnTotNghiep\\DoAn_Ver2\\DoAn_Ver2\\Services\\RecommendationService.cs",
+              "RelativeDocumentMoniker": "DoAn_Ver2\\Services\\RecommendationService.cs",
+              "ToolTip": "D:\\DoAnTotNghiep\\DoAn_Ver2\\DoAn_Ver2\\Services\\RecommendationService.cs",
+              "RelativeToolTip": "DoAn_Ver2\\Services\\RecommendationService.cs",
+              "ViewState": "AgIAAKkAAAAAAAAAAAAQwK8AAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-05T05:52:18.793Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "CartController.cs",
+              "DocumentMoniker": "D:\\DoAnTotNghiep\\DoAn_Ver2\\DoAn_Ver2\\Controllers\\CartController.cs",
+              "RelativeDocumentMoniker": "DoAn_Ver2\\Controllers\\CartController.cs",
+              "ToolTip": "D:\\DoAnTotNghiep\\DoAn_Ver2\\DoAn_Ver2\\Controllers\\CartController.cs",
+              "RelativeToolTip": "DoAn_Ver2\\Controllers\\CartController.cs",
+              "ViewState": "AgIAAC8CAAAAAAAAAADwvz8CAABIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-05T05:31:23.651Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "HomeController.cs",
+              "DocumentMoniker": "D:\\DoAnTotNghiep\\DoAn_Ver2\\DoAn_Ver2\\Controllers\\HomeController.cs",
+              "RelativeDocumentMoniker": "DoAn_Ver2\\Controllers\\HomeController.cs",
+              "ToolTip": "D:\\DoAnTotNghiep\\DoAn_Ver2\\DoAn_Ver2\\Controllers\\HomeController.cs",
+              "RelativeToolTip": "DoAn_Ver2\\Controllers\\HomeController.cs",
+              "ViewState": "AgIAAH8AAAAAAAAAAAAowJ0AAAA6AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-05T05:25:30.295Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "ProductController.cs",
+              "DocumentMoniker": "D:\\DoAnTotNghiep\\DoAn_Ver2\\DoAn_Ver2\\Controllers\\ProductController.cs",
+              "RelativeDocumentMoniker": "DoAn_Ver2\\Controllers\\ProductController.cs",
+              "ToolTip": "D:\\DoAnTotNghiep\\DoAn_Ver2\\DoAn_Ver2\\Controllers\\ProductController.cs",
+              "RelativeToolTip": "DoAn_Ver2\\Controllers\\ProductController.cs",
+              "ViewState": "AgIAAMoBAAAAAAAAAAAkwNoBAACEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-05T03:48:03.14Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
+            }
+          ]
+        },
+        {
+          "DockedHeight": 147,
+          "SelectedChildIndex": -1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{0ad07096-bba9-4900-a651-0598d26f6d24}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

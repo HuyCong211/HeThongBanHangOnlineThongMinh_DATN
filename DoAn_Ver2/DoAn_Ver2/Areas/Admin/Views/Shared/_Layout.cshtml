@@ -1,0 +1,1035 @@
+﻿@using DoAn_Ver2.Models
+@using DoAn_Ver2.Infrastructure
+
+@{
+
+    // --- CẤU HÌNH PHIÊN BẢN HỆ THỐNG ---
+    string appVersion = "1.0.0 Beta";
+
+    // 1. LẤY THÔNG TIN NGƯỜI DÙNG TỪ SESSION
+    var user = Session["UserAdmin"] as NguoiDung;
+    string tenHienThi = "Khách";
+    string avtUrl = "https://ui-avatars.com/api/?name=Guest&background=random";
+    string vaiTro = "";
+    int userId = 0;
+    string currentEffect = "none";
+
+    if (user != null)
+    {
+        // Ưu tiên hiển thị Họ tên, nếu không có thì hiện Tên đăng nhập
+        tenHienThi = !string.IsNullOrEmpty(user.HoTen) ? user.HoTen : user.TenDangNhap;
+
+        // Nếu có Avatar thì dùng, không thì dùng Avatar tạo tự động theo tên
+        avtUrl = !string.IsNullOrEmpty(user.Avt) ? user.Avt : $"https://ui-avatars.com/api/?name={tenHienThi}&background=4e73df&color=fff";
+
+        vaiTro = user.VaiTro; // Admin hoặc Staff
+        userId = user.ID;
+    }
+
+    // 2. [MỚI] LẤY LOGO TỪ CẤU HÌNH CHUNG
+    // Khởi tạo UnitOfWork để truy vấn DB ngay tại View (hoặc dùng ViewBag từ Controller Base nếu có)
+    string siteLogo = "/Content/images/logo-default.png"; // Ảnh mặc định nếu chưa cấu hình
+    try
+    {
+        using (var uow = new UnitOfWork())
+        {
+            var config = uow.Repository<CauHinhChung>().GetById("SiteLogo");
+            if (config != null && !string.IsNullOrEmpty(config.Value))
+            {
+                siteLogo = config.Value;
+            }
+            var effConfig = uow.Repository<CauHinhChung>().GetById("SiteEffect");
+            if (effConfig != null) { currentEffect = effConfig.Value; }
+        }
+    }
+    catch { /* Bỏ qua lỗi nếu DB chưa sẵn sàng */ }
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - Hệ thống Quản trị</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@200;300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #f8f9fc;
+            font-size: 1rem;
+            color: #5a5c69;
+        }
+
+        /* --- SIDEBAR --- */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 100;
+            padding: 0;
+            background: linear-gradient(180deg, #34495e 0%, #1b2836 100%);
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .sidebar-sticky {
+            position: relative;
+            top: 0;
+            height: 100vh;
+            padding-top: 0;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        .sidebar-brand {
+            height: 4.375rem;
+            text-decoration: none;
+            font-size: 1.2rem;
+            font-weight: 800;
+            padding: 1.5rem 1rem;
+            text-align: left;
+            text-transform: uppercase;
+            letter-spacing: 0.05rem;
+            z-index: 1;
+            color: #fff !important;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+        /* Thêm class này hoặc sửa nếu đã có để tạo khoảng cách */
+        .sidebar-brand-icon {
+            margin-right: 15px; /* QUAN TRỌNG: Cách chữ ra 15px (bạn có thể tăng giảm số này) */
+        }
+        .sidebar-brand-icon i {
+            transform: rotate(-15deg);
+        }
+
+        .sidebar .nav-link {
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.8);
+            padding: 1rem;
+            display: block;
+            width: 100%;
+            text-align: left;
+            transition: all 0.3s;
+        }
+
+            .sidebar .nav-link i {
+                margin-right: 0.75rem;
+                width: 20px;
+                text-align: center;
+                font-size: 0.9rem;
+                color: rgba(255, 255, 255, 0.7);
+            }
+
+            .sidebar .nav-link:hover, .sidebar .nav-link.active {
+                color: #fff;
+                background-color: rgba(255, 255, 255, 0.15);
+                font-weight: 700;
+            }
+
+                .sidebar .nav-link:hover i, .sidebar .nav-link.active i {
+                    color: #fff;
+                }
+
+        .sidebar-heading {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            font-weight: 800;
+            padding: 1.5rem 1rem 0.5rem;
+            letter-spacing: 0.05em;
+        }
+
+        .sidebar-divider {
+            margin: 0 1rem 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        /* --- CONTENT --- */
+        main {
+            padding: 0;
+            background-color: #f8f9fc;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .topbar {
+            height: 4.375rem;
+            background-color: #fff !important;
+            box-shadow: 0 .15rem 1.75rem 0 rgba(58,59,69,.15);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 2rem;
+            flex-shrink: 0;
+        }
+
+        .page-content {
+            padding: 0 1.5rem;
+            flex: 1;
+        }
+
+        /* Dropdown User */
+        .dropdown-item {
+            font-size: 0.9rem;
+            padding: 0.5rem 1.5rem;
+        }
+
+            .dropdown-item:hover {
+                background-color: #f8f9fc;
+            }
+
+            .dropdown-item i {
+                margin-right: 0.5rem;
+                color: #d1d3e2;
+            }
+
+
+        /* --- FOOTER MỚI (MÀU XÁM BẠC) --- */
+        .sticky-footer {
+            background-color: #eaecf4; /* MÀU MỚI: Xám bạc (tương phản nhẹ với nền trắng) */
+            padding: 0.8rem 0;
+            margin-top: 2rem;
+            border-top: 1px solid #d1d3e2; /* Viền đậm hơn chút để rõ nét */
+            font-size: 0.85rem;
+            color: #6e707e; /* Màu chữ đậm hơn chút cho dễ đọc trên nền xám */
+            /* Ngăn footer bị co lại */
+            flex-shrink: 0;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .heart-icon {
+            color: #e74a3b;
+            font-size: 0.9rem;
+            animation: beat .8s infinite alternate;
+        }
+
+        .ver-tag {
+            background: #fff; /* Tag màu trắng cho nổi trên nền xám */
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 700;
+            color: #4e73df;
+            font-size: 0.75rem;
+            border: 1px solid #d1d3e2;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        /* Hiệu ứng trái tim đập */
+        @@keyframes beat {
+            to {
+                transform: scale(1.2);
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+                .footer-content > div {
+                    margin-bottom: 5px;
+                }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+                <div class="sidebar-sticky">
+                    <a class="sidebar-brand" href="@Url.Action("Index", "Dashboard")">
+                        <div class="sidebar-brand-icon">
+                            <img src="@siteLogo" alt="Logo"
+                                 style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; background-color: #fff; border: 2px solid #eaecf4;">
+                        </div>
+                        <div class="sidebar-brand-text">MEN STORE</div>
+                    </a>
+
+                    <ul class="nav flex-column mt-3">
+
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"].ToString() == "Dashboard" ? "active" : "")"
+                               href="@Url.Action("Index", "Dashboard")">
+                                <i class="fas fa-fw fa-tachometer-alt"></i>
+                                <span>Tổng quan</span>
+                            </a>
+                        </li>
+
+                        <hr class="sidebar-divider my-2">
+
+                        <div class="sidebar-heading">Sản phẩm & Kho</div>
+
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"].ToString() == "DanhMuc" ? "active" : "")"
+                               href="@Url.Action("Index", "DanhMuc")">
+                                <i class="fas fa-fw fa-list"></i>
+                                <span>Danh mục</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"].ToString() == "SanPham" ? "active" : "")"
+                               href="@Url.Action("Index", "SanPham")">
+                                <i class="fas fa-fw fa-tshirt"></i>
+                                <span>Sản phẩm</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"].ToString() == "MauSac" ? "active" : "")"
+                               href="@Url.Action("Index", "MauSac")">
+                                <i class="fas fa-fw fa-palette"></i>
+                                <span>Màu sắc</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"].ToString() == "KichThuoc" ? "active" : "")"
+                               href="@Url.Action("Index", "KichThuoc")">
+                                <i class="fas fa-fw fa-ruler-combined"></i>
+                                <span>Kích thước</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"].ToString() == "Kho" ? "active" : "")"
+                               href="@Url.Action("Index", "Kho")">
+                                <i class="fas fa-fw fa-warehouse"></i>
+                                <span>Quản lý Kho (SKU)</span>
+                            </a>
+                        </li>
+
+                        <hr class="sidebar-divider">
+
+                        <div class="sidebar-heading">Kinh doanh</div>
+
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"].ToString() == "DonHang" ? "active" : "")"
+                               href="@Url.Action("Index", "DonHang")">
+                                <i class="fas fa-fw fa-shopping-cart"></i>
+                                <span>Đơn hàng</span>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"].ToString() == "News" ? "active" : "")"
+                               href="@Url.Action("Index", "News")">
+                                <i class="fas fa-fw fa-newspaper"></i>
+                                <span>Tin tức (Blog)</span>
+                            </a>
+                        </li>
+
+                        @if (vaiTro == "Admin")
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link @(ViewContext.RouteData.Values["controller"].ToString() == "Marketing" ? "active" : "")"
+                                   href="@Url.Action("Index", "Marketing")">
+                                    <i class="fas fa-fw fa-tags"></i>
+                                    <span>Mã giảm giá (Voucher)</span>
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link @(ViewContext.RouteData.Values["controller"].ToString() == "Report" ? "active" : "")"
+                                   href="@Url.Action("Index", "Report")">
+                                    <i class="fas fa-fw fa-chart-line"></i>
+                                    <span>Báo cáo & Thống kê</span>
+                                </a>
+                            </li>
+
+                            <hr class="sidebar-divider">
+                            <div class="sidebar-heading">Hệ thống (Admin)</div>
+
+                            <li class="nav-item">
+                                <a class="nav-link @(ViewContext.RouteData.Values["controller"].ToString() == "User" ? "active" : "")"
+                                   href="@Url.Action("Index", "User")">
+                                    <i class="fas fa-fw fa-users"></i>
+                                    <span>Người dùng</span>
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link @(ViewContext.RouteData.Values["controller"].ToString() == "Payment" ? "active" : "")"
+                                   href="@Url.Action("Index", "Payment")">
+                                    <i class="fas fa-fw fa-money-check-alt"></i>
+                                    <span>Thanh toán</span>
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link" href="@Url.Action("Index", "Review", new { area = "Admin" })">
+                                    <i class="fas fa-fw fa-star"></i>
+                                    <span>Quản lý Đánh giá</span>
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link @(ViewContext.RouteData.Values["controller"].ToString() == "Config" ? "active" : "")"
+                                   href="@Url.Action("Index", "Config")">
+                                    <i class="fas fa-fw fa-cogs"></i>
+                                    <span>Cấu hình chung</span>
+                                </a>
+                            </li>
+                        }
+
+                        <li class="nav-item mt-3">
+                            <a class="nav-link text-warning font-weight-bold" href="@Url.Action("Logout", "Auth")">
+                                <i class="fas fa-sign-out-alt text-warning"></i>
+                                <span>Đăng xuất</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-0">
+
+                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+                    <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+                        <i class="fa fa-bars"></i>
+                    </button>
+
+                    <ul class="navbar-nav ml-auto">
+                        <div class="topbar-divider d-none d-sm-block"></div>
+
+                        <li class="nav-item dropdown no-arrow">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">
+                                    Xin chào, <b>@tenHienThi</b>
+                                </span>
+                                <img class="img-profile rounded-circle" src="@avtUrl" style="height: 2rem; width: 2rem; object-fit: cover;">
+                            </a>
+
+                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
+                                <a class="dropdown-item" href="@Url.Action("Index", "Profile")">
+                                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Hồ sơ cá nhân
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="@Url.Action("Logout", "Auth")">
+                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Đăng xuất
+                                </a>
+                            </div>
+                        </li>
+                    </ul>
+                </nav>
+
+                <div class="page-content">
+                    @RenderBody()
+                </div>
+
+                <footer class="sticky-footer">
+                    <div class="container-fluid px-4">
+                        <div class="footer-content">
+                            <div>
+                                <span class="mr-1">Copyright &copy; @DateTime.Now.Year <b>MEN STORE Management System</b>.</span>
+                                <span>Đồ án tốt nghiệp - Thực hiện bởi <b class="text-dark">Nguyễn Huy Công</b></span>
+                                <i class="fas fa-heart heart-icon mx-1" title="Made with Love"></i>
+                            </div>
+
+                            <div>
+                                <span class="ver-tag">Ver @appVersion</span>
+                            </div>
+                        </div>
+                    </div>
+                </footer>
+
+            </main>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
+    @RenderSection("scripts", required: false)
+
+
+    @*================================================
+        HIỆU ỨNG RƠI (Hoa, Tuyết, Điểm) + MƯA + PHÁO HOA
+        ================================================*@
+
+    @*<style>
+            /* 1. CẤU HÌNH CHUNG CHO CONTAINER */
+            #ultimate-effect-container {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                pointer-events: none; /* Quan trọng: click xuyên qua */
+                z-index: 9999;
+                overflow: hidden;
+            }
+
+            /* 2. CSS CHO CHẾ ĐỘ RƠI EMOJI (Hoa, Tuyết, Điểm) */
+            .falling-emoji {
+                position: absolute;
+                top: -50px;
+                user-select: none;
+                cursor: default;
+                animation-timing-function: linear, ease-in-out;
+                animation-iteration-count: infinite, infinite;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                line-height: 1;
+                will-change: transform, top, opacity;
+            }
+
+            /* Hiệu ứng rơi lả tả (cho emoji) */
+            @@keyframes emoji-fall {
+                0% {
+                    top: -10%;
+                    opacity: 0;
+                }
+
+                20% {
+                    opacity: 1;
+                }
+
+                100% {
+                    top: 110%;
+                    opacity: 0;
+                }
+            }
+
+            @@keyframes emoji-sway {
+                0% {
+                    transform: translateX(0) rotate(0deg);
+                }
+
+                50% {
+                    transform: translateX(35px) rotate(180deg);
+                }
+
+                100% {
+                    transform: translateX(0) rotate(360deg);
+                }
+            }
+
+            /* 3. CSS CHO CHẾ ĐỘ MƯA (Rain) */
+            .rain-drop {
+                position: absolute;
+                width: 2px; /* Độ mảnh của hạt mưa */
+                height: 25px; /* Độ dài hạt mưa */
+                background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(174, 194, 224, 0.8));
+                top: -50px;
+                animation: rain-fall linear infinite;
+                will-change: top, opacity;
+            }
+
+            /* Mưa rơi thẳng và nhanh */
+            @@keyframes rain-fall {
+                0% {
+                    top: -5%;
+                    opacity: 0;
+                }
+
+                10% {
+                    opacity: 1;
+                }
+
+                100% {
+                    top: 105%;
+                    opacity: 0.3;
+                }
+            }
+
+            /* 4. CSS CHO CHẾ ĐỘ PHÁO HOA (Fireworks) */
+            .firework-particle {
+                position: absolute;
+                width: 5px;
+                height: 5px;
+                border-radius: 50%;
+                box-shadow: 0 0 6px 1px currentColor; /* Tạo hiệu ứng phát sáng */
+                animation: explode 1s ease-out forwards;
+                will-change: transform, opacity;
+            }
+
+            /* Hạt pháo hoa nổ ra xung quanh */
+            @@keyframes explode {
+                0% {
+                    transform: translate(0, 0) scale(1);
+                    opacity: 1;
+                }
+
+                80% {
+                    opacity: 1;
+                }
+
+                100% {
+                    transform: translate(var(--x), var(--y)) scale(0.1);
+                    opacity: 0;
+                }
+            }
+        </style>
+
+        <div id="ultimate-effect-container"></div>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const container = document.getElementById('ultimate-effect-container');
+
+                // --- CẤU HÌNH CHÍNH Ở ĐÂY (CHỈ CẦN SỬA DÒNG NÀY) ---
+                // Các lựa chọn: 'sakura' | 'snow' | 'autumn' | 'grades' | 'rain' | 'fireworks'
+                const activeMode = '@currentEffect';
+
+                // Nếu admin chọn 'none' thì không chạy gì cả
+                if (activeMode === 'none' || !activeMode) return;
+
+
+                // Cấu hình chi tiết cho từng chế độ (Có thể tùy chỉnh sâu hơn nếu muốn)
+                const modesConfig = {
+                    // Chế độ rơi Emoji (Hoa, Tuyết, Lá...)
+                    emojiBase: {
+                        quantity: 100, minSize: 15, maxSize: 25, minSpeed: 7, maxSpeed: 15,
+                        isGrades: false // Mặc định không phải là điểm số
+                    },
+                    // Cấu hình riêng cho từng loại emoji
+                    sakura: { icons: ['🌸', '🌺'], useBase: 'emojiBase' },
+                    autumn: { icons: ['🍁', '🍂'], useBase: 'emojiBase' },
+                    snow: {
+                        icons: ['❄️', '❅', '❆'], useBase: 'emojiBase',
+                        styleOverride: { color: 'white', textShadow: '0 0 5px rgba(255,255,255,0.8)' }
+                    },
+                    grades: {
+                        icons: ['A', 'B+', 'A', 'B+'], useBase: 'emojiBase',
+                        isGrades: true, // Đánh dấu là điểm số
+                        styleOverride: { color: '#e74a3b', fontWeight: '900', fontFamily: 'Arial, sans-serif' } // Màu đỏ
+                    },
+
+                    // Chế độ Mưa
+                    rain: {
+                        quantity: 100, // Mưa cần nhiều hạt hơn
+                        minSpeed: 0.8, maxSpeed: 1.5 // Mưa rơi rất nhanh
+                    },
+
+                    // Chế độ Pháo hoa
+                    fireworks: {
+                        frequency: 300, // Bao lâu bắn 1 quả (ms)
+                        particlesPerExplosion: 100 // Số hạt mỗi quả
+                    }
+                };
+
+
+                // --- HÀM KHỞI TẠO CHÍNH ---
+                function initEffect() {
+                    container.innerHTML = ''; // Xóa hiệu ứng cũ nếu có
+
+                    if (modesConfig[activeMode]?.useBase === 'emojiBase') {
+                        // Chế độ rơi Emoji (Sakura, Snow, Grades...)
+                        initFallingEmojis(activeMode);
+                    } else if (activeMode === 'rain') {
+                        // Chế độ Mưa
+                        initRain();
+                    } else if (activeMode === 'fireworks') {
+                        // Chế độ Pháo hoa
+                        initFireworks();
+                    } else {
+                        console.warn('Chế độ hiệu ứng không hợp lệ:', activeMode);
+                    }
+                }
+
+                // ======================================================
+                // 1. XỬ LÝ CHẾ ĐỘ RƠI EMOJI & ĐIỂM SỐ
+                // ======================================================
+                function initFallingEmojis(modeKey) {
+                    const config = { ...modesConfig.emojiBase, ...modesConfig[modeKey] };
+                    const iconList = config.icons;
+
+                    for (let i = 0; i < config.quantity; i++) {
+                        const item = document.createElement('div');
+                        item.classList.add('falling-emoji');
+
+                        // Random icon từ danh sách
+                        item.textContent = iconList[Math.floor(Math.random() * iconList.length)];
+
+                        // Áp dụng style đặc biệt (nếu có - VD: tuyết trắng, điểm đỏ)
+                        if (config.styleOverride) {
+                            Object.assign(item.style, config.styleOverride);
+                        }
+
+                        // Random vị trí và kích thước
+                        item.style.left = Math.random() * 100 + 'vw';
+                        const size = Math.random() * (config.maxSize - config.minSize) + config.minSize;
+                        item.style.fontSize = size + 'px';
+                        item.style.opacity = (Math.random() * 0.4 + 0.6).toFixed(2);
+
+                        // Random tốc độ
+                        const duration = Math.random() * (config.maxSpeed - config.minSpeed) + config.minSpeed;
+                        // Gán animation: tên | thời gian | kiểu chạy | delay | lặp lại
+                        item.style.animation = `emoji-fall ${duration}s linear -${Math.random() * 5}s infinite, emoji-sway ${duration * 1.2}s ease-in-out -${Math.random() * 5}s infinite alternate`;
+
+                        container.appendChild(item);
+                    }
+                }
+
+                // ======================================================
+                // 2. XỬ LÝ CHẾ ĐỘ MƯA
+                // ======================================================
+                function initRain() {
+                    const config = modesConfig.rain;
+                    for (let i = 0; i < config.quantity; i++) {
+                        const drop = document.createElement('div');
+                        drop.classList.add('rain-drop');
+
+                        drop.style.left = Math.random() * 100 + 'vw';
+                        // Random độ dài ngắn của hạt mưa một chút
+                        drop.style.height = (Math.random() * 10 + 20) + 'px';
+
+                        const duration = Math.random() * (config.maxSpeed - config.minSpeed) + config.minSpeed;
+                        // Delay âm để mưa xuất hiện ngay lập tức khi load
+                        drop.style.animation = `rain-fall ${duration}s linear -${Math.random() * 2}s infinite`;
+
+                        container.appendChild(drop);
+                    }
+                }
+
+                // ======================================================
+                // 3. XỬ LÝ CHẾ ĐỘ PHÁO HOA
+                // ======================================================
+                function initFireworks() {
+                    const config = modesConfig.fireworks;
+
+                    // Hàm tạo màu ngẫu nhiên rực rỡ
+                    function getRandomColor() {
+                        const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#00ffff', '#ff00ff', '#ffba08', '#fb5607'];
+                        return colors[Math.floor(Math.random() * colors.length)];
+                    }
+
+                    // Hàm bắn 1 quả pháo
+                    function launchFirework() {
+                        // Vị trí nổ ngẫu nhiên trên màn hình (tránh sát mép quá)
+                        const startX = Math.random() * 80 + 10; // 10% -> 90% width
+                        const startY = Math.random() * 60 + 10;  // 10% -> 70% height (nổ ở phía trên)
+                        const color = getRandomColor();
+
+                        for (let i = 0; i < config.particlesPerExplosion; i++) {
+                            const particle = document.createElement('div');
+                            particle.classList.add('firework-particle');
+                            particle.style.left = startX + 'vw';
+                            particle.style.top = startY + 'vh';
+                            particle.style.color = color; // Màu cho box-shadow
+
+                            // Tính toán góc và lực bắn ra xung quanh (dùng hình học)
+                            const angle = (Math.random() * 360) * (Math.PI / 180); // Góc ngẫu nhiên
+                            const force = Math.random() * 150 + 50; // Lực bay xa (50px - 200px)
+
+                            // Set biến CSS để animation sử dụng
+                            particle.style.setProperty('--x', Math.cos(angle) * force + 'px');
+                            particle.style.setProperty('--y', Math.sin(angle) * force + 'px');
+
+                            container.appendChild(particle);
+
+                            // Tự hủy hạt sau khi nổ xong để nhẹ máy
+                            setTimeout(() => {
+                                particle.remove();
+                            }, 1100);
+                        }
+                    }
+
+                    // Bắn quả đầu tiên ngay lập tức
+                    launchFirework();
+                    // Hẹn giờ bắn các quả tiếp theo
+                    setInterval(launchFirework, config.frequency);
+                }
+
+                // CHẠY ỨNG DỤNG
+                initEffect();
+            });
+        </script>*@
+
+    <style>
+        /* 1. CẤU HÌNH CHUNG */
+        #ultimate-effect-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 9999;
+            overflow: hidden;
+            /* Nền tối nhẹ để pháo hoa nổi bật hơn nếu muốn (tuỳ chọn) */
+            /* background: rgba(0,0,0,0.1); */
+        }
+        /* Canvas phải full màn hình */
+        canvas {
+            display: block;
+        }
+
+        /* CSS CHO EMOJI & MƯA (GIỮ NGUYÊN ĐỂ PHÒNG KHI ADMIN ĐỔI LẠI) */
+        .falling-emoji {
+            position: absolute;
+            top: -50px;
+            user-select: none;
+            cursor: default;
+            animation: emoji-fall linear infinite, emoji-sway ease-in-out infinite alternate;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            will-change: transform, top, opacity;
+        }
+
+        @@keyframes emoji-fall {
+            0% {
+                top: -10%;
+                opacity: 0;
+            }
+
+            20% {
+                opacity: 1;
+            }
+
+            100% {
+                top: 110%;
+                opacity: 0;
+            }
+        }
+
+        @@keyframes emoji-sway {
+            0% {
+                transform: translateX(0) rotate(0deg);
+            }
+
+            100% {
+                transform: translateX(35px) rotate(360deg);
+            }
+        }
+
+        .rain-drop {
+            position: absolute;
+            width: 2px;
+            height: 25px;
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(174, 194, 224, 0.8));
+            top: -50px;
+            animation: rain-fall linear infinite;
+            will-change: top, opacity;
+        }
+
+        @@keyframes rain-fall {
+            0% {
+                top: -5%;
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            100% {
+                top: 105%;
+                opacity: 0.3;
+            }
+        }
+    </style>
+
+    <div id="ultimate-effect-container"></div>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const container = document.getElementById('ultimate-effect-container');
+        const activeMode = '@currentEffect';
+
+        if (activeMode === 'none' || !activeMode) return;
+
+        // CẤU HÌNH CÁC CHẾ ĐỘ CŨ
+        const modesConfig = {
+            emojiBase: { quantity: 80, minSize: 15, maxSize: 25, minSpeed: 7, maxSpeed: 15 },
+            sakura: { icons: ['🌸', '🌺'], useBase: 'emojiBase' },
+            autumn: { icons: ['🍁', '🍂'], useBase: 'emojiBase' },
+            snow: { icons: ['❄️', '❅', '❆'], useBase: 'emojiBase', styleOverride: { color: 'white', textShadow: '0 0 5px rgba(255,255,255,0.8)' } },
+            grades: { icons: ['A', 'B+', 'A', 'B+'], useBase: 'emojiBase', isGrades: true, styleOverride: { color: '#e74a3b', fontWeight: '900', fontFamily: 'Arial, sans-serif' } },
+            rain: { quantity: 100, minSpeed: 0.8, maxSpeed: 1.5 }
+        };
+
+        // --- BỘ ĐIỀU KHIỂN CHÍNH ---
+        function initEffect() {
+            container.innerHTML = '';
+            // Nếu chọn pháo hoa -> Chạy chế độ Canvas đặc biệt
+            if (activeMode === 'fireworks') {
+                initCanvasFireworksHighEnd();
+            }
+            // Các chế độ cũ (dùng thẻ div)
+            else if (modesConfig[activeMode]?.useBase === 'emojiBase') { initFallingEmojis(activeMode); }
+            else if (activeMode === 'rain') { initRain(); }
+        }
+
+        // ==================================================================================
+        //  CANVAS FIREWORKS HIGH-END ENGINE (CỖ MÁY PHÁO HOA CAO CẤP)
+        // ==================================================================================
+        function initCanvasFireworksHighEnd() {
+            const canvas = document.createElement('canvas');
+            container.appendChild(canvas);
+            const ctx = canvas.getContext('2d');
+            let cw = window.innerWidth;
+            let ch = window.innerHeight;
+            canvas.width = cw; canvas.height = ch;
+
+            window.addEventListener('resize', () => { cw = window.innerWidth; ch = window.innerHeight; canvas.width = cw; canvas.height = ch; });
+
+            const particles = []; // Chứa các hạt pháo đang nổ
+            let lastLaunchTime = 0;
+
+            // === CẤU HÌNH PHÁO HOA TẠI ĐÂY ===
+            const FW_CONFIG = {
+                frequency: 1200,       // Bao lâu bắn 1 quả (ms) - Tăng lên để nổ thưa hơn, sang hơn
+                particleCount: 180,    // Số hạt mỗi quả (Nhiều hạt = dày đặc)
+                explodePower: 15,      // Lực nổ bung ra (Tán rộng)
+                friction: 0.96,        // Ma sát không khí (Càng gần 1 càng bay xa, càng nhỏ càng nhanh dừng lại -> tạo hiệu ứng chậm)
+                gravity: 0.08,         // Trọng lực kéo hạt rơi xuống
+                trailLength: 0.15,     // Độ dài đuôi (0.1 = dài, 0.5 = ngắn, 1 = không đuôi) - Kỹ thuật làm mờ màn hình
+                colors: ['#ff0040', '#00ffff', '#ffff00', '#ff8000', '#00ff80', '#ffffff', '#da00ff'] // Bảng màu sang trọng
+            };
+
+            function random(min, max) { return Math.random() * (max - min) + min; }
+
+            // --- LỚP ĐỐI TƯỢNG HẠT PHÁO (PARTICLE) ---
+            class Particle {
+                constructor(x, y, hue) {
+                    this.x = x; this.y = y;
+                    // Tạo lịch sử toạ độ để vẽ đuôi
+                    this.coordinates = [];
+                    this.coordinateCount = 6; // Số đốt đuôi
+                    while (this.coordinateCount--) { this.coordinates.push([this.x, this.y]); }
+
+                    // Vật lý vụ nổ
+                    this.angle = random(0, Math.PI * 2); // Góc ngẫu nhiên 360 độ
+                    this.speed = random(1, FW_CONFIG.explodePower); // Tốc độ bay
+
+                    // Tính toán vận tốc theo trục X, Y
+                    this.vx = Math.cos(this.angle) * this.speed;
+                    this.vy = Math.sin(this.angle) * this.speed;
+
+                    // Màu sắc và độ sáng
+                    this.hue = hue;
+                    this.brightness = random(60, 90); // Độ sáng (lấp lánh)
+                    this.alpha = 1; // Độ trong suốt bắt đầu
+                    this.decay = random(0.008, 0.015); // Tốc độ mờ dần (Càng nhỏ càng lâu tắt -> nổ chậm)
+                }
+
+                update(index) {
+                    // Xoá đốt đuôi cũ nhất, thêm toạ độ hiện tại vào đầu
+                    this.coordinates.pop();
+                    this.coordinates.unshift([this.x, this.y]);
+
+                    // Áp dụng vật lý
+                    this.vx *= FW_CONFIG.friction; // Chậm dần do ma sát
+                    this.vy *= FW_CONFIG.friction;
+                    this.vy += FW_CONFIG.gravity; // Rơi xuống do trọng lực
+                    this.x += this.vx;
+                    this.y += this.vy;
+
+                    // Mờ dần
+                    this.alpha -= this.decay;
+                    // Nếu mờ hết thì xoá khỏi mảng
+                    if (this.alpha <= 0) { particles.splice(index, 1); }
+                }
+
+                draw() {
+                    ctx.beginPath();
+                    // Vẽ đường nối từ đốt đuôi cuối cùng đến vị trí hiện tại
+                    ctx.moveTo(this.coordinates[this.coordinates.length - 1][0], this.coordinates[this.coordinates.length - 1][1]);
+                    ctx.lineTo(this.x, this.y);
+                    // Màu HSL: Hue, Saturation, Lightness, Alpha
+                    ctx.strokeStyle = `hsla(${this.hue}, 100%, ${this.brightness}%, ${this.alpha})`;
+                    ctx.lineWidth = 2; // Độ dày đuôi
+                    ctx.lineCap = 'round'; // Đầu cọ tròn
+                    ctx.stroke();
+                }
+            }
+
+            // --- HÀM TẠO VỤ NỔ ---
+            function explode(x, y) {
+                let count = FW_CONFIG.particleCount;
+                // Chọn màu chủ đạo cho quả pháo này
+                const baseColorHex = FW_CONFIG.colors[Math.floor(random(0, FW_CONFIG.colors.length))];
+                // Chuyển đổi màu hex sang HSL hue (ước lượng để tạo dải màu tương đồng)
+                let baseHue = 0;
+                if (baseColorHex === '#ff0040') baseHue = 345;
+                else if (baseColorHex === '#00ffff') baseHue = 180;
+                else if (baseColorHex === '#ffff00') baseHue = 60;
+                else if (baseColorHex === '#da00ff') baseHue = 280;
+                else baseHue = random(0, 360);
+
+                while (count--) {
+                    // Tạo các hạt với màu sắc biến thiên nhẹ quanh màu chủ đạo cho tự nhiên
+                    particles.push(new Particle(x, y, random(baseHue - 20, baseHue + 20)));
+                }
+            }
+
+            // --- VÒNG LẶP HOẠT HÌNH CHÍNH (GAME LOOP) ---
+            function animate(currentTime) {
+                requestAnimationFrame(animate);
+
+                // KỸ THUẬT TẠO ĐUÔI: Thay vì xoá trắng màn hình, ta phủ lên một lớp màu đen bán trong suốt.
+                // Điều này làm cho frame cũ mờ đi từ từ, tạo ra hiệu ứng vệt sáng kéo dài.
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.fillStyle = `rgba(0, 0, 0, ${FW_CONFIG.trailLength})`;
+                ctx.fillRect(0, 0, cw, ch);
+
+                // KỸ THUẬT PHÁT SÁNG: 'lighter' làm cho các pixel chồng lên nhau sáng rực lên.
+                ctx.globalCompositeOperation = 'lighter';
+
+                // Cập nhật và vẽ tất cả các hạt
+                let i = particles.length;
+                while (i--) {
+                    particles[i].draw();
+                    particles[i].update(i);
+                }
+
+                // Tự động bắn pháo theo thời gian
+                if (currentTime - lastLaunchTime > FW_CONFIG.frequency) {
+                    // Nổ ở vị trí ngẫu nhiên trong vùng an toàn của màn hình (tránh sát mép)
+                    explode(random(cw * 0.1, cw * 0.9), random(ch * 0.1, ch * 0.8));
+                    lastLaunchTime = currentTime;
+                }
+            }
+
+            // Bắt đầu vòng lặp
+            animate();
+        }
+
+
+        // --- CÁC HÀM CŨ (GIỮ LẠI ĐỂ KHÔNG LỖI KHI CHỌN HIỆU ỨNG KHÁC) ---
+        function initFallingEmojis(modeKey) {
+            const config = { ...modesConfig.emojiBase, ...modesConfig[modeKey] }; const iconList = config.icons;
+            for (let i = 0; i < config.quantity; i++) {
+                const item = document.createElement('div'); item.classList.add('falling-emoji');
+                item.textContent = iconList[Math.floor(Math.random() * iconList.length)];
+                if (config.styleOverride) Object.assign(item.style, config.styleOverride);
+                item.style.left = Math.random() * 100 + 'vw'; item.style.fontSize = Math.random() * (config.maxSize - config.minSize) + config.minSize + 'px';
+                item.style.opacity = (Math.random() * 0.4 + 0.6).toFixed(2); item.style.animationDuration = Math.random() * (config.maxSpeed - config.minSpeed) + config.minSpeed + 's';
+                container.appendChild(item);
+            }
+        }
+        function initRain() {
+            const config = modesConfig.rain;
+            for (let i = 0; i < config.quantity; i++) {
+                const drop = document.createElement('div'); drop.classList.add('rain-drop');
+                drop.style.left = Math.random() * 100 + 'vw'; drop.style.height = (Math.random() * 10 + 20) + 'px';
+                drop.style.animationDuration = Math.random() * (config.maxSpeed - config.minSpeed) + config.minSpeed + 's';
+                container.appendChild(drop);
+            }
+        }
+
+        initEffect();
+    });
+    </script>
+
+</body>
+</html>

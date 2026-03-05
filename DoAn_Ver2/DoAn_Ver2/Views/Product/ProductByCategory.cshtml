@@ -1,0 +1,315 @@
+﻿@using DoAn_Ver2.Models
+@model DoAn_Ver2.Models.ViewModel.ProductListViewModel
+
+@{
+    // Sửa lỗi ở đây: Dùng tên đầy đủ DoAn_Ver2.Models.DanhMuc để tránh lỗi CS0246
+    var currentCat = ViewBag.CurrentCategory as DoAn_Ver2.Models.DanhMuc;
+
+    string pageTitle = currentCat != null ? currentCat.TenDanhMuc : "Sản phẩm";
+    ViewBag.Title = pageTitle;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+<div class="bg-light py-4 mb-4">
+    <div class="container">
+        <h3 class="font-weight-bold text-uppercase m-0">@pageTitle</h3>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb bg-transparent p-0 m-0 small">
+                <li class="breadcrumb-item"><a href="/" class="text-muted">Trang chủ</a></li>
+                <li class="breadcrumb-item active text-dark">@pageTitle</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+
+@{
+    string formAction = ViewBag.Keyword != null ? Url.Action("Search", "Product") : Url.Action("ProductByCategory", "Product");
+}
+<form id="filterForm" action="@formAction" method="get">
+    @if (ViewBag.Keyword != null)
+    {
+        <input type="hidden" name="keyword" value="@ViewBag.Keyword" />
+    }
+    <input type="hidden" name="id" value="@Model.CurrentCateID" />
+    <input type="hidden" name="page" id="pageInput" value="@Model.PageNumber" />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-3">
+
+                <div class="card shadow-sm border-0 mb-4">
+                    @{ Html.RenderAction("_SidebarCategoryPartial", "Product", new { categoryId = Model.CurrentCateID }); }
+                </div>
+
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-white font-weight-bold text-uppercase">Khoảng giá</div>
+                    <div class="card-body">
+                        <div id="price-slider" class="mb-3"></div>
+                        <div class="d-flex justify-content-between font-weight-bold text-danger small">
+                            <span id="price-min-show">100.000đ</span>
+                            <span id="price-max-show">2.000.000đ</span>
+                        </div>
+                        <input type="hidden" name="minPrice" id="minPrice" value="@Model.MinPrice" />
+                        <input type="hidden" name="maxPrice" id="maxPrice" value="@Model.MaxPrice" />
+
+                        <button type="submit" class="btn btn-dark btn-sm btn-block mt-3">ÁP DỤNG</button>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-white font-weight-bold text-uppercase">Màu sắc</div>
+                    <div class="card-body">
+                        <div class="d-flex flex-wrap">
+                            @if (Model.Colors != null)
+                            {
+                                foreach (var c in Model.Colors)
+                                {
+                                    // Kiểm tra xem màu này có đang được chọn không
+                                    bool isActive = Model.SelectedColors != null && Model.SelectedColors.Contains(c.ID);
+
+                                    <label class="color-filter-item @(isActive ? "active" : "")" style="background-color: @c.MaHex" title="@c.TenMau">
+                                        <input type="checkbox" name="colorIds" value="@c.ID" @(isActive ? "checked" : "") onchange="this.form.submit()" hidden>
+                                        <i class="fas fa-check text-white check-icon" style="text-shadow: 0 0 3px #000;"></i>
+                                    </label>
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-white font-weight-bold text-uppercase">Kích thước</div>
+                    <div class="card-body">
+                        <div class="d-flex flex-wrap">
+                            @if (Model.Sizes != null)
+                            {
+                                foreach (var s in Model.Sizes)
+                                {
+                                    bool isActive = Model.SelectedSizes != null && Model.SelectedSizes.Contains(s.ID);
+
+                                    <label class="size-filter-item @(isActive ? "active" : "")">
+                                        <input type="checkbox" name="sizeIds" value="@s.ID" @(isActive ? "checked" : "") onchange="this.form.submit()" hidden>
+                                        @s.TenSize
+                                    </label>
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <a href="@Url.Action("ProductByCategory", new { id = Model.CurrentCateID })" class="btn btn-outline-danger btn-sm btn-block mb-4">
+                    <i class="fas fa-sync-alt"></i> Xóa bộ lọc
+                </a>
+
+            </div>
+
+            <div class="col-lg-9">
+                @* --- BẮT ĐẦU ĐOẠN CODE HIỂN THỊ ẢNH TÌM KIẾM --- *@
+                @if (ViewBag.SearchImage != null)
+                {
+                    <div class="card mb-4 shadow-sm border-0">
+                        <div class="card-body text-center bg-light">
+                            <h6 class="text-muted font-weight-bold mb-3">
+                                <i class="fas fa-camera mr-2"></i>Kết quả tìm kiếm cho hình ảnh:
+                            </h6>
+                            <div class="d-inline-block p-2 bg-white rounded shadow-sm border">
+                                <img src="@ViewBag.SearchImage" class="img-fluid" style="max-height: 100px; object-fit: contain;" />
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                @if (ViewBag.Keyword != null && !string.IsNullOrEmpty(ViewBag.Keyword.ToString()))
+                {
+                    <div class="alert alert-info border-0 shadow-sm mb-4">
+                        <i class="fas fa-info-circle mr-2"></i> @Html.Raw(ViewBag.Keyword)
+                    </div>
+                }
+                @* --- KẾT THÚC ĐOẠN CODE --- *@
+                <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom bg-white p-2 rounded shadow-sm">
+                    <div class="text-muted small">
+                        Tìm thấy <strong>@Model.Products.Count()</strong> sản phẩm
+                    </div>
+                    <div class="form-inline">
+                        <div class="form-group mb-0 mr-3">
+                            <label class="mr-2 small font-weight-bold">Sắp xếp:</label>
+                            <select name="sort" class="form-control form-control-sm border-0 bg-light" onchange="this.form.submit()">
+                                <option value="new" @(Model.SortBy == "new" ? "selected" : "")>Mới nhất</option>
+                                <option value="price_asc" @(Model.SortBy == "price_asc" ? "selected" : "")>Giá tăng dần</option>
+                                <option value="price_desc" @(Model.SortBy == "price_desc" ? "selected" : "")>Giá giảm dần</option>
+                                <option value="name" @(Model.SortBy == "name" ? "selected" : "")>Tên A-Z</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group mb-0">
+                            <label class="mr-2 small font-weight-bold">Hiển thị:</label>
+                            <select name="pageSize" class="form-control form-control-sm border-0 bg-light" onchange="this.form.submit()">
+                                <option value="8" @(Model.PageSize == 8 ? "selected" : "")>8</option>
+                                <option value="12" @(Model.PageSize == 12 ? "selected" : "")>12</option>
+                                <option value="16" @(Model.PageSize == 16 ? "selected" : "")>16</option>
+                                <option value="24" @(Model.PageSize == 24 ? "selected" : "")>24</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    @if (Model.Products != null && Model.Products.Any())
+                    {
+                        foreach (var item in Model.Products)
+                        {
+                            @Html.Partial("_ProductBoxPartial", item)
+                        }
+                    }
+                    else
+                    {
+                        <div class="col-12 text-center py-5">
+                            <div class="text-muted mb-3" style="font-size: 50px;"><i class="fas fa-box-open"></i></div>
+                            <h5>Không tìm thấy sản phẩm nào!</h5>
+                            <p class="text-muted">Hãy thử thay đổi bộ lọc hoặc tìm kiếm từ khóa khác.</p>
+                        </div>
+                    }
+                </div>
+
+                @if (Model.TotalPages > 1)
+                {
+                    <nav class="mt-5">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item @(Model.PageNumber <= 1 ? "disabled" : "")">
+                                <a class="page-link" href="javascript:goToPage(@(Model.PageNumber - 1))" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+
+                            @for (int i = 1; i <= Model.TotalPages; i++)
+                            {
+                                <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                                    <a class="page-link" href="javascript:goToPage(@i)">@i</a>
+                                </li>
+                            }
+
+                            <li class="page-item @(Model.PageNumber >= Model.TotalPages ? "disabled" : "")">
+                                <a class="page-link" href="javascript:goToPage(@(Model.PageNumber + 1))" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                }
+            </div>
+        </div>
+    </div>
+</form>
+@Html.Action("_RecentlyViewedFloat", "Product")
+@section scripts {
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+
+    <script>
+        // Hàm chuyển trang: Gán số trang vào input hidden rồi submit form
+        function goToPage(p) {
+            if (p < 1) return;
+            $('#pageInput').val(p);
+            $('#filterForm').submit();
+        }
+
+        $(function () {
+            // Khởi tạo Slider giá
+            var minP = @(Model.MinPrice ?? 100000);
+            var maxP = @(Model.MaxPrice ?? 2000000); // Mặc định max 2tr nếu chưa chọn
+
+            $("#price-slider").slider({
+                range: true,
+                min: 0,
+                max: 5000000, // Giá trần của slider (5 triệu)
+                values: [minP, maxP],
+                step: 50000, // Bước nhảy 50k
+                slide: function (event, ui) {
+                    // Cập nhật text hiển thị
+                    $("#price-min-show").text(new Intl.NumberFormat('vi-VN').format(ui.values[0]) + 'đ');
+                    $("#price-max-show").text(new Intl.NumberFormat('vi-VN').format(ui.values[1]) + 'đ');
+
+                    // Cập nhật giá trị vào input hidden để gửi đi
+                    $("#minPrice").val(ui.values[0]);
+                    $("#maxPrice").val(ui.values[1]);
+                }
+            });
+
+            // Set text ban đầu
+            $("#price-min-show").text(new Intl.NumberFormat('vi-VN').format(minP) + 'đ');
+            $("#price-max-show").text(new Intl.NumberFormat('vi-VN').format(maxP) + 'đ');
+        });
+    </script>
+}
+
+<style>
+    /* Style cho ô màu */
+    .color-filter-item {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        margin-right: 8px;
+        margin-bottom: 8px;
+        cursor: pointer;
+        border: 1px solid #ddd;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: 0.2s;
+    }
+
+        .color-filter-item .check-icon {
+            display: none;
+            font-size: 12px;
+        }
+
+        .color-filter-item:hover {
+            transform: scale(1.1);
+            border-color: #999;
+        }
+
+        .color-filter-item.active {
+            border: 2px solid #333;
+            box-shadow: 0 0 0 2px #fff inset;
+        }
+
+            .color-filter-item.active .check-icon {
+                display: block;
+            }
+
+    /* Style cho ô size */
+    .size-filter-item {
+        border: 1px solid #ddd;
+        padding: 5px 12px;
+        margin-right: 6px;
+        margin-bottom: 6px;
+        cursor: pointer;
+        font-size: 13px;
+        background: #fff;
+        transition: 0.2s;
+        font-weight: 500;
+    }
+
+        .size-filter-item:hover {
+            border-color: #333;
+        }
+
+        .size-filter-item.active {
+            background: #333;
+            color: #fff;
+            border-color: #333;
+        }
+
+    /* Pagination Style */
+    .page-item.active .page-link {
+        background-color: #333;
+        border-color: #333;
+        color: #fff;
+    }
+
+    .page-link {
+        color: #333;
+    }
+</style>

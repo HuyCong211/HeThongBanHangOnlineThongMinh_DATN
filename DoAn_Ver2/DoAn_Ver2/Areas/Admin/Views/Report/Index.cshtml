@@ -1,0 +1,380 @@
+﻿@{
+    ViewBag.Title = "Báo cáo thống kê";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    /* Tổng tiền */
+    .total-revenue-section {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 18px;
+        font-weight: 600;
+        color: #28a745; /* Màu xanh lá */
+    }
+
+        .total-revenue-section i {
+            color: #d4ac0d; /* Màu vàng icon túi tiền */
+            font-size: 24px;
+            margin-right: 5px;
+        }
+
+    /* Bộ lọc */
+    .filter-bar {
+        background: #fff;
+        padding: 15px 20px;
+        border-radius: 5px;
+        border: 1px solid #e3e6f0;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .filter-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .filter-label {
+        font-weight: bold;
+        color: #333;
+    }
+
+    .form-control-custom {
+        border: 1px solid #d1d3e2;
+        border-radius: 4px;
+        padding: 5px 10px;
+        font-size: 14px;
+    }
+
+    /* Nút bấm */
+    .btn-blue {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 6px 15px;
+        border-radius: 4px;
+    }
+
+        .btn-blue:hover {
+            background-color: #0056b3;
+        }
+
+    .chart-types {
+        margin-top: 15px;
+    }
+
+    .btn-chart {
+        border: 1px solid #ddd;
+        background: #fff;
+        color: #555;
+        padding: 5px 12px;
+        margin-right: 5px;
+        font-size: 13px;
+        border-radius: 4px;
+    }
+
+        .btn-chart.active {
+            border-color: #1cc88a;
+            color: #1cc88a;
+            background: #eefff7;
+            font-weight: bold;
+        }
+
+        .btn-chart i {
+            margin-right: 5px;
+        }
+</style>
+
+<div class="container-fluid">
+    <h1 class="h3 mb-3 text-gray-800">Thống kê hệ thống</h1>
+
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body text-center">
+                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Đơn hàng</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">@ViewBag.TotalOrders</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body text-center">
+                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Hoàn thành</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">@ViewBag.SuccessOrders</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body text-center">
+                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Chưa hoàn thành</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">@ViewBag.PendingOrders</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card border-left-danger shadow h-100 py-2">
+                <div class="card-body text-center">
+                    <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Bị hủy</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">@ViewBag.CancelOrders</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-body">
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="m-0 font-weight-bold text-primary">Bộ lọc & Thao tác</h6>
+                <button class="btn btn-sm btn-success" onclick="location.reload()">Cập nhật thống kê</button>
+            </div>
+
+            <div class="filter-bar">
+                <div class="filter-item">
+                    <span class="filter-label">Chế độ:</span>
+                    <select id="selectMode" class="form-control-custom" onchange="ChangeMode()">
+                        <option value="DAY">Theo Ngày</option>
+                        <option value="MONTH">Theo Tháng</option>
+                        <option value="YEAR">Theo Năm</option>
+                    </select>
+                </div>
+
+                <div id="area-day" class="d-flex align-items-center gap-2">
+                    <div class="filter-item">
+                        <span class="filter-label">Từ:</span>
+                        <input type="date" id="fromDate" class="form-control-custom" value="@DateTime.Now.AddDays(-7).ToString("yyyy-MM-dd")" />
+                    </div>
+                    <div class="filter-item ml-3">
+                        <span class="filter-label">Đến:</span>
+                        <input type="date" id="toDate" class="form-control-custom" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                    </div>
+                </div>
+
+                <div id="area-month" class="d-flex align-items-center gap-2" style="display:none !important;">
+                    <div class="filter-item">
+                        <span class="filter-label">Tháng:</span>
+                        <select id="selectMonth" class="form-control-custom">
+                            @for (int i = 1; i <= 12; i++)
+                            {
+                                <option value="@i" @(DateTime.Now.Month == i ? "selected" : "")>Tháng @i</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="filter-item ml-3">
+                        <span class="filter-label">Năm:</span>
+                        <input type="number" id="inputYearMonth" class="form-control-custom" value="@DateTime.Now.Year" style="width: 80px;" />
+                    </div>
+                </div>
+
+                <div id="area-year" class="d-flex align-items-center gap-2" style="display:none !important;">
+                    <div class="filter-item">
+                        <span class="filter-label">Năm:</span>
+                        <input type="number" id="inputYearOnly" class="form-control-custom" value="@DateTime.Now.Year" style="width: 80px;" />
+                    </div>
+                </div>
+
+                <button class="btn-blue ml-2" onclick="LoadRevenueChart()">
+                    <i class="fas fa-search"></i> Xem doanh thu
+                </button>
+            </div>
+
+            <div class="chart-types">
+                <span class="font-weight-bold mr-2">Chọn loại biểu đồ:</span>
+                <button class="btn-chart" onclick="LoadProductChart('TOP_VIEW', this)"><i class="fas fa-eye"></i> Top Lượt xem</button>
+                <button class="btn-chart" onclick="LoadProductChart('TOP_SOLD', this)"><i class="fas fa-shopping-cart"></i> Top Mua hàng</button>
+                <button class="btn-chart" onclick="LoadProductChart('NO_SALE', this)"><i class="fas fa-box-open"></i> SP Không bán được</button>
+                <button class="btn-chart text-danger border-danger" onclick="LoadProductChart('TOP_CANCEL', this)"><i class="fas fa-times-circle"></i> SP Bị hủy</button>
+
+                <div class="float-right">
+                    <button class="btn btn-sm btn-success" onclick="ExportRevenue()"><i class="fas fa-file-excel"></i> Export Doanh thu</button>
+                    <button class="btn btn-sm btn-info" onclick="ExportProduct()"><i class="fas fa-file-excel"></i> Export Sản phẩm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary" id="chartTitle">Biểu đồ thống kê</h6>
+        </div>
+        <div class="card-body">
+            <div style="height: 400px;">
+                <canvas id="myChart"></canvas>
+            </div>
+
+            <div id="revenueTotalSection" class="total-revenue-section" style="display:none;">
+                <i class="fas fa-money-bag"></i>
+                <span id="txtTotalLabel">Tổng doanh thu:</span>
+                <span id="txtTotalValue">0 đ</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+
+    <script>
+        var mainChart = null;
+        var currentProductType = 'TOP_SOLD';
+
+        $(document).ready(function () {
+            LoadRevenueChart(); // Load mặc định
+        });
+
+        // Đổi chế độ lọc
+        function ChangeMode() {
+            var mode = $('#selectMode').val();
+            $('#area-day, #area-month, #area-year').hide().removeClass('d-flex');
+
+            if (mode == 'DAY') $('#area-day').show().addClass('d-flex');
+            if (mode == 'MONTH') $('#area-month').show().addClass('d-flex');
+            if (mode == 'YEAR') $('#area-year').show().addClass('d-flex');
+        }
+
+        // LOAD DOANH THU
+        function LoadRevenueChart() {
+            var mode = $('#selectMode').val();
+            var fDate = $('#fromDate').val();
+            var tDate = $('#toDate').val();
+            var month = $('#selectMonth').val();
+            var year = (mode == 'MONTH') ? $('#inputYearMonth').val() : $('#inputYearOnly').val();
+
+            // Reset UI SP
+            $('.btn-chart').removeClass('active');
+            $('#revenueTotalSection').show();
+
+            $.ajax({
+                url: '/Admin/Report/GetRevenueChart',
+                type: 'GET',
+                data: { mode: mode, fromDate: fDate, toDate: tDate, month: month, year: year },
+                success: function (res) {
+                    var labels = res.map(x => x.Label);
+                    var values = res.map(x => x.Value);
+
+                    // Tính tổng
+                    var total = values.reduce((a, b) => a + b, 0);
+                    var formattedTotal = total.toLocaleString('vi-VN') + ' đ';
+
+                    // Cập nhật text tiêu đề & Tổng tiền
+                    var title = "Doanh thu theo ngày";
+                    var totalText = "";
+
+                    if (mode == 'DAY') {
+                        title = "Doanh thu theo ngày";
+                        totalText = `Tổng doanh thu từ ${moment(fDate).format('DD/MM/YYYY')} đến ${moment(tDate).format('DD/MM/YYYY')} là:`;
+                    }
+                    if (mode == 'MONTH') {
+                        title = "Doanh thu theo ngày trong tháng";
+                        totalText = `Tổng doanh thu tháng ${month}/${year} là:`;
+                    }
+                    if (mode == 'YEAR') {
+                        title = "Doanh thu theo tháng trong năm";
+                        totalText = `Tổng doanh thu năm ${year} là:`;
+                    }
+
+                    $('#chartTitle').text(title);
+                    $('#txtTotalLabel').text(totalText);
+                    $('#txtTotalValue').text(formattedTotal);
+
+                    // Vẽ biểu đồ màu xanh dương sáng (#5fabfc)
+                    renderChart(labels, values, "Doanh thu", "#5fabfc", "bar");
+                }
+            });
+        }
+
+        // LOAD SẢN PHẨM
+        function LoadProductChart(type, btn) {
+            currentProductType = type;
+            $('#revenueTotalSection').hide(); // Ẩn dòng tổng tiền
+
+            $('.btn-chart').removeClass('active');
+            if (btn) $(btn).addClass('active');
+
+            $.ajax({
+                url: '/Admin/Report/GetProductChart',
+                type: 'GET',
+                data: { type: type },
+                success: function (res) {
+                    var labels = res.map(x => x.Label);
+                    var values = res.map(x => x.Value);
+
+                    var color = '#1cc88a';
+                    var labelData = "Số lượng";
+                    var title = "Thống kê";
+
+                    if (type == 'TOP_VIEW') { title = "Top Lượt xem"; color = '#36b9cc'; labelData = "Lượt"; }
+                    if (type == 'TOP_SOLD') { title = "Top Mua hàng"; color = '#1cc88a'; labelData = "Sản phẩm"; }
+                    if (type == 'NO_SALE') { title = "SP Không bán được"; color = '#858796'; labelData = "Lượt xem"; }
+                    if (type == 'TOP_CANCEL') { title = "SP Bị hủy nhiều"; color = '#e74a3b'; labelData = "Lần"; }
+
+                    $('#chartTitle').text(title);
+                    renderChart(labels, values, labelData, color, 'bar');
+                }
+            });
+        }
+
+        // HÀM VẼ CHART CHUNG
+        function renderChart(labels, data, labelName, color, type) {
+            var ctx = document.getElementById("myChart");
+            if (mainChart) mainChart.destroy();
+
+            mainChart = new Chart(ctx, {
+                type: type,
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: labelName,
+                        backgroundColor: color, // Màu nền cột
+                        hoverBackgroundColor: color,
+                        borderColor: color,
+                        data: data,
+                        maxBarThickness: 50 // Giới hạn độ rộng cột cho đẹp
+                    }],
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true,
+                                callback: function (value) { return value.toLocaleString('vi-VN'); }
+                            },
+                            gridLines: { borderDash: [2, 2], drawBorder: false }
+                        }],
+                        xAxes: [{
+                            gridLines: { display: false },
+                            ticks: { autoSkip: false, maxRotation: 45, minRotation: 45 } // Xoay chữ ngày tháng cho đỡ dính
+                        }]
+                    },
+                    tooltips: {
+                        callbacks: {
+                            label: function (tooltipItem, chart) {
+                                return labelName + ': ' + tooltipItem.yLabel.toLocaleString('vi-VN');
+                            }
+                        }
+                    },
+                    legend: { display: false } // Ẩn chú thích trên đầu cho gọn
+                }
+            });
+        }
+
+        // EXPORT
+        function ExportRevenue() {
+            var mode = $('#selectMode').val();
+            var fDate = $('#fromDate').val();
+            var tDate = $('#toDate').val();
+            // Cần cập nhật logic Controller Export nếu muốn chuẩn theo tháng/năm
+            window.location.href = "/Admin/Report/ExportRevenue?fromDate=" + fDate + "&toDate=" + tDate;
+        }
+        function ExportProduct() {
+            window.location.href = "/Admin/Report/ExportProduct?type=" + currentProductType;
+        }
+    </script>
+}

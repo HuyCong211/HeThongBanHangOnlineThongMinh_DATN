@@ -1,0 +1,68 @@
+﻿@model DoAn_Ver2.Models.MaGiamGia
+
+@{
+    ViewBag.Title = "Thêm mã giảm giá";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Thêm mã giảm giá mới</h6>
+    </div>
+    <div class="card-body">
+        @using (Html.BeginForm())
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+            <div class="row">
+                <div class="col-md-6 form-group">
+                    <label>Mã Code <span class="text-danger">*</span></label>
+                    @Html.EditorFor(model => model.MaCode, new { htmlAttributes = new { @class = "form-control text-uppercase", placeholder = "VD: SUMMER2026", required = "required" } })
+                    @Html.ValidationMessageFor(model => model.MaCode, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="col-md-6 form-group">
+                    <label>Loại giảm giá</label>
+                    <select name="LoaiGiam" class="form-control">
+                        <option value="PERCENT">Giảm theo % (Phần trăm)</option>
+                        <option value="AMOUNT">Giảm theo Tiền mặt (VND)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 form-group">
+                    <label>Giá trị giảm <span class="text-danger">*</span></label>
+                    @Html.EditorFor(model => model.GiaTri, new { htmlAttributes = new { @class = "form-control", type = "number", required = "required" } })
+                    <small class="text-muted">Nhập số % (vd: 10) hoặc số tiền (vd: 50000)</small>
+                </div>
+
+                <div class="col-md-6 form-group">
+                    <label>Đơn tối thiểu</label>
+                    @Html.EditorFor(model => model.DonToiThieu, new { htmlAttributes = new { @class = "form-control", type = "number" } })
+                    <small class="text-muted">Đơn hàng phải đạt mức này mới được dùng mã</small>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 form-group">
+                    <label>Số lượng mã</label>
+                    @Html.EditorFor(model => model.SoLuong, new { htmlAttributes = new { @class = "form-control", type = "number", required = "required" } })
+                </div>
+
+                <div class="col-md-6 form-group">
+                    <label>Hạn sử dụng</label>
+                    @Html.TextBoxFor(model => model.NgayHetHan, "{0:yyyy-MM-ddTHH:mm}", new { @class = "form-control", type = "datetime-local", required = "required" })
+                </div>
+            </div>
+
+            <hr />
+            <button type="submit" class="btn btn-success btn-icon-split px-4">
+                <span class="icon text-white-50"><i class="fas fa-save"></i></span>
+                <span class="text font-weight-bold">Lưu lại</span>
+            </button>
+            <a href="@Url.Action("Index")" class="btn btn-secondary ml-2">Hủy bỏ</a>
+        }
+    </div>
+</div>

@@ -1,0 +1,68 @@
+﻿@model DoAn_Ver2.Models.ViewModel.CustomerInfoViewModel
+@{
+    ViewBag.Title = "Thông tin tài khoản";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-3">
+            @Html.Partial("~/Views/Profile/_ProfileSidebar.cshtml")
+        </div>
+        <div class="col-lg-9">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white font-weight-bold">
+                    CẬP NHẬT THÔNG TIN
+                </div>
+                <div class="card-body">
+                    @*@if (TempData["Success"] != null)
+                    {
+                        <div class="alert alert-success">@TempData["Success"]</div>
+                    }*@
+
+                    @using (Html.BeginForm("UpdateInfo", "Profile", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(m => m.ID)
+                        @Html.HiddenFor(m => m.Avt)
+
+                        <div class="form-group row">
+                            <label class="col-md-3 col-form-label">Ảnh đại diện</label>
+                            <div class="col-md-9">
+                                <input type="file" name="uploadAvt" class="form-control-file">
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-md-3 col-form-label">Họ và tên</label>
+                            <div class="col-md-9">
+                                @Html.TextBoxFor(m => m.HoTen, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(m => m.HoTen, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-md-3 col-form-label">Số điện thoại</label>
+                            <div class="col-md-9">
+                                @Html.TextBoxFor(m => m.SDT, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(m => m.SDT, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-md-3 col-form-label">Email</label>
+                            <div class="col-md-9">
+                                @Html.TextBoxFor(m => m.Email, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+                        <div class="text-right">
+                            <button type="submit" class="btn btn-primary px-4">Lưu thay đổi</button>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

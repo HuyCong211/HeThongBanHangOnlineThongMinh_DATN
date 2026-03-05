@@ -1,0 +1,170 @@
+﻿@model List<DoAn_Ver2.Models.DonHang>
+@{
+    ViewBag.Title = "Tra cứu đơn hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    bool isLoggedIn = ViewBag.IsLoggedIn;
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body text-center p-4">
+                    <h3 class="font-weight-bold text-uppercase mb-3">
+                        <i class="fas fa-search-location text-primary mr-2"></i> TRA CỨU ĐƠN HÀNG
+                    </h3>
+
+                    @if (!isLoggedIn)
+                    {
+                        <p class="text-muted">Nhập mã đơn hàng để kiểm tra tình trạng, hoặc <a href="@Url.Action("Login", "Account")" class="font-weight-bold">Đăng nhập</a> để xem tất cả đơn hàng của bạn.</p>
+                        <form action="@Url.Action("Index", "Order")" method="get" class="form-inline justify-content-center mt-3">
+                            <input type="text" name="orderCode" class="form-control mr-2 w-50" placeholder="VD: ORD2502..." required>
+                            <button type="submit" class="btn btn-primary font-weight-bold px-4">Tìm kiếm</button>
+                        </form>
+
+                        if (ViewBag.Error != null)
+                        {
+                            <div class="alert alert-danger mt-3 mb-0">@ViewBag.Error</div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-success font-weight-bold mb-0">Danh sách đơn hàng của bạn</p>
+                    }
+                </div>
+            </div>
+
+            @if (Model != null && Model.Count > 0)
+            {
+                foreach (var item in Model)
+                {
+                    <div class="card shadow-sm border-0 mb-3">
+                        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="font-weight-bold text-primary">#@item.MaDonHang</span>
+                                <span class="text-muted small ml-2">(@item.NgayDat.Value.ToString("dd/MM/yyyy HH:mm"))</span>
+                            </div>
+                            <div>
+                                @if (item.TrangThaiDonHang == 0)
+                                {<span class="badge badge-warning">Chờ xác nhận</span> }
+                                else if (item.TrangThaiDonHang == 1)
+                                { <span class="badge badge-info">Đã xác nhận</span> }
+                                else if (item.TrangThaiDonHang == 2)
+                                { <span class="badge badge-primary">Đang giao</span> }
+                                else if (item.TrangThaiDonHang == 3)
+                                { <span class="badge badge-success">Hoàn thành</span> }
+                                else
+                                { <span class="badge badge-danger">Đã hủy</span>}
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <p class="mb-1"><strong>Người nhận:</strong> @item.TenNguoiNhan - @item.SDT_NguoiNhan</p>
+                                    <p class="mb-1"><strong>Địa chỉ:</strong> @item.DiaChiGiaoHang</p>
+                                    <p class="mb-1"><strong>Tổng tiền:</strong> <span class="text-danger font-weight-bold">@item.TongThanhToan.Value.ToString("N0")đ</span></p>
+                                </div>
+                                <div class="col-md-4 text-right d-flex flex-column justify-content-center">
+                                    @if (item.TrangThaiThanhToan == false && item.PhuongThucThanhToanID == 2 && item.TrangThaiDonHang != 4 && item.TrangThaiDonHang != 3)
+                                    {
+                                        <button class="btn btn-sm btn-warning font-weight-bold text-white mb-2" onclick="retryPayment(@item.ID)">
+                                            <i class="fas fa-credit-card mr-1"></i> Thanh toán ngay
+                                        </button>
+                                    }
+
+                                    <button class="btn btn-sm btn-outline-success mb-2" onclick="reOrder(@item.ID)">
+                                        <i class="fas fa-cart-plus mr-1"></i> Mua lại
+                                    </button>
+
+                                    @if (item.TrangThaiDonHang == 0 || item.TrangThaiDonHang == 1)
+                                    {
+                                        <button class="btn btn-sm btn-outline-danger" onclick="cancelOrder(@item.ID, '@item.MaDonHang')">
+                                            <i class="fas fa-times mr-1"></i> Hủy đơn
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+                            <hr class="my-2">
+                            <div class="text-center">
+                                <a href="javascript:void(0)" onclick="loadOrderDetail(@item.ID)" class="small text-muted">Xem chi tiết sản phẩm <i class="fas fa-chevron-down"></i></a>
+                            </div>
+                            <div id="order-detail-@item.ID" style="display:none;" class="mt-3 bg-light p-3 rounded"></div>
+                        </div>
+                    </div>
+                }
+            }
+            else if (isLoggedIn)
+            {
+                <div class="text-center text-muted">Bạn chưa có đơn hàng nào.</div>
+            }
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        // 1. Load chi tiết đơn hàng
+        function loadOrderDetail(id) {
+            var $detailBox = $('#order-detail-' + id);
+            if ($detailBox.is(':visible')) {
+                $detailBox.slideUp();
+            } else {
+                // Nếu chưa load thì gọi Ajax
+                if ($detailBox.html().trim() === "") {
+                    $detailBox.html('<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Đang tải...</div>').slideDown();
+                    $.get('/Order/Detail/' + id, function (res) {
+                        $detailBox.html(res);
+                    });
+                } else {
+                    $detailBox.slideDown();
+                }
+            }
+        }
+
+        // 2. Hủy đơn
+        function cancelOrder(id, code) {
+            let reason = prompt("Nhập lý do hủy đơn hàng #" + code + ":");
+            if (reason != null && reason.trim() !== "") {
+                $.post('/Order/CancelOrder', { id: id, lyDo: reason }, function (res) {
+                    alert(res.msg);
+                    if (res.success) location.reload();
+                });
+            }
+        }
+
+        // 3. Mua lại
+        function reOrder(id) {
+            $.post('/Order/ReOrder', { id: id }, function (res) {
+                if (res.success) {
+                    if(confirm(res.msg + " Đến giỏ hàng ngay?")) window.location.href = "/Cart/Index";
+                    else location.reload();
+                } else {
+                    alert(res.msg);
+                }
+            });
+        }
+
+
+
+        // 4. Hàm xử lý thanh toán lại
+        function retryPayment(id) {
+            // Hiệu ứng loading để khách biết đang xử lý
+            var btn = $(event.target).closest('button');
+            var originalText = btn.html();
+            btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Đang xử lý...');
+
+            $.post('/Order/RetryPayment', { id: id }, function (res) {
+                if (res.success) {
+                    // Redirect sang VNPay
+                    window.location.href = res.url;
+                } else {
+                    alert(res.msg);
+                    btn.prop('disabled', false).html(originalText);
+                }
+            }).fail(function () {
+                alert("Lỗi kết nối server.");
+                btn.prop('disabled', false).html(originalText);
+            });
+        }
+    </script>
+}

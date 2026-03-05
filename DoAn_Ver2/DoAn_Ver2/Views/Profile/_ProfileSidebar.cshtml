@@ -1,0 +1,30 @@
+﻿@{
+    var user = Session["KhachHang"] as DoAn_Ver2.Models.NguoiDung;
+    string currentAction = ViewContext.RouteData.Values["action"].ToString();
+}
+
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body text-center">
+        <img src="@(string.IsNullOrEmpty(user?.Avt) ? "/Content/images/default-user.png" : user.Avt)"
+             class="rounded-circle mb-3" width="80" height="80" style="object-fit:cover; border: 2px solid #eee;">
+        <h5 class="font-weight-bold">@user.HoTen</h5>
+        <p class="text-muted small">@user.Email</p>
+    </div>
+    <div class="list-group list-group-flush small">
+        <a href="@Url.Action("Index", "Profile")" class="list-group-item list-group-item-action @(currentAction == "Index" ? "active" : "")">
+            <i class="fas fa-user-circle mr-2"></i> Thông tin tài khoản
+        </a>
+        <a href="@Url.Action("Orders", "Profile")" class="list-group-item list-group-item-action @(currentAction == "Orders" ? "active" : "")">
+            <i class="fas fa-shopping-bag mr-2"></i> Lịch sử đơn hàng
+        </a>
+        <a href="@Url.Action("Addresses", "Profile")" class="list-group-item list-group-item-action @(currentAction == "Addresses" ? "active" : "")">
+            <i class="fas fa-map-marker-alt mr-2"></i> Sổ địa chỉ
+        </a>
+        <a href="@Url.Action("ChangePassword", "Profile")" class="list-group-item list-group-item-action @(currentAction == "ChangePassword" ? "active" : "")">
+            <i class="fas fa-key mr-2"></i> Đổi mật khẩu
+        </a>
+        <a href="@Url.Action("Logout", "Account")" class="list-group-item list-group-item-action text-danger">
+            <i class="fas fa-sign-out-alt mr-2"></i> Đăng xuất
+        </a>
+    </div>
+</div>

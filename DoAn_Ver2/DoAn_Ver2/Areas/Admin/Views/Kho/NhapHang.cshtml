@@ -1,0 +1,42 @@
+﻿@model DoAn_Ver2.Models.BienTheSanPham
+
+@{
+    ViewBag.Title = "Nhập hàng vào kho";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card shadow" style="max-width: 600px; margin: 20px auto;">
+    <div class="card-header bg-primary text-white">
+        <h5 class="m-0 font-weight-bold"><i class="fas fa-dolly"></i> Phiếu Nhập Kho Lẻ</h5>
+    </div>
+    <div class="card-body">
+        <div class="alert alert-info">
+            <strong>Sản phẩm:</strong> @ViewBag.TenSP <br />
+            <strong>Mã SKU:</strong> @ViewBag.SKU <br />
+            <strong>Tồn hiện tại:</strong> @ViewBag.TonHienTai
+        </div>
+
+        @using (Html.BeginForm())
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(m => m.ID)
+
+            <div class="form-group">
+                <label class="font-weight-bold">Số lượng nhập thêm:</label>
+                <input type="number" name="SoLuongNhap" class="form-control form-control-lg" min="1" required placeholder="Nhập số lượng..." />
+            </div>
+
+            <div class="form-group">
+                <label>Ghi chú (Tùy chọn):</label>
+                <textarea name="GhiChu" class="form-control" rows="3" placeholder="VD: Nhập hàng đợt 1 tháng 10..."></textarea>
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="@Url.Action("Index")" class="btn btn-secondary mr-2">Hủy bỏ</a>
+                <button type="submit" class="btn btn-success px-5 font-weight-bold">
+                    <i class="fas fa-save"></i> XÁC NHẬN NHẬP
+                </button>
+            </div>
+        }
+    </div>
+</div>

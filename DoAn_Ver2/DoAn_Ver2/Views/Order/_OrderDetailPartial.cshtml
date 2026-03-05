@@ -1,0 +1,77 @@
+﻿@model DoAn_Ver2.Models.DonHang
+@{
+    // Ép kiểu về ViewModel mới
+    var details = ViewBag.OrderDetails as List<DoAn_Ver2.Models.ViewModel.OrderDetailDisplayVM>;
+}
+
+<div class="table-responsive">
+    <table class="table table-sm table-bordered bg-white mb-0 align-middle">
+        <thead class="bg-light">
+            <tr>
+                <th>Sản phẩm</th>
+                <th class="text-center">SL</th>
+                <th class="text-right">Đơn giá</th>
+                <th class="text-right">Thành tiền</th>
+                <th class="text-center" style="width: 120px;">Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (details != null)
+            {
+                foreach (var d in details)
+                {
+                    <tr>
+                        <td class="align-middle">
+                            <div class="d-flex align-items-center">
+                                <img src="@d.HinhAnh" class="rounded border mr-2"
+                                     style="width: 50px; height: auto; object-fit: cover;">
+                                <div>
+                                    <div class="font-weight-bold text-dark" style="font-size: 14px;">@d.TenSanPham</div>
+                                    <div class="small text-muted">@d.TenPhanLoai</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="text-center align-middle">@d.SoLuong</td>
+                        <td class="text-right align-middle">@d.DonGia.ToString("N0")đ</td>
+                        <td class="text-right align-middle text-danger font-weight-bold">@d.ThanhTien.ToString("N0")đ</td>
+                        <td class="text-center" style="vertical-align: middle;">
+                            @if (d.CanReview)
+                            {
+                                // [NÚT ĐÁNH GIÁ]
+                                // Link sang trang chi tiết, tự động cuộn xuống phần #review
+                                <a href="@Url.Action("Detail", "Product", new { id = d.SanPhamID })#review"
+                                   class="btn btn-sm btn-warning font-weight-bold text-white shadow-sm">
+                                    <i class="fas fa-star mr-1"></i> Đánh giá
+                                </a>
+                            }
+                            else
+                            {
+                                <span class="text-muted small" title="Chỉ đánh giá được khi đơn hàng đã hoàn thành">---</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="row mt-3">
+    <div class="col-md-6">
+    </div>
+    <div class="col-md-6 text-right">
+        <h5 class="font-weight-bold text-danger">Tổng tiền: @Model.TongThanhToan.Value.ToString("N0")đ</h5>
+
+        @if (Model.TrangThaiThanhToan == false && Model.PhuongThucThanhToanID == 2 && Model.TrangThaiDonHang != 4 && Model.TrangThaiDonHang != 3)
+        {
+            <button class="btn btn-warning font-weight-bold text-white mt-2" onclick="retryPayment(@Model.ID)">
+                <i class="fas fa-credit-card mr-1"></i> Thanh toán VNPay ngay
+            </button>
+            <small class="d-block text-muted mt-1">(Đơn hàng chưa được thanh toán)</small>
+        }
+    </div>
+</div>
+
+
+
+

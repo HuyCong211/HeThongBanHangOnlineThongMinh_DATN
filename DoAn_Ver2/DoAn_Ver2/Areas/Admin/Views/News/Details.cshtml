@@ -1,0 +1,110 @@
+﻿@model DoAn_Ver2.Models.TinTuc
+
+@{
+    ViewBag.Title = "Chi tiết bài viết";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">Nội dung bài viết</h6>
+        <div>
+            <a href="@Url.Action("Edit", new { id = Model.ID })" class="btn btn-warning btn-sm font-weight-bold text-dark">
+                <i class="fas fa-edit mr-1"></i> Sửa bài
+            </a>
+            <a href="@Url.Action("Index")" class="btn btn-secondary btn-sm">
+                <i class="fas fa-arrow-left mr-1"></i> Quay lại
+            </a>
+        </div>
+    </div>
+
+    <div class="card-body">
+        <div class="row">
+            <div class="col-lg-9 border-right">
+
+                <h2 class="text-dark font-weight-bold mb-3">@Model.TieuDe</h2>
+
+                <div class="text-muted mb-4 small">
+                    <span class="mr-3"><i class="far fa-calendar-alt mr-1"></i> @(Model.NgayDang.HasValue ? Model.NgayDang.Value.ToString("dd/MM/yyyy HH:mm") : "Chưa đăng")</span>
+                    <span class="mr-3"><i class="fas fa-user mr-1"></i> @ViewBag.AuthorName</span>
+                    <span><i class="fas fa-eye mr-1"></i> @(Model.LuotXem ?? 0) lượt xem</span>
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.TomTat))
+                {
+                    <div class="alert alert-light border-left-primary mb-4 text-dark font-weight-bold font-italic">
+                        @Model.TomTat
+                    </div>
+                }
+
+                <div class="article-content text-justify">
+                    @if (!string.IsNullOrEmpty(Model.NoiDung))
+                    {
+                        @Html.Raw(Model.NoiDung)
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center font-italic py-5">(Bài viết chưa có nội dung chi tiết)</p>
+                    }
+                </div>
+            </div>
+
+            <div class="col-lg-3">
+                <div class="form-group text-center">
+                    <label class="font-weight-bold text-primary">Ảnh đại diện</label>
+                    <div class="mt-2">
+                        <img src="@(string.IsNullOrEmpty(Model.HinhAnh) ? "/Content/images/no-image.png" : Model.HinhAnh)"
+                             class="img-fluid rounded shadow-sm border"
+                             style="width: 100%; object-fit: cover;" alt="Thumbnail" />
+                    </div>
+                </div>
+
+                <hr />
+
+                <div class="form-group">
+                    <label class="font-weight-bold small text-muted text-uppercase">Trạng thái</label>
+                    <div>
+                        @if (Model.TrangThai == true)
+                        {
+                            <span class="badge badge-success px-3 py-2 w-100">Đang hiển thị</span>
+                        }
+                        else
+                        {
+                            <span class="badge badge-secondary px-3 py-2 w-100">Đang ẩn</span>
+                        }
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="font-weight-bold small text-muted text-uppercase">Slug (URL)</label>
+                    <div class="bg-light p-2 rounded small text-break border">
+                        @(Model.Slug ?? "Chưa có slug")
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="font-weight-bold small text-muted text-uppercase">ID Bài viết</label>
+                    <div class="font-weight-bold text-dark pl-1">#@Model.ID</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .article-content img {
+        max-width: 100% !important;
+        height: auto !important;
+        border-radius: 4px;
+        margin: 10px 0;
+    }
+
+    .article-content p {
+        margin-bottom: 1rem;
+        line-height: 1.6;
+    }
+
+    .border-left-primary {
+        border-left: 0.25rem solid #4e73df !important;
+    }
+</style>

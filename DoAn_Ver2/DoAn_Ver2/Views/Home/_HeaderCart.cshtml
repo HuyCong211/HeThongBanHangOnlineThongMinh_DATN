@@ -1,0 +1,10 @@
+﻿
+@model int
+<a href="@Url.Action("Index", "Cart")" class="icon-item position-relative" title="Giỏ hàng">
+    <i class="fas fa-shopping-bag"></i>
+    <span class="badge badge-danger rounded-circle position-absolute"
+          style="top: -8px; right: -8px; font-size: 10px; min-width: 18px;"
+          id="cartCountHeader">
+        @Model
+    </span>
+</a>

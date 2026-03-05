@@ -1,0 +1,246 @@
+﻿@model DoAn_Ver2.Models.SanPham
+@{
+    ViewBag.Title = "Cập nhật Sản phẩm";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+    .img-box {
+        position: relative;
+        display: inline-block;
+        margin: 5px;
+    }
+
+        .img-box img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .img-box .btn-remove, .img-box .btn-delete-db {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            text-align: center;
+            line-height: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            display: none;
+            border: none;
+            z-index: 10;
+        }
+
+        .img-box:hover .btn-remove, .img-box:hover .btn-delete-db {
+            display: block;
+        }
+
+    .select2-container .select2-selection--single {
+        height: 38px !important;
+        border: 1px solid #ced4da;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 36px !important;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 36px !important;
+    }
+</style>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Cập nhật: @Model.TenSanPham</h6>
+    </div>
+    <div class="card-body">
+        @using (Html.BeginForm("Edit", "SanPham", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(m => m.ID)
+            @Html.HiddenFor(m => m.Slug)
+            @Html.HiddenFor(m => m.NgayTao)
+            @Html.HiddenFor(m => m.LuotXem)
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="form-group">
+                        <label>Tên sản phẩm <span class="text-danger">(*)</span></label>
+                        @Html.EditorFor(model => model.TenSanPham, new { htmlAttributes = new { @class = "form-control", placeholder = "Nhập tên sản phẩm..." } })
+                        @Html.ValidationMessageFor(model => model.TenSanPham, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label>Mã sản phẩm <span class="text-danger">(*)</span></label>
+                            @Html.EditorFor(model => model.MaSanPham, new { htmlAttributes = new { @class = "form-control", placeholder = "Nhập mã quản lý sản phẩm ..." } })
+                            @Html.ValidationMessageFor(model => model.MaSanPham, "", new { @class = "text-danger" })
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Danh mục</label>
+                            @Html.DropDownList("DanhMucID", null, new { @class = "form-control select2-search" })
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label>Giá gốc</label>
+                            @Html.EditorFor(model => model.GiaGoc, new { htmlAttributes = new { @class = "form-control", type = "number" } })
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Giá bán <span class="text-danger">(*)</span></label>
+                            @Html.EditorFor(model => model.GiaBan, new { htmlAttributes = new { @class = "form-control", type = "number" } })
+                            @Html.ValidationMessageFor(model => model.GiaBan, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Mô tả</label>
+                        @Html.TextAreaFor(model => model.MoTa, new { @class = "form-control", id = "MoTa" })
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card mb-3">
+                        <div class="card-header bg-primary text-white">Ảnh đại diện</div>
+                        <div class="card-body text-center">
+                            @{ string mainImg = ViewBag.AnhChinh as string; }
+                            <img id="showImage" src="@(string.IsNullOrEmpty(mainImg) ? "#" : mainImg)"
+                                 style="width:30%; max-height:auto; @(string.IsNullOrEmpty(mainImg) ? "display:none" : "") margin-bottom:10px; border:1px solid #ccc" />
+                            <input type="file" name="ImageFile" id="ImageFile" class="form-control-file mt-2" accept="image/*" />
+                        </div>
+                    </div>
+
+                    <div class="card mb-3">
+                        <div class="card-header bg-info text-white">Album ảnh phụ</div>
+                        <div class="card-body">
+                            <label>Ảnh hiện có:</label>
+                            <div class="d-flex flex-wrap border p-2 mb-2 bg-light">
+                                @if (ViewBag.AnhPhu != null)
+                                {
+                                    foreach (var img in ViewBag.AnhPhu as List<DoAn_Ver2.Models.AnhSanPham>)
+                                    {
+                                        <div class="img-box" id="img-db-@img.ID">
+                                            <img src="@img.URL" />
+                                            <button type="button" class="btn-delete-db" onclick="DeleteDbImage(@img.ID)"><i class="fas fa-times"></i></button>
+                                        </div>
+                                    }
+                                }
+                            </div>
+
+                            <label>Thêm ảnh mới:</label>
+                            <input type="file" name="MoreImages" id="MoreImages" class="form-control-file" multiple accept="image/*" />
+                            <div id="previewGallery" class="mt-2"></div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-body">
+                            <label>Chất liệu</label>
+                            @Html.EditorFor(model => model.ChatLieu, new { htmlAttributes = new { @class = "form-control mb-2" } })
+                            @Html.ValidationMessageFor(model => model.ChatLieu, "", new { @class = "text-danger" })
+
+                            <label>Chất liệu</label>
+                            @Html.EditorFor(model => model.KieuDang, new { htmlAttributes = new { @class = "form-control mb-2" } })
+                            @Html.ValidationMessageFor(model => model.KieuDang, "", new { @class = "text-danger" })
+
+                            <label>Trạng thái</label>
+                            @Html.DropDownListFor(m => m.TrangThai, new List<SelectListItem>{
+                                new SelectListItem{Text="Đang bán", Value="1"},
+                                new SelectListItem{Text="Hết hàng", Value="2"},
+                                new SelectListItem{Text="Ngừng bán", Value="0"}
+                            }, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mt-3">
+                <a href="@Url.Action("Index")" class="btn btn-secondary">Quay lại</a>
+                <button type="submit" class="btn btn-success px-4">Cập nhật</button>
+            </div>
+        }
+    </div>
+</div>
+
+@section scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('.select2-search').select2({
+                placeholder: "Chọn danh mục...",
+                allowClear: true,
+                width: '100%'
+            });
+        });
+
+        CKEDITOR.replace('MoTa');
+
+        // 1. ẢNH ĐẠI DIỆN
+        $('#ImageFile').change(function () {
+            if (this.files && this.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    $('#showImage').attr('src', e.target.result).show();
+                }
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+
+        // 2. XÓA ẢNH CŨ (DB) BẰNG AJAX
+        window.DeleteDbImage = function (id) {
+            if (confirm("Bạn muốn xóa ảnh này?")) {
+                $.ajax({
+                    url: '/Admin/SanPham/DeleteImage',
+                    type: 'POST',
+                    data: { id: id },
+                    success: function (res) {
+                        if (res.success) {
+                            $('#img-db-' + id).fadeOut(); // Ẩn ảnh đi
+                        } else {
+                            alert(res.message);
+                        }
+                    }
+                });
+            }
+        }
+
+        // 3. XỬ LÝ ẢNH MỚI (PREVIEW & REMOVE)
+        const dt = new DataTransfer();
+        $("#MoreImages").on('change', function (e) {
+            for (var i = 0; i < this.files.length; i++) {
+                dt.items.add(this.files[i]);
+            }
+            this.files = dt.files;
+            RenderPreview();
+        });
+
+        function RenderPreview() {
+            var container = $('#previewGallery');
+            container.empty();
+            for (let i = 0; i < dt.files.length; i++) {
+                let file = dt.files[i];
+                let reader = new FileReader();
+                reader.onload = function (e) {
+                    var html = `
+                                <div class="img-box">
+                                    <img src="${e.target.result}" />
+                                    <button type="button" class="btn-remove" onclick="RemoveNewFile(${i})"><i class="fas fa-times"></i></button>
+                                </div>`;
+                    container.append(html);
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        window.RemoveNewFile = function (index) {
+            dt.items.remove(index);
+            document.getElementById('MoreImages').files = dt.files;
+            RenderPreview();
+        }
+    </script>
+}

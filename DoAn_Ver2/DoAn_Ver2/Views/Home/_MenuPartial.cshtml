@@ -1,0 +1,63 @@
+﻿@model IEnumerable<DoAn_Ver2.Models.DanhMuc>
+
+<ul class="navbar-nav mr-auto main-menu">
+    <li class="nav-item">
+        <a class="nav-link" href="/">TRANG CHỦ</a>
+    </li>
+
+    @if (Model != null)
+    {
+        // Lấy các danh mục Cha (là những dòng có DanhMucChaID bằng null)
+        var danhMucCha = Model.Where(x => x.DanhMucChaID == null).ToList();
+
+        foreach (var parentItem in danhMucCha)
+        {
+            // Tìm danh mục Con của Cha hiện tại
+            var childItems = Model.Where(x => x.DanhMucChaID == parentItem.ID).ToList();
+
+            if (childItems.Count > 0)
+            {
+                // CÓ CON -> HIỆN DROPDOWN
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="@Url.Action("ProductByCategory", "Product", new { id = parentItem.ID })"
+                       id="menu_@parentItem.ID" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        @parentItem.TenDanhMuc.ToUpper()
+                    </a>
+
+                    <div class="dropdown-menu" aria-labelledby="menu_@parentItem.ID">
+                        <a class="dropdown-item font-weight-bold" href="@Url.Action("ProductByCategory", "Product", new { id = parentItem.ID })">
+                            Xem tất cả @parentItem.TenDanhMuc
+                        </a>
+                        <div class="dropdown-divider"></div>
+
+                        @foreach (var child in childItems)
+                        {
+                            <a class="dropdown-item" href="@Url.Action("ProductByCategory", "Product", new { id = child.ID })">
+                                @child.TenDanhMuc
+                            </a>
+                        }
+                    </div>
+                </li>
+            }
+            else
+            {
+                // KHÔNG CÓ CON -> HIỆN LINK THƯỜNG
+                <li class="nav-item">
+                    <a class="nav-link" href="@Url.Action("ProductByCategory", "Product", new { id = parentItem.ID })">
+                        @parentItem.TenDanhMuc.ToUpper()
+                    </a>
+                </li>
+            }
+        }
+    }
+
+    <li class="nav-item">
+        <a class="nav-link" href="@Url.Action("Index", "News")">TIN TỨC</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="@Url.Action("About", "Home")">GIỚI THIỆU</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="@Url.Action("Contact", "Home")">LIÊN HỆ</a>
+    </li>
+</ul>

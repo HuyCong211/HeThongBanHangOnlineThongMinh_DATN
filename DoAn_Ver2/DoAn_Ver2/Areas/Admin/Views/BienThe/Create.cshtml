@@ -1,0 +1,219 @@
+﻿@model DoAn_Ver2.Models.BienTheSanPham
+@{
+    var sanPham = ViewBag.SanPham as DoAn_Ver2.Models.SanPham;
+    ViewBag.Title = "Thêm SKU mới";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+    .photo-select-item {
+        cursor: pointer;
+        border: 2px solid transparent;
+        border-radius: 5px;
+        overflow: hidden;
+        position: relative;
+    }
+
+        .photo-select-item.selected {
+            border-color: #007bff; /* Màu xanh khi được chọn */
+            background-color: #e9f7fe;
+        }
+
+        .photo-select-item img {
+            width: 100%;
+            height: 80px;
+            object-fit: cover;
+        }
+
+        .photo-select-item .check-icon {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: #007bff;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            text-align: center;
+            font-size: 12px;
+            display: none;
+        }
+
+        .photo-select-item.selected .check-icon {
+            display: block;
+        }
+
+    /* CSS Tùy chỉnh để Select2 khớp với giao diện Bootstrap */
+    .select2-container .select2-selection--single {
+        height: 38px !important;
+        border: 1px solid #ced4da;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 36px !important;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 36px !important;
+    }
+</style>
+
+<div class="card shadow mb-4" style="max-width: 700px; margin: 0 auto;">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Thêm biến thể (SKU) cho: @sanPham.TenSanPham</h6>
+    </div>
+    <div class="card-body">
+        @using (Html.BeginForm("Create", "BienThe", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.Hidden("SanPhamID", sanPham.ID)
+
+            @Html.ValidationSummary(true, "", new { @class = "text-danger mb-3" })
+
+            <div class="card bg-light mb-3">
+                <div class="card-body">
+                    <h6 class="text-info font-weight-bold mb-3">1. Cấu hình Màu sắc & Ảnh</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Chọn Màu sắc <span class="text-danger">(*)</span></label>
+                                @Html.DropDownList("MauSacID", null, new { @class = "form-control select2-search" })
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Ảnh đại diện cho màu này</label>
+
+                                <ul class="nav nav-tabs" id="imgTab" role="tablist">
+                                    <li class="nav-item">
+                                        <a class="nav-link active" id="exist-tab" data-toggle="tab" href="#exist" role="tab">Chọn ảnh có sẵn</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="upload-tab" data-toggle="tab" href="#upload" role="tab">Tải ảnh mới</a>
+                                    </li>
+                                </ul>
+
+                                <div class="tab-content border border-top-0 p-3 bg-white" id="imgTabContent">
+
+                                    <div class="tab-pane fade show active" id="exist" role="tabpanel">
+                                        <div class="d-flex flex-wrap" style="max-height: 200px; overflow-y: auto;">
+                                            @if (ViewBag.ListAnhSanPham != null)
+                                            {
+                                                foreach (var img in ViewBag.ListAnhSanPham as List<DoAn_Ver2.Models.AnhSanPham>)
+                                                {
+                                                    <div class="photo-select-item m-1" onclick="SelectPhoto(this, @img.ID)" style="width: 80px;">
+                                                        <img src="@img.URL" />
+                                                        <div class="check-icon"><i class="fas fa-check"></i></div>
+                                                    </div>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted small">Sản phẩm chưa có ảnh nào.</span>
+                                            }
+                                        </div>
+                                        <input type="hidden" name="SelectedImageId" id="SelectedImageId" />
+                                    </div>
+
+                                    <div class="tab-pane fade" id="upload" role="tabpanel">
+                                        <div class="custom-file mt-2">
+                                            <input type="file" name="ImageFile" id="ImageFile" class="custom-file-input" accept="image/*">
+                                            <label class="custom-file-label" for="ImageFile">Chọn file từ máy...</label>
+                                        </div>
+                                        <div class="mt-2 text-center">
+                                            <img id="showImage" src="#" style="height: 80px; display: none; border: 1px solid #ccc;" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card bg-light mb-3">
+                <div class="card-body">
+                    <h6 class="text-info font-weight-bold mb-3">2. Kích thước & Tồn kho</h6>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Kích thước <span class="text-danger">(*)</span></label>
+                                @Html.DropDownList("KichThuocID", null, new { @class = "form-control select2-search" })
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Số lượng nhập</label>
+                                @Html.EditorFor(model => model.SoLuong, new { htmlAttributes = new { @class = "form-control", type = "number", min = "0", Value = "0" } })
+                            </div>
+                        </div>
+                        @*<div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Mã SKU (Tự sinh nếu trống)</label>
+                                    @Html.EditorFor(model => model.SKU, new { htmlAttributes = new { @class = "form-control", placeholder = "VD: SP-DO-XL" } })
+                                    @Html.ValidationMessageFor(model => model.SKU, "", new { @class = "text-danger" })
+                                </div>
+                            </div>*@
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="@Url.Action("Index", new { sanPhamId = sanPham.ID })" class="btn btn-secondary mr-2">
+                    <i class="fas fa-arrow-left"></i> Hủy bỏ
+                </a>
+                <button type="submit" class="btn btn-success px-5">
+                    <i class="fas fa-save"></i> LƯU BIẾN THỂ
+                </button>
+            </div>
+        }
+    </div>
+</div>
+
+@section scripts {
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+
+        $(document).ready(function () {
+            // Kích hoạt Select2
+            $('.select2-search').select2({
+                placeholder: "Chọn danh mục...",
+                allowClear: true,
+                width: '100%' // Đảm bảo rộng full ô
+            });
+        });
+
+        // Hàm chọn ảnh có sẵn
+        function SelectPhoto(element, id) {
+            // Xóa class selected ở tất cả các ảnh khác
+            $('.photo-select-item').removeClass('selected');
+
+            // Thêm class selected vào ảnh được click
+            $(element).addClass('selected');
+
+            // Gán ID vào input ẩn
+            $('#SelectedImageId').val(id);
+
+            // Xóa giá trị file upload (để tránh gửi cả 2)
+            $('#ImageFile').val('');
+            $('.custom-file-label').html('Chọn file từ máy...');
+            $('#showImage').hide();
+        }
+
+        // Preview ảnh khi chọn
+        $('#ImageFile').change(function () {
+            // Khi chọn upload, bỏ chọn ảnh có sẵn
+            $('.photo-select-item').removeClass('selected');
+            $('#SelectedImageId').val('');
+            if (this.files && this.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    $('#showImage').attr('src', e.target.result).show();
+                }
+                reader.readAsDataURL(this.files[0]);
+                // Hiển thị tên file
+                $(this).next('.custom-file-label').html(this.files[0].name);
+            }
+        });
+    </script>
+}

@@ -1,0 +1,255 @@
+﻿@using DoAn_Ver2.Models
+@using DoAn_Ver2.Infrastructure
+@model IEnumerable<SanPham>
+
+@{
+    ViewBag.Title = "Trang chủ";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var db = new UnitOfWork();
+    var categories = ViewBag.Categories as List<DanhMuc>;
+    var bestSellers = ViewBag.BestSellers as List<SanPham>;
+
+    // [MỚI] LẤY BANNER TỪ CẤU HÌNH
+    string homeBanner = "https://theme.hstatic.net/200000690725/1001078549/14/slide_1_img.jpg?v=235"; // Banner mặc định phòng hờ
+    try
+    {
+        var confBanner = db.Repository<CauHinhChung>().GetById("BannerHome");
+        if (confBanner != null && !string.IsNullOrEmpty(confBanner.Value))
+        {
+            homeBanner = confBanner.Value;
+        }
+    }
+    catch { }
+}
+
+<section class="home-banner">
+    <img src="@homeBanner" alt="Men Store Banner" style="width: 100%; height: auto; object-fit: cover;">
+</section>
+
+@* --- PHẦN GỢI Ý DÀNH RIÊNG CHO BẠN (USER-BASED AI) --- *@
+@{
+    var recommendedHome = ViewBag.RecommendedProducts as List<DoAn_Ver2.Models.SanPham>;
+}
+
+@if (recommendedHome != null && recommendedHome.Any())
+{
+    <section class="container mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="font-weight-bold text-uppercase m-0">
+                @if (Session["KhachHang"] != null)
+                {
+                    <span class="text-primary"><i class="fas fa-magic mr-2"></i>Gợi ý dành cho bạn</span>
+                }
+                else
+                {
+                    <span class="text-dark"><i class="fas fa-fire mr-2"></i>Xu hướng tìm kiếm</span>
+                }
+            </h3>
+        </div>
+
+        @* Sử dụng class product-slider-swipe để tận dụng JS có sẵn *@
+        <div class="owl-carousel owl-theme product-slider-swipe">
+            @foreach (var item in recommendedHome)
+            {
+                @Html.Partial("_ProductBoxPartial", item, new ViewDataDictionary { { "IsSlider", true } })
+            }
+        </div>
+    </section>
+}
+
+
+<section class="container mt-5">
+    <h3 class="text-center font-weight-bold mb-4 text-uppercase">Danh mục nổi bật</h3>
+    <div class="row">
+        @if (categories != null)
+        {
+            foreach (var cat in categories)
+            {
+                string catImg = !string.IsNullOrEmpty(cat.HinhAnh) ? cat.HinhAnh : "https://via.placeholder.com/400x250/333/fff?text=" + cat.TenDanhMuc;
+                <div class="col-md-4 col-sm-6">
+                    <div class="cat-item" onclick="location.href='@Url.Action("ProductByCategory", "Product", new { id = cat.ID })'">
+                        <img src="@catImg" alt="@cat.TenDanhMuc">
+                        <div class="cat-overlay">
+                            <span class="cat-name">@cat.TenDanhMuc</span>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</section>
+
+<section class="container mt-5 product-tabs-section">
+    <h3 class="text-center font-weight-bold mb-4 text-uppercase">Sản phẩm mới</h3>
+
+    <ul class="nav nav-tabs custom-tabs" id="newProdTabs" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" id="all-tab" data-toggle="tab" href="#all" role="tab">Tất cả</a>
+        </li>
+        @if (categories != null)
+        {
+            foreach (var cat in categories)
+            {
+                <li class="nav-item">
+                    <a class="nav-link" id="tab-@cat.ID" data-toggle="tab" href="#cat-@cat.ID" role="tab">@cat.TenDanhMuc</a>
+                </li>
+            }
+        }
+    </ul>
+
+    <div class="tab-content pt-4">
+
+        @{
+            // --- LOGIC XỬ LÝ DỮ LIỆU ---
+            var dictCatProducts = new Dictionary<int, List<SanPham>>();
+            var allProductsList = new List<SanPham>();
+
+            if (categories != null)
+            {
+                foreach (var cat in categories)
+                {
+                    var subCats = db.Repository<DanhMuc>().GetMany(c => c.DanhMucChaID == cat.ID).ToList();
+                    var productsForThisCat = new List<SanPham>();
+
+                    if (subCats.Any())
+                    {
+                        foreach (var sub in subCats)
+                        {
+                            var subProds = db.Repository<SanPham>()
+                                             .GetMany(x => x.DanhMucID == sub.ID && x.TrangThai == 1)
+                                             .OrderByDescending(x => x.NgayTao)
+                                             .Take(2)
+                                             .ToList();
+                            productsForThisCat.AddRange(subProds);
+                        }
+                    }
+                    else
+                    {
+                        var directProds = db.Repository<SanPham>()
+                                            .GetMany(x => x.DanhMucID == cat.ID && x.TrangThai == 1)
+                                            .OrderByDescending(x => x.NgayTao)
+                                            .Take(4)
+                                            .ToList();
+                        productsForThisCat.AddRange(directProds);
+                    }
+
+                    dictCatProducts.Add(cat.ID, productsForThisCat);
+                    allProductsList.AddRange(productsForThisCat);
+                }
+            }
+            allProductsList = allProductsList.OrderByDescending(x => x.NgayTao).ToList();
+        }
+
+        @helper RenderOneRowSlider(List<SanPham> products)
+        {
+            if (products != null && products.Any())
+            {
+                // Sử dụng class .product-slider-swipe để config JS riêng
+                <div class="owl-carousel owl-theme product-slider-swipe">
+                    @foreach (var item in products)
+                    {
+                        // Render từng item riêng lẻ (1 hàng)
+                        @Html.Partial("_ProductBoxPartial", item, new ViewDataDictionary { { "IsSlider", true } })
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="col-12 text-center py-5 text-muted">Chưa có sản phẩm mới nào.</div>
+            }
+        }
+
+        <div class="tab-pane fade show active" id="all" role="tabpanel">
+            @RenderOneRowSlider(allProductsList)
+            <div class="text-center mt-3">
+                <a href="@Url.Action("ProductByCategory", "Product", new { id = categories?.FirstOrDefault()?.ID })" class="btn btn-outline-dark btn-sm px-4">Xem tất cả</a>
+            </div>
+        </div>
+
+        @if (categories != null)
+        {
+            foreach (var cat in categories)
+            {
+                <div class="tab-pane fade" id="cat-@cat.ID" role="tabpanel">
+                    @if (dictCatProducts.ContainsKey(cat.ID))
+                    {
+                        @RenderOneRowSlider(dictCatProducts[cat.ID])
+                    }
+                    <div class="text-center mt-3">
+                        <a href="@Url.Action("ProductByCategory", "Product", new { id = cat.ID })" class="btn btn-outline-dark btn-sm px-4">Xem thêm @cat.TenDanhMuc</a>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</section>
+
+<section class="best-seller-section mt-5">
+    <div class="container">
+        <h3 class="text-center font-weight-bold mb-5 text-uppercase">
+            <span class="text-danger border-bottom border-danger pb-2">Top Bán Chạy</span>
+        </h3>
+
+        @if (bestSellers != null && bestSellers.Any())
+        {
+            <div class="owl-carousel owl-theme product-slider-swipe" id="bestSellerCarousel">
+                @{ int rank = 1; }
+                @foreach (var item in bestSellers)
+                {
+                    <div class="position-relative">
+                        @Html.Partial("_ProductBoxPartial", item, new ViewDataDictionary { { "IsSlider", true }, { "Rank", rank } })
+                    </div>
+                    rank++;
+                }
+            </div>
+        }
+    </div>
+</section>
+
+<section class="container mt-5 mb-5">
+    <h3 class="text-center font-weight-bold mb-4 text-uppercase">Tin tức mới nhất</h3>
+
+    @Html.Action("_HomeNews", "News")
+
+</section>
+
+@Html.Action("_RecentlyViewedFloat", "Product")
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            // Cấu hình Slider 1 Hàng + Bật Vuốt
+            var sliderOptions = {
+                loop: false,
+                margin: 20,
+                nav: true,
+                dots: false,
+                touchDrag: true, // Bật vuốt trên màn hình cảm ứng
+                mouseDrag: true, // Bật vuốt bằng chuột (nhấn giữ và kéo)
+                navText: ["<i class='fas fa-chevron-left'></i>", "<i class='fas fa-chevron-right'></i>"],
+                responsive: {
+                    0: { items: 2 }, // Mobile: 2 sản phẩm
+                    600: { items: 3 }, // Tablet: 3 sản phẩm
+                    1000: { items: 4 } // PC: 4 sản phẩm
+                }
+            };
+
+            // Khởi tạo slider cho Tab mặc định
+            $(".product-slider-swipe").owlCarousel(sliderOptions);
+
+            // Khởi tạo slider Top Bán Chạy
+            $("#bestSellerCarousel").owlCarousel(sliderOptions);
+
+            // Xử lý khi chuyển Tab (để fix lỗi hiển thị width=0)
+            $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+                var target = $(e.target).attr("href");
+                var slider = $(target).find(".product-slider-swipe");
+
+                if (slider.length > 0 && !slider.hasClass("owl-loaded")) {
+                    slider.owlCarousel(sliderOptions);
+                }
+            });
+        });
+    </script>
+}

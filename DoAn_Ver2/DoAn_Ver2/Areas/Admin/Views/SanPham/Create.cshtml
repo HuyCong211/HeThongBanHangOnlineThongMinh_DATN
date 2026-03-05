@@ -1,0 +1,603 @@
+﻿@model DoAn_Ver2.Models.SanPham
+@{
+    ViewBag.Title = "Thêm mới Sản phẩm";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+
+    // Lấy lại danh sách biến thể nếu submit lỗi
+    var oldBienThes = ViewBag.OldBienThes as List<DoAn_Ver2.Models.BienTheSanPham>;
+    var oldImageIndexes = ViewBag.OldImageIndexes as List<int?>;
+    var oldKichThuocIDs = ViewBag.OldKichThuocIDs as List<string>;
+}
+
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+    /* CSS cũ giữ nguyên */
+    .img-box {
+        position: relative;
+        display: inline-block;
+        margin: 5px;
+    }
+
+        .img-box img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .img-box .btn-remove {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            text-align: center;
+            line-height: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            display: none;
+            border: none;
+            z-index: 10;
+        }
+
+        .img-box:hover .btn-remove {
+            display: block;
+        }
+
+    .img-badge {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        background: rgba(0,0,0,0.7);
+        color: white;
+        font-size: 11px;
+        padding: 2px 6px;
+        border-top-left-radius: 4px;
+        font-weight: bold;
+    }
+
+    .select2-container .select2-selection--single {
+        height: 38px !important;
+        border: 1px solid #ced4da;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 36px !important;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 36px !important;
+    }
+
+    /* Style cho dòng bị trùng */
+    .tr-duplicate {
+        background-color: #ffe6e6;
+    }
+
+        .tr-duplicate select {
+            border-color: red;
+        }
+
+    .error-msg {
+        color: red;
+        font-size: 0.85rem;
+        display: none;
+        margin-top: 4px;
+    }
+
+    .tr-duplicate .error-msg {
+        display: block;
+    }
+
+    .select2-container .select2-selection--multiple {
+        min-height: 38px !important;
+        border: 1px solid #ced4da;
+    }
+</style>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Thêm sản phẩm mới</h6>
+    </div>
+    <div class="card-body">
+        @using (Html.BeginForm("Create", "SanPham", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            @Html.AntiForgeryToken()
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="form-group">
+                        <label>Tên sản phẩm <span class="text-danger">(*)</span></label>
+                        @Html.EditorFor(model => model.TenSanPham, new { htmlAttributes = new { @class = "form-control", placeholder = "Nhập tên sản phẩm..." } })
+                        @Html.ValidationMessageFor(model => model.TenSanPham, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label>Mã sản phẩm <span class="text-danger">(*)</span></label>
+                            @Html.EditorFor(model => model.MaSanPham, new { htmlAttributes = new { @class = "form-control", placeholder = "Nhập mã quản lý..." } })
+                            @Html.ValidationMessageFor(model => model.MaSanPham, "", new { @class = "text-danger" })
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Danh mục</label>
+                            @Html.DropDownList("DanhMucID", null, new { @class = "form-control select2-search" })
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label>Giá gốc</label>
+                            @Html.EditorFor(model => model.GiaGoc, new { htmlAttributes = new { @class = "form-control", type = "number" } })
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Giá bán <span class="text-danger">(*)</span></label>
+                            @Html.EditorFor(model => model.GiaBan, new { htmlAttributes = new { @class = "form-control", type = "number" } })
+                            @Html.ValidationMessageFor(model => model.GiaBan, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Mô tả</label>
+                        @Html.TextAreaFor(model => model.MoTa, new { @class = "form-control", id = "MoTa" })
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card mb-3">
+                        <div class="card-header bg-primary text-white">Ảnh đại diện chính</div>
+                        <div class="card-body text-center">
+                            <div class="img-box" style="margin:0;">
+                                <img id="showImage" src="#" style="width:100%; max-height:200px; display:none; border:1px solid #ccc" />
+                                <span class="img-badge" id="badge-main" style="display:none;"># -1</span>
+                            </div>
+                            <input type="file" name="ImageFile" id="ImageFile" class="form-control-file mt-2" accept="image/*" />
+                        </div>
+                    </div>
+
+                    <div class="card mb-3">
+                        <div class="card-header bg-info text-white">Album ảnh phụ (Biến thể)</div>
+                        <div class="card-body">
+                            <input type="file" name="MoreImages" id="MoreImages" class="form-control-file" multiple accept="image/*" />
+                            <small class="text-muted d-block mt-1">Các ảnh tải lên sẽ được đánh số thứ tự (0, 1, 2...).</small>
+                            <div id="previewGallery" class="mt-2"></div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-body">
+                            <label>Chất liệu</label>
+                            @Html.EditorFor(model => model.ChatLieu, new { htmlAttributes = new { @class = "form-control mb-2" } })
+                            <label>Kiểu dáng</label>
+                            @Html.EditorFor(model => model.KieuDang, new { htmlAttributes = new { @class = "form-control mb-2" } })
+                            <label>Trạng thái</label>
+                            <select name="TrangThai" class="form-control">
+                                <option value="1">Đang bán</option>
+                                <option value="2">Hết hàng</option>
+                                <option value="0">Ngừng bán</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-md-12">
+                    <div class="card border-left-success shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center mb-2">
+                                <div class="col">
+                                    <h6 class="m-0 font-weight-bold text-success text-uppercase">Cấu hình biến thể (Màu - Size - Số lượng)</h6>
+                                    <div id="globalError" class="text-danger font-weight-bold" style="display:none;">
+                                        <i class="fas fa-exclamation-triangle"></i> Có biến thể bị trùng lặp. Vui lòng kiểm tra lại.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-bordered text-center" id="tbBienThe">
+                                    <thead class="bg-light">
+                                        <tr>
+                                            <th>Màu sắc</th>
+                                            <th style="width: 300px;">Kích thước (Chọn nhiều)</th>
+                                            <th>Số lượng</th>
+                                            <th style="width: 150px;">Ảnh (Số TT)</th>
+                                            <th style="width: 50px;">
+                                                <button type="button" class="btn btn-sm btn-success rounded-circle" onclick="ThemDongBienThe()" title="Thêm dòng mới">
+                                                    <i class="fas fa-plus"></i>
+                                                </button>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (oldBienThes != null && oldBienThes.Count > 0)
+                                        {
+                                            for (int i = 0; i < oldBienThes.Count; i++)
+                                            {
+                                                var item = oldBienThes[i];
+                                                var imgIdx = (oldImageIndexes != null && oldImageIndexes.Count > i) ? oldImageIndexes[i] : null;
+                                                string sizeIdsStr = (oldKichThuocIDs != null && oldKichThuocIDs.Count > i) ? oldKichThuocIDs[i] : "";
+                                                var selectedSizeIds = sizeIdsStr.Split(',').Where(x => !string.IsNullOrEmpty(x)).ToList();
+
+                                                <tr class="tr-sku">
+                                                    <td>
+                                                        <div class="input-group">
+                                                            @Html.DropDownList($"BienThes[{i}].MauSacID", new SelectList(ViewBag.MauSacList, "Value", "Text", item.MauSacID), "--- Màu ---", new { @class = "form-control ddl-mau", onchange = "CheckDuplicate()" })
+                                                            <div class="input-group-append">
+                                                                <button class="btn btn-outline-secondary" type="button" onclick="OpenModalMau(this)">+</button>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="input-group">
+                                                            <select class="form-control ddl-size-multiple" multiple="multiple" style="width: 75%" onchange="UpdateKichThuocIDs(this)">
+                                                                @foreach (var size in ViewBag.KichThuocList)
+                                                                {
+                                                                    if (selectedSizeIds.Contains(size.Value))
+                                                                    {
+                                                                        <option value="@size.Value" selected="selected">@size.Text</option>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <option value="@size.Value">@size.Text</option>
+                                                                    }
+                                                                }
+                                                            </select>
+                                                            <div class="input-group-append">
+                                                                <button class="btn btn-outline-secondary" type="button" onclick="OpenModalSize(this)">+</button>
+                                                            </div>
+                                                        </div>
+                                                        <input type="hidden" name="KichThuocIDs[@i]" class="hidden-size-ids" value="@sizeIdsStr" />
+                                                        <div class="error-msg">Đã tồn tại cặp Màu-Size này</div>
+                                                    </td>
+                                                    <td><input type="number" name="BienThes[@i].SoLuong" class="form-control" value="@item.SoLuong" min="0" /></td>
+                                                    <td><input type="number" name="ImageIndexes[@i]" class="form-control" value="@imgIdx" placeholder="VD: 0" min="-1" /></td>
+                                                    <td><button type="button" class="btn btn-sm btn-danger rounded-circle" onclick="XoaDong(this)"><i class="fas fa-trash"></i></button></td>
+                                                </tr>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <tr class="tr-sku">
+                                                <td>
+                                                    <div class="input-group">
+                                                        @Html.DropDownList("BienThes[0].MauSacID", (SelectList)ViewBag.MauSacList, "--- Màu ---", new { @class = "form-control ddl-mau", onchange = "CheckDuplicate()" })
+                                                        <div class="input-group-append"><button class="btn btn-outline-secondary" type="button" onclick="OpenModalMau(this)">+</button></div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="input-group">
+                                                        <select class="form-control ddl-size-multiple" multiple="multiple" style="width: 75%" onchange="UpdateKichThuocIDs(this)">
+                                                            @foreach (var size in ViewBag.KichThuocList)
+                                                            {
+                                                                <option value="@size.Value">@size.Text</option>
+                                                            }
+                                                        </select>
+                                                        <div class="input-group-append"><button class="btn btn-outline-secondary" type="button" onclick="OpenModalSize(this)">+</button></div>
+                                                    </div>
+                                                    <input type="hidden" name="KichThuocIDs[0]" class="hidden-size-ids" />
+                                                    <div class="error-msg">Đã tồn tại cặp Màu-Size này</div>
+                                                </td>
+                                                <td><input type="number" name="BienThes[0].SoLuong" class="form-control" value="0" min="0" /></td>
+                                                <td><input type="number" name="ImageIndexes[0]" class="form-control" placeholder="VD: 0" min="-1" /></td>
+                                                <td><button type="button" class="btn btn-sm btn-danger rounded-circle" onclick="XoaDong(this)"><i class="fas fa-trash"></i></button></td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-left mt-3">
+                <a href="@Url.Action("Index")" class="btn btn-secondary">Quay lại</a>
+                <button type="submit" class="btn btn-success px-4" id="btnSubmit">Lưu sản phẩm</button>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="modal fade" id="modalMau" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title font-weight-bold">Thêm màu sắc mới</h5>
+                <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="font-weight-bold">Tên màu <span class="text-danger">(*)</span></label>
+                    <input type="text" id="txtTenMauNew" class="form-control" placeholder="VD: Đỏ đô, Xanh Navy..." />
+                </div>
+
+                <div class="form-group">
+                    <label class="font-weight-bold">Chọn mã màu (Color Picker) <span class="text-danger">(*)</span></label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <input type="color" id="txtMaHexNew" value="#000000"
+                                   style="width: 60px; height: 38px; padding: 2px; border: 1px solid #ced4da; cursor: pointer;">
+                        </div>
+                        <input type="text" class="form-control bg-white" id="txtMaHexText" value="#000000"
+                               readonly style="cursor: pointer;"
+                               onclick="$('#txtMaHexNew').click()"
+                               placeholder="Click bên trái để chọn màu">
+                    </div>
+                    <small class="text-muted">Click vào ô màu để mở bảng chọn màu chuẩn.</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-success px-4" onclick="AjaxAddMau()">
+                    <i class="fas fa-save"></i> Lưu lại
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalSize" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thêm Size Mới</h5>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="txtTenSizeNew" class="form-control" placeholder="Nhập tên size (VD: 3XL)" />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary btn-block" onclick="AjaxAddSize()">Lưu lại</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+
+        function InitSelect2Multiple() {
+            $('.ddl-size-multiple').select2({
+                placeholder: "Chọn size...",
+                allowClear: true
+            });
+        }
+
+        function UpdateKichThuocIDs(selectElement) {
+            var selectedValues = $(selectElement).val();
+            var hiddenInput = $(selectElement).closest('td').find('.hidden-size-ids');
+
+            if (selectedValues && selectedValues.length > 0) {
+                hiddenInput.val(selectedValues.join(','));
+            } else {
+                hiddenInput.val('');
+            }
+            CheckDuplicate();
+        }
+
+        // --- HÀM KIỂM TRA TRÙNG LẶP ---
+        function CheckDuplicate() {
+            var seen = {};
+            var hasError = false;
+
+            // Duyệt qua tất cả các dòng
+            $('#tbBienThe tbody tr').each(function () {
+                var row = $(this);
+                var mau = row.find('.ddl-mau').val();
+                var sizeValues = row.find('.ddl-size-multiple').val();
+
+                // Reset trạng thái lỗi
+                row.removeClass('tr-duplicate');
+
+                if (mau && sizeValues && sizeValues.length > 0) {
+                    for (var i = 0; i < sizeValues.length; i++) {
+                        var size = sizeValues[i];
+                        var key = mau + '-' + size;
+
+                        if (seen[key]) {
+                            row.addClass('tr-duplicate');
+                            seen[key].addClass('tr-duplicate');
+                            hasError = true;
+                        } else {
+                            seen[key] = row;
+                        }
+                    }
+                }
+            });
+
+            // Hiển thị thông báo lỗi tổng
+            if (hasError) {
+                $('#globalError').show();
+                $('#btnSubmit').prop('disabled', true); // Khóa nút Lưu
+            } else {
+                $('#globalError').hide();
+                $('#btnSubmit').prop('disabled', false); // Mở nút Lưu
+            }
+        }
+
+        // --- CẬP NHẬT HÀM THÊM DÒNG MỚI ĐỂ GÁN SỰ KIỆN ---
+        function ThemDongBienThe() {
+            var index = $('#tbBienThe tbody tr').length;
+
+            $('.ddl-size-multiple').select2('destroy');
+
+            var newRow = $('#tbBienThe tbody tr:first').clone();
+
+            // Clear dữ liệu
+            newRow.removeClass('tr-duplicate'); // Xóa class lỗi nếu copy từ dòng lỗi
+            newRow.find('select').val(null);
+            newRow.find('input[type="text"], input[type="hidden"]').val('');
+            newRow.find('input[type="number"]').val(0);
+
+            // Cập nhật name
+            newRow.find('select, input').each(function () {
+                var name = $(this).attr('name');
+                if (name) {
+                    var newName = name.replace(/\[\d+\]/, '[' + index + ']');
+                    $(this).attr('name', newName);
+                }
+            });
+
+            $('#tbBienThe tbody').append(newRow);
+
+            InitSelect2Multiple();
+            CheckDuplicate();
+        }
+
+        function XoaDong(btn) {
+            if ($('#tbBienThe tbody tr').length > 1) {
+                $(btn).closest('tr').remove();
+                CheckDuplicate(); // Check lại sau khi xóa
+            } else {
+                alert("Phải giữ lại ít nhất 1 dòng.");
+            }
+        }
+
+        // Gọi check 1 lần khi trang load (phòng trường hợp render lại từ server có lỗi)
+        $(document).ready(function () {
+            $('.select2-search').select2({ placeholder: "Chọn danh mục...", allowClear: true, width: '100%' });
+            InitSelect2Multiple();
+            CheckDuplicate();
+        });
+
+        CKEDITOR.replace('MoTa');
+
+        // BIẾN LƯU VỊ TRÍ DÒNG ĐANG THAO TÁC ĐỂ AUTO SELECT
+        var currentRowBtn = null;
+
+        // --- XỬ LÝ MODAL MÀU ---
+        function OpenModalMau(btn) {
+            currentRowBtn = btn;
+            $('#txtTenMauNew').val('');
+            $('#txtMaHexNew').val('#000000'); // Reset màu về đen
+            $('#txtMaHexText').val('#000000');
+            $('#modalMau').modal('show');
+        }
+
+        // Sự kiện: Khi chọn màu ở ô input color -> Cập nhật text sang ô bên cạnh
+        $('#txtMaHexNew').on('input change', function () {
+            $('#txtMaHexText').val($(this).val());
+        });
+
+        // Hàm gửi dữ liệu về Server
+        function AjaxAddMau() {
+            var ten = $('#txtTenMauNew').val();
+            var hex = $('#txtMaHexNew').val(); // Lấy mã màu (VD: #ff0000)
+
+            if (!ten) { alert("Vui lòng nhập tên màu"); return; }
+            if (!hex) { alert("Vui lòng chọn mã màu"); return; }
+
+            $.ajax({
+                url: '/Admin/SanPham/AjaxCreateMau',
+                type: 'POST',
+                data: {
+                    tenMau: ten,
+                    maHex: hex // Gửi tham số maHex khớp với Controller
+                },
+                success: function (res) {
+                    if (res.success) {
+                        // 1. Thêm option mới vào TẤT CẢ các dropdown màu đang có trên màn hình
+                        var newOption = `<option value="${res.id}">${res.name}</option>`;
+                        $('.ddl-mau').append(newOption); // Class .ddl-mau cần được thêm vào dropdown trong bảng
+
+                        // 2. Tự động chọn màu vừa tạo cho dòng hiện tại (nếu đang mở từ dòng nào đó)
+                        if (currentRowBtn) {
+                            var currentSelect = $(currentRowBtn).closest('.input-group').find('select');
+                            currentSelect.val(res.id);
+                        }
+
+                        $('#modalMau').modal('hide');
+                        // alert("Thêm màu thành công!");
+                    } else {
+                        alert(res.message);
+                    }
+                },
+                error: function (err) {
+                    alert("Lỗi hệ thống: " + err.statusText);
+                }
+            });
+        }
+
+        // --- XỬ LÝ MODAL SIZE ---
+        function OpenModalSize(btn) {
+            currentRowBtn = btn;
+            $('#txtTenSizeNew').val('');
+            $('#modalSize').modal('show');
+        }
+
+        function AjaxAddSize() {
+            var ten = $('#txtTenSizeNew').val();
+            if (!ten) { alert("Vui lòng nhập tên size"); return; }
+
+            $.ajax({
+                url: '/Admin/SanPham/AjaxCreateSize',
+                type: 'POST',
+                data: { tenSize: ten },
+                success: function (res) {
+                    if (res.success) {
+                        var newOption = new Option(res.name, res.id, false, false);
+                        $('.ddl-size-multiple').append(newOption);
+
+                        if (currentRowBtn) {
+                            var currentSelect = $(currentRowBtn).closest('.input-group').find('.ddl-size-multiple');
+                            var currentVal = currentSelect.val() || [];
+                            currentVal.push(res.id);
+                            currentSelect.val(currentVal).trigger('change');
+                        }
+
+                        $('#modalSize').modal('hide');
+                    } else {
+                        alert(res.message);
+                    }
+                }
+            });
+        }
+
+        // JS PREVIEW ẢNH (Giữ nguyên)
+        $('#ImageFile').change(function () {
+            if (this.files && this.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    $('#showImage').attr('src', e.target.result).show();
+                    $('#badge-main').show();
+                }
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+
+        const dt = new DataTransfer();
+        $("#MoreImages").on('change', function (e) {
+            for (var i = 0; i < this.files.length; i++) {
+                dt.items.add(this.files[i]);
+            }
+            this.files = dt.files;
+            RenderPreview();
+        });
+
+        function RenderPreview() {
+            var container = $('#previewGallery');
+            container.empty();
+            for (let i = 0; i < dt.files.length; i++) {
+                let file = dt.files[i];
+                let reader = new FileReader();
+                reader.onload = function (e) {
+                    var html = `
+                                <div class="img-box" title="Ảnh số: ${i}">
+                                    <img src="${e.target.result}" />
+                                    <span class="img-badge">#${i}</span>
+                                    <button type="button" class="btn-remove" onclick="RemoveFile(${i})"><i class="fas fa-times"></i></button>
+                                </div>`;
+                    container.append(html);
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        window.RemoveFile = function (index) {
+            dt.items.remove(index);
+            document.getElementById('MoreImages').files = dt.files;
+            RenderPreview();
+        }
+    </script>
+}

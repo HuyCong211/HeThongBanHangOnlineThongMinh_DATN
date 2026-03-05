@@ -1,0 +1,102 @@
+﻿@using PagedList.Mvc
+@model PagedList.IPagedList<DoAn_Ver2.Models.PhuongThucThanhToan>
+
+@{
+    ViewBag.Title = "Phương thức thanh toán";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">Cấu hình Thanh toán</h6>
+        <a href="@Url.Action("Create")" class="btn btn-success btn-sm font-weight-bold">
+            <i class="fas fa-plus mr-1"></i> Thêm mới
+        </a>
+    </div>
+    <div class="card-body">
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success">@TempData["Success"]</div>
+        }
+
+        <div class="table-responsive">
+            <table class="table table-bordered align-middle" width="100%" cellspacing="0">
+                <thead class="thead-light">
+                    <tr>
+                        <th style="width: 100px;">Logo</th>
+                        <th>Tên phương thức</th>
+                        <th>Mã Code (System)</th>
+                        <th>Trạng thái</th>
+                        <th>Tác vụ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="text-center">
+                                    <img src="@(string.IsNullOrEmpty(item.HinhAnh) ? "/Content/images/no-image.png" : item.HinhAnh)"
+                                         style="width: 60px; height: auto; object-fit:contain;" alt="Logo" />
+                                </td>
+                                <td>
+                                    <strong class="text-dark">@item.TenPhuongThuc</strong><br />
+                                    <small class="text-muted">@Html.Raw(item.MoTa)</small>
+                                </td>
+                                <td><span class="badge badge-secondary font-monospace">@item.MaCode</span></td>
+                                <td>
+                                    @if (item.TrangThai == true)
+                                    {
+                                        <span class="badge badge-success">Đang hoạt động</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-danger">Tạm khóa</span>
+                                    }
+                                </td>
+                                <td>
+                                    <a href="@Url.Action("Edit", new { id = item.ID })" class="btn btn-warning btn-sm" title="Sửa">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button class="btn btn-danger btn-sm" onclick="DeletePayment(@item.ID)" title="Xóa">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr><td colspan="5" class="text-center">Chưa có phương thức thanh toán nào</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="float-right">
+            @Html.PagedListPager(Model, page => Url.Action("Index", new { page }), new PagedListRenderOptions { LiElementClasses = new string[] { "page-item" }, FunctionToTransformEachPageLink = (li, a) => { a.AddCssClass("page-link"); return a; } })
+        </div>
+    </div>
+</div>
+
+<script>
+    function DeletePayment(id) {
+        if (confirm('Bạn có chắc muốn xóa? Nếu đã có đơn hàng dùng phương thức này, hệ thống sẽ chặn xóa.')) {
+            $.ajax({
+                url: '/Admin/Payment/Delete',
+                type: 'POST',
+                data: { id: id },
+                success: function (res) {
+                    if (res.success) {
+                        alert('Xóa thành công!');
+                        location.reload();
+                    } else {
+                        alert('Cảnh báo: ' + res.message);
+                    }
+                }
+            });
+        }
+    }
+</script>

@@ -1,0 +1,159 @@
+﻿@model IEnumerable<DoAn_Ver2.Models.DiaChi>
+@{
+    ViewBag.Title = "Sổ địa chỉ";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-3">
+            @Html.Partial("~/Views/Profile/_ProfileSidebar.cshtml")
+        </div>
+        <div class="col-lg-9">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <span class="font-weight-bold">ĐỊA CHỈ CỦA TÔI</span>
+                    <button class="btn btn-sm btn-success" data-toggle="modal" data-target="#modalAddAddress">
+                        <i class="fas fa-plus"></i> Thêm địa chỉ mới
+                    </button>
+                </div>
+                <div class="card-body">
+                    @if (Model.Count() == 0)
+                    {<p class="text-muted text-center">Chưa có địa chỉ nào.</p> }
+                    else
+                    {
+                        foreach (var item in Model)
+                        {
+                            <div class="border-bottom pb-3 mb-3 d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1 font-weight-bold">
+                                        @item.TenNguoiNhan <span class="text-muted font-weight-normal ml-2">(@item.SDT_NguoiNhan)</span>
+                                        @if (item.MacDinh == true)
+                                        {<span class="badge badge-success ml-2">Mặc định</span>}
+                                    </h6>
+                                    <p class="mb-0 text-muted small">@item.DiaChiChiTiet, @item.PhuongXa, @item.Tinh_ThanhPho</p>
+                                </div>
+                                <div>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteAddress(@item.ID)">Xóa</button>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalAddAddress" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thêm địa chỉ mới</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="frmAddAddress">
+                    <div class="row">
+                        <div class="col-md-6 form-group">
+                            <label>Tên người nhận</label>
+                            <input type="text" name="TenNguoiNhan" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>Số điện thoại</label>
+                            <input type="text" name="SDT" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 form-group">
+                            <label>Tỉnh / Thành</label>
+                            <select name="TinhThanh" id="province" class="form-control" required>
+                                <option value="">-- Chọn Tỉnh --</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>Phường / Xã</label>
+                            <select name="PhuongXa" id="ward" class="form-control" disabled required>
+                                <option value="">-- Chọn Xã --</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Địa chỉ chi tiết</label>
+                        <input type="text" name="DiaChiChiTiet" class="form-control" placeholder="Số nhà, đường..." required>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" name="MacDinh" id="chkDefault" value="true">
+                        <label class="form-check-label" for="chkDefault">Đặt làm địa chỉ mặc định</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" onclick="saveAddress()">Lưu địa chỉ</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+    <script src="~/Content/data/vietnam-regions.js"></script>
+    <script>
+        // 1. LOAD API 2 CẤP (Copy y hệt từ Checkout qua)
+        $(document).ready(function () {
+            const allCommunes = vietnamDataV2.communes;
+            const provinceMap = new Map();
+
+            allCommunes.forEach(item => {
+                if (!provinceMap.has(item.provinceCode)) {
+                    provinceMap.set(item.provinceCode, item.provinceName);
+                }
+            });
+
+            const sortedProvinces = Array.from(provinceMap).sort((a, b) => a[1].localeCompare(b[1]));
+            sortedProvinces.forEach(([code, name]) => {
+                $('#province').append(`<option value="${name}" data-code="${code}">${name}</option>`);
+            });
+
+            $('#province').change(function () {
+                const selectedProvinceCode = $(this).find(':selected').data('code');
+                const $wardSelect = $('#ward');
+                $wardSelect.empty().append('<option value="">-- Chọn Phường/Xã --</option>');
+
+                if (selectedProvinceCode) {
+                    const filteredWards = allCommunes.filter(c => c.provinceCode == selectedProvinceCode);
+                    filteredWards.sort((a, b) => a.name.localeCompare(b.name));
+                    filteredWards.forEach(w => {
+                        $wardSelect.append(`<option value="${w.name}">${w.name}</option>`);
+                    });
+                    $wardSelect.prop('disabled', false);
+                } else {
+                    $wardSelect.prop('disabled', true);
+                }
+            });
+        });
+
+        // 2. LƯU ĐỊA CHỈ (AJAX)
+        function saveAddress() {
+            var data = $('#frmAddAddress').serialize();
+            $.post('/Profile/AddAddress', data, function(res) {
+                if(res.success) {
+                    location.reload();
+                } else {
+                    alert(res.msg || "Lỗi khi lưu địa chỉ");
+                }
+            });
+        }
+
+        // 3. XÓA ĐỊA CHỈ
+        function deleteAddress(id) {
+            if(confirm("Bạn chắc chắn muốn xóa địa chỉ này?")) {
+                $.post('/Profile/DeleteAddress', {id: id}, function(res) {
+                    if(res.success) location.reload();
+                    else alert("Lỗi khi xóa");
+                });
+            }
+        }
+    </script>
+}

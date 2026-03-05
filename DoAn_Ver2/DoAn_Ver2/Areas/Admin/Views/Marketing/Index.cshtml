@@ -1,0 +1,121 @@
+﻿@using PagedList.Mvc
+@model PagedList.IPagedList<DoAn_Ver2.Models.MaGiamGia>
+
+@{
+    ViewBag.Title = "Quản lý Mã giảm giá";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">Danh sách Mã giảm giá</h6>
+        <a href="@Url.Action("Create")" class="btn btn-success btn-sm font-weight-bold">
+            <i class="fas fa-plus mr-1"></i> Thêm mới
+        </a>
+    </div>
+    <div class="card-body">
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success">@TempData["Success"]</div>
+        }
+
+        <form action="@Url.Action("Index")" method="get" class="form-inline mb-4">
+            <div class="input-group">
+                <input type="text" name="searchString" value="@ViewBag.CurrentFilter" class="form-control" placeholder="Nhập mã code...">
+                <div class="input-group-append">
+                    <button class="btn btn-primary" type="button">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover" width="100%" cellspacing="0">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Mã Code</th>
+                        <th>Loại giảm</th>
+                        <th>Giá trị</th>
+                        <th>Đơn tối thiểu</th>
+                        <th>Số lượng</th>
+                        <th>Hạn sử dụng</th>
+                        <th>Tác vụ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var item in Model)
+                        {
+                            bool isExpired = item.NgayHetHan < DateTime.Now;
+                            <tr class="@(isExpired ? "table-secondary text-muted" : "")">
+                                <td class="font-weight-bold text-primary">@item.MaCode</td>
+                                <td>
+                                    @if (item.LoaiGiam == "PERCENT")
+                                    {<span class="badge badge-info">% Phần trăm</span> }
+                                    else
+                                    { <span class="badge badge-success">$ Tiền mặt</span>}
+                                </td>
+                                <td class="font-weight-bold">
+                                    @(item.LoaiGiam == "PERCENT" ? item.GiaTri?.ToString("N0") + "%" : item.GiaTri?.ToString("N0") + " đ")
+                                </td>
+                                <td>@(item.DonToiThieu?.ToString("N0") ?? "0") đ</td>
+                                <td>@item.SoLuong</td>
+                                <td>
+                                    @if (isExpired)
+                                    {
+                                        <span class="text-danger small font-weight-bold">Đã hết hạn</span><br>
+                                    }
+                                    @(item.NgayHetHan?.ToString("dd/MM/yyyy HH:mm"))
+                                </td>
+                                <td>
+                                    <a href="@Url.Action("Edit", new { id = item.ID })" class="btn btn-warning btn-sm" title="Sửa">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button class="btn btn-danger btn-sm" onclick="DeleteVoucher(@item.ID)" title="Xóa">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr><td colspan="7" class="text-center">Không có dữ liệu</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="float-right">
+            @Html.PagedListPager(Model, page => Url.Action("Index", new { page, searchString = ViewBag.CurrentFilter }),
+                new PagedListRenderOptions
+                     {
+                    LiElementClasses = new string[] { "page-item" },
+                    FunctionToTransformEachPageLink = (li, a) => { a.AddCssClass("page-link"); return a; }
+                })
+        </div>
+    </div>
+</div>
+
+<script>
+    function DeleteVoucher(id) {
+        if (confirm('Bạn có chắc muốn xóa mã giảm giá này?')) {
+            $.ajax({
+                url: '/Admin/Marketing/Delete',
+                type: 'POST',
+                data: { id: id },
+                success: function (res) {
+                    if (res.success) {
+                        alert('Xóa thành công!');
+                        location.reload();
+                    } else {
+                        alert('Lỗi: ' + res.message);
+                    }
+                }
+            });
+        }
+    }
+</script>

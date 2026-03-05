@@ -1,0 +1,95 @@
+﻿@model DoAn_Ver2.Models.NguoiDung
+
+@{
+    ViewBag.Title = "Cập nhật người dùng";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Cập nhật: @Model.TenDangNhap</h6>
+    </div>
+    <div class="card-body">
+        @using (Html.BeginForm("Edit", "User", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(model => model.ID)
+            @Html.HiddenFor(model => model.TenDangNhap) @Html.HiddenFor(model => model.NgayTao)
+
+            <div class="row">
+                <div class="col-md-4 border-right">
+                    <h5 class="text-info mb-3">Tài khoản & Mật khẩu</h5>
+
+                    <div class="form-group">
+                        <label>Tên đăng nhập</label>
+                        <input type="text" class="form-control" value="@Model.TenDangNhap" disabled readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Đổi mật khẩu mới</label>
+                        @Html.EditorFor(model => model.MatKhau, new { htmlAttributes = new { @class = "form-control", type = "password", placeholder = "Để trống nếu không đổi", autocomplete = "new-password" } })
+                        <small class="text-muted">Chỉ nhập nếu muốn đổi pass.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Vai trò</label>
+                        <select name="VaiTro" class="form-control">
+                            <option value="Customer" @(Model.VaiTro == "Customer" ? "selected" : "")>Khách hàng</option>
+                            <option value="Staff" @(Model.VaiTro == "Staff" ? "selected" : "")>Nhân viên</option>
+                            <option value="Admin" @(Model.VaiTro == "Admin" ? "selected" : "")>Quản trị viên</option>
+                        </select>
+                    </div>
+
+                    <div class="custom-control custom-switch mt-3">
+                        @Html.CheckBox("TrangThai", Model.TrangThai.GetValueOrDefault(false), new { @class = "custom-control-input", @id = "switchStatus" })
+                        <label class="custom-control-label" for="switchStatus">Hoạt động (Active)</label>
+                    </div>
+                </div>
+
+                <div class="col-md-4 border-right">
+                    <h5 class="text-info mb-3">Thông tin cá nhân</h5>
+                    <div class="form-group">
+                        <label>Họ và tên</label>
+                        @Html.EditorFor(model => model.HoTen, new { htmlAttributes = new { @class = "form-control" } })
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        @Html.EditorFor(model => model.Email, new { htmlAttributes = new { @class = "form-control", type = "email", required = "required" } })
+                    </div>
+                    <div class="form-group">
+                        <label>SĐT</label>
+                        @Html.EditorFor(model => model.SDT, new { htmlAttributes = new { @class = "form-control" } })
+                    </div>
+                </div>
+
+                <div class="col-md-4 text-center">
+                    <h5 class="text-info mb-3">Avatar</h5>
+                    <div class="form-group">
+                        <img id="imgPreview" src="@(string.IsNullOrEmpty(Model.Avt) ? "/Content/images/user-default.png" : Model.Avt)" class="rounded-circle shadow-sm" style="width: 150px; height: 150px; object-fit: cover; border: 3px solid #fff;" />
+                    </div>
+                    <div class="form-group">
+                        <label class="btn btn-outline-primary btn-sm">
+                            Thay đổi ảnh... <input type="file" name="uploadBtn" style="display: none;" accept="image/*" onchange="previewImage(this)">
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <hr />
+            <button type="submit" class="btn btn-primary px-4 font-weight-bold"><i class="fas fa-save"></i> Cập nhật</button>
+            <a href="@Url.Action("Index")" class="btn btn-secondary ml-2">Quay lại</a>
+        }
+    </div>
+</div>
+
+<script>
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                document.getElementById('imgPreview').src = e.target.result;
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>

@@ -1,0 +1,17 @@
+﻿@{ Layout = null; }
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lỗi</title>
+    <link href="~/Content/Admin/css/sb-admin-2.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container mt-5 text-center">
+        <div class="card shadow p-5">
+            <h1 class="text-danger">Đường dẫn không hợp lệ</h1>
+            <p class="lead text-gray-800">Link đặt lại mật khẩu này không tồn tại hoặc đã hết hạn.</p>
+            <a href="@Url.Action("ForgotPassword", "Auth")" class="btn btn-primary">Gửi lại yêu cầu</a>
+        </div>
+    </div>
+</body>
+</html>

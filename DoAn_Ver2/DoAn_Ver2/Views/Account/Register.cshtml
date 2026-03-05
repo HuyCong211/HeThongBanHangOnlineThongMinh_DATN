@@ -1,0 +1,69 @@
+﻿@model DoAn_Ver2.Models.ViewModel.RegisterViewModel
+@{
+    ViewBag.Title = "Đăng ký thành viên";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-lg border-0 rounded-lg">
+                <div class="card-header bg-dark text-white text-center py-4">
+                    <h3 class="font-weight-bold mb-0">ĐĂNG KÝ TÀI KHOẢN</h3>
+                </div>
+                <div class="card-body p-4">
+                    @using (Html.BeginForm())
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.ValidationSummary(true, "", new { @class = "text-danger mb-3" })
+
+                        <div class="row">
+                            <div class="col-md-12 form-group mb-3">
+                                <label class="font-weight-bold">Họ và tên</label>
+                                @Html.TextBoxFor(m => m.HoTen, new { @class = "form-control", placeholder = "VD: Nguyễn Văn A" })
+                                @Html.ValidationMessageFor(m => m.HoTen, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label class="font-weight-bold">Tên đăng nhập</label>
+                            @Html.TextBoxFor(m => m.TenDangNhap, new { @class = "form-control", placeholder = "VD: user123" })
+                            @Html.ValidationMessageFor(m => m.TenDangNhap, "", new { @class = "text-danger" })
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 form-group mb-3">
+                                <label class="font-weight-bold">Email</label>
+                                @Html.TextBoxFor(m => m.Email, new { @class = "form-control", placeholder = "email@example.com" })
+                                @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
+                            </div>
+                            <div class="col-md-6 form-group mb-3">
+                                <label class="font-weight-bold">Số điện thoại</label>
+                                @Html.TextBoxFor(m => m.SDT, new { @class = "form-control", placeholder = "098..." })
+                                @Html.ValidationMessageFor(m => m.SDT, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 form-group mb-3">
+                                <label class="font-weight-bold">Mật khẩu</label>
+                                @Html.PasswordFor(m => m.MatKhau, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(m => m.MatKhau, "", new { @class = "text-danger" })
+                            </div>
+                            <div class="col-md-6 form-group mb-3">
+                                <label class="font-weight-bold">Nhập lại mật khẩu</label>
+                                @Html.PasswordFor(m => m.XacNhanMatKhau, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(m => m.XacNhanMatKhau, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-danger btn-block btn-lg mt-3 font-weight-bold">TẠO TÀI KHOẢN</button>
+                    }
+                </div>
+                <div class="card-footer text-center py-3">
+                    <div class="small">Đã có tài khoản? <a href="@Url.Action("Login")" class="font-weight-bold text-dark">Đăng nhập</a></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

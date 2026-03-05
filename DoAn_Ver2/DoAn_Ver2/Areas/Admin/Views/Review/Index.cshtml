@@ -1,0 +1,200 @@
+﻿@model List<DoAn_Ver2.Models.DanhGia>
+
+@{
+    ViewBag.Title = "Quản lý đánh giá khách hàng";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary text-uppercase">Danh sách đánh giá sản phẩm</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
+                <thead class="thead-light">
+                    <tr class="text-center">
+                        <th width="5%">ID</th>
+                        <th width="20%">Sản phẩm</th>
+                        <th width="15%">Khách hàng</th>
+                        <th width="10%">Số sao</th>
+                        <th width="35%">Nội dung đánh giá</th>
+                        <th width="10%">Trạng thái</th>
+                        <th width="5%">Xử lý</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="text-center align-middle">@item.ID</td>
+                                <td class="align-middle">
+                                    <a href="@Url.Action("Detail", "Product", new { id = item.SanPhamID, area = "" })" target="_blank" class="font-weight-bold text-primary">
+                                        @(item.SanPham != null ? item.SanPham.TenSanPham : "Sản phẩm đã xóa")
+                                    </a>
+                                </td>
+                                <td class="align-middle">
+                                    <div class="font-weight-bold">@(item.NguoiDung != null ? item.NguoiDung.HoTen : "Unknown")</div>
+                                    <small class="text-muted">@item.NgayDanhGia.Value.ToString("dd/MM/yyyy HH:mm")</small>
+                                </td>
+                                <td class="text-center align-middle">
+                                    <span class="text-warning font-weight-bold">@item.SoSao <i class="fas fa-star"></i></span>
+                                </td>
+                                <td class="align-middle">
+                                    <p class="mb-1 text-dark">@item.BinhLuan</p>
+
+                                    @if (!string.IsNullOrEmpty(item.PhanHoi))
+                                    {
+                                        <div class="p-2 bg-light border rounded small mt-2">
+                                            <strong class="text-success"><i class="fas fa-reply"></i> Shop phản hồi:</strong>
+                                            <span id="reply-text-@item.ID" class="text-secondary">@item.PhanHoi</span>
+                                            <br />
+                                            <small class="text-muted">(@(item.NgayPhanHoi.HasValue ? item.NgayPhanHoi.Value.ToString("dd/MM/yyyy HH:mm") : ""))</small>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div id="reply-box-@item.ID" class="d-none p-2 bg-light border rounded small mt-2">
+                                            <strong class="text-success"><i class="fas fa-reply"></i> Shop phản hồi:</strong>
+                                            <span id="reply-text-@item.ID" class="text-secondary"></span>
+                                        </div>
+                                    }
+                                </td>
+                                <td class="text-center align-middle">
+                                    @{
+                                        bool isShow = item.TrangThai ?? true; // Mặc định là hiện
+                                    }
+                                    @if (isShow)
+                                    {
+                                        <button class="btn btn-sm btn-success btn-block btn-toggle" data-id="@item.ID">Đang Hiện</button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-sm btn-secondary btn-block btn-toggle" data-id="@item.ID">Đang Ẩn</button>
+                                    }
+                                </td>
+                                <td class="text-center align-middle">
+                                    <button class="btn btn-sm btn-primary" title="Trả lời khách hàng" onclick="openReplyModal(@item.ID, '@HttpUtility.JavaScriptStringEncode(item.PhanHoi)')">
+                                        <i class="fas fa-comment-dots"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center text-muted">Chưa có đánh giá nào.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="replyModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title font-weight-bold">Trả lời đánh giá khách hàng</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="hdnReviewId" />
+                <div class="form-group">
+                    <label class="font-weight-bold">Nội dung phản hồi:</label>
+                    <textarea class="form-control" id="txtReplyContent" rows="5" placeholder="Nhập câu trả lời của cửa hàng tại đây..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary font-weight-bold" onclick="submitReply()">
+                    <i class="fas fa-paper-plane mr-1"></i> Gửi phản hồi
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            // 1. Xử lý nút Ẩn/Hiện (AJAX)
+            $('.btn-toggle').click(function () {
+                var btn = $(this);
+                var id = btn.data('id');
+
+                // Hiệu ứng loading nhẹ
+                var originalText = btn.text();
+                btn.text('...').prop('disabled', true);
+
+                $.post('/Admin/Review/ToggleStatus', { id: id }, function (res) {
+                    btn.prop('disabled', false);
+                    if (res.success) {
+                        if (res.status == true) {
+                            btn.removeClass('btn-secondary').addClass('btn-success').text('Đang Hiện');
+                        } else {
+                            btn.removeClass('btn-success').addClass('btn-secondary').text('Đang Ẩn');
+                        }
+                        // Có thể hiện Toast thông báo ở đây nếu muốn
+                    } else {
+                        btn.text(originalText); // Revert nếu lỗi
+                        alert(res.msg);
+                    }
+                }).fail(function () {
+                    btn.text(originalText).prop('disabled', false);
+                    alert('Lỗi kết nối server!');
+                });
+            });
+        });
+
+        // 2. Mở Modal Trả lời
+        function openReplyModal(id, currentContent) {
+            $('#hdnReviewId').val(id);
+            // Nếu null hoặc 'null' thì gán rỗng
+            if (currentContent === 'null') currentContent = '';
+            $('#txtReplyContent').val(currentContent);
+            $('#replyModal').modal('show');
+        }
+
+        // 3. Gửi nội dung trả lời (AJAX)
+        function submitReply() {
+            var id = $('#hdnReviewId').val();
+            var content = $('#txtReplyContent').val();
+
+            if (!content || content.trim() === '') {
+                alert('Vui lòng nhập nội dung trả lời!');
+                return;
+            }
+
+            $.post('/Admin/Review/ReplyReview', { id: id, replyContent: content }, function (res) {
+                if (res.success) {
+                    alert(res.msg);
+                    $('#replyModal').modal('hide');
+
+                    // Cập nhật giao diện ngay lập tức mà không cần F5 trang
+                    var replyBox = $('#reply-box-' + id);
+                    var replyText = $('#reply-text-' + id);
+
+                    // Nếu box đang ẩn (do chưa có reply trước đó) thì hiện lên
+                    if (replyBox.length > 0) {
+                        replyBox.removeClass('d-none');
+                        replyText.text(content);
+                    } else {
+                        // Trường hợp box đã hiện (update lại reply cũ) -> reload cho chắc hoặc update DOM phức tạp hơn
+                        location.reload();
+                    }
+                } else {
+                    alert(res.msg);
+                }
+            }).fail(function () {
+                alert('Lỗi kết nối server!');
+            });
+        }
+    </script>
+}

@@ -1,0 +1,483 @@
+﻿@model List<DoAn_Ver2.Models.DonHang>
+@using DoAn_Ver2.Models
+
+@{
+    ViewBag.Title = "Dashboard";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    var lowStockList = ViewBag.LowStockList as List<BienTheSanPham>;
+}
+
+<style>
+    /* Card Styles */
+    .dash-card {
+        color: #fff;
+        border-radius: 10px;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+        border: none;
+    }
+
+        .dash-card:hover {
+            transform: translateY(-5px);
+        }
+
+    .bg-gradient-teal {
+        background: linear-gradient(45deg, #11998e, #38ef7d);
+    }
+
+    .bg-gradient-green {
+        background: linear-gradient(45deg, #28a745, #85d66b);
+    }
+    /* Giống mẫu */
+    .bg-gradient-orange {
+        background: linear-gradient(45deg, #FFC312, #EE5A24);
+    }
+
+    .bg-gradient-red {
+        background: linear-gradient(45deg, #EA2027, #EE5A24);
+    }
+    /* Giống mẫu */
+
+    .dash-card-body {
+        padding: 20px;
+    }
+
+    .dash-count {
+        font-size: 36px;
+        font-weight: 800;
+        line-height: 1;
+        margin-bottom: 5px;
+    }
+
+    .dash-title {
+        font-size: 16px;
+        font-weight: 600;
+        text-transform: uppercase;
+        opacity: 0.9;
+    }
+
+    .dash-icon {
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 60px;
+        opacity: 0.2;
+    }
+
+    .dash-footer {
+        background: rgba(0,0,0,0.1);
+        padding: 8px 20px;
+        display: block;
+        color: #fff;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 600;
+        transition: background 0.2s;
+    }
+
+        .dash-footer:hover {
+            background: rgba(0,0,0,0.2);
+            color: #fff;
+            text-decoration: none;
+        }
+
+    /* Welcome Banner */
+    .welcome-banner {
+        background: #fff;
+        border-left: 5px solid #4e73df;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        margin-bottom: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+
+
+    /* ========================================= */
+    /* CUSTOM CSS CHO KHỐI AI DASHBOARD          */
+    /* ========================================= */
+    .insight-card {
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        border: 1px solid #e3e6f0;
+    }
+
+        .insight-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 .5rem 1.5rem rgba(0,0,0,.12) !important;
+            border-color: transparent;
+        }
+
+    .card-header-custom {
+        background-color: #fff;
+        border-bottom: 1px solid #f0f2f5;
+        padding: 1.2rem 1.25rem;
+        border-radius: 12px 12px 0 0 !important;
+    }
+
+    .rank-badge {
+        width: 28px;
+        height: 28px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        font-size: 13px;
+        font-weight: 800;
+        margin-right: 12px;
+        flex-shrink: 0;
+    }
+
+    .rank-1 {
+        background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+        color: #fff;
+        box-shadow: 0 3px 6px rgba(253, 160, 133, 0.4);
+    }
+
+    .rank-2 {
+        background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+        color: #fff;
+        box-shadow: 0 3px 6px rgba(142, 197, 252, 0.4);
+    }
+
+    .rank-3 {
+        background: linear-gradient(135deg, #f5d8ba 0%, #d4a373 100%);
+        color: #fff;
+        box-shadow: 0 3px 6px rgba(212, 163, 115, 0.4);
+    }
+
+    .rank-other {
+        background-color: #f8f9fc;
+        color: #858796;
+        border: 1px solid #eaecf4;
+    }
+
+    .list-item-hover {
+        transition: background 0.2s;
+        border-bottom: 1px dashed #eaecf4;
+        padding: 12px 0;
+    }
+
+        .list-item-hover:last-child {
+            border-bottom: none;
+        }
+
+        .list-item-hover:hover {
+            background-color: #fcfcfc;
+        }
+
+    .icon-circle-custom {
+        width: 38px;
+        height: 38px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        font-size: 16px;
+        flex-shrink: 0;
+    }
+</style>
+
+<div class="container-fluid">
+
+    <div class="welcome-banner">
+        <div>
+            <h4 class="text-gray-800 font-weight-bold mb-1">👋 Chào mừng trở lại, @ViewBag.AdminName!</h4>
+            <div class="card-body bg-light">
+                <p class="small mb-2">Chào mừng bạn đến với <strong>Hệ thống quản lý bán hàng của MEN STORE</strong>.</p>
+                <p class="small mb-2">Tại đây bạn có thể quản lý sản phẩm, tài khoản, bài viết, quảng cáo, cấu hình hệ thống và hơn thế nữa.</p>
+                <p class="small mb-0 text-warning font-weight-bold"><i class="fas fa-lightbulb"></i> Mẹo: Bạn có thể truy cập nhanh các chức năng từ thanh bên trái.</p>
+            </div>
+        </div>
+        <div class="text-right d-none d-md-block">
+            <div class="small text-gray-500">Hôm nay</div>
+            <div class="font-weight-bold h5 text-primary">@DateTime.Now.ToString("dd/MM/yyyy")</div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-3 col-md-6">
+            <div class="dash-card bg-gradient-teal">
+                <div class="dash-card-body">
+                    <div class="dash-count">@ViewBag.CountProduct</div>
+                    <div class="dash-title">Sản phẩm</div>
+                    <i class="fas fa-box-open dash-icon"></i>
+                </div>
+                <a href="@Url.Action("Index", "SanPham")" class="dash-footer">
+                    Xem chi tiết <i class="fas fa-arrow-circle-right float-right mt-1"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="dash-card bg-gradient-green">
+                <div class="dash-card-body">
+                    <div class="dash-count">@ViewBag.CountOrder</div>
+                    <div class="dash-title">Đơn hàng</div>
+                    <i class="fas fa-shopping-cart dash-icon"></i>
+                </div>
+                <a href="@Url.Action("Index", "DonHang")" class="dash-footer">
+                    Xem thêm <i class="fas fa-arrow-circle-right float-right mt-1"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="dash-card bg-gradient-orange">
+                <div class="dash-card-body">
+                    <div class="dash-count">@ViewBag.CountUser</div>
+                    <div class="dash-title">Người dùng</div>
+                    <i class="fas fa-users dash-icon"></i>
+                </div>
+                <a href="@Url.Action("Index", "User")" class="dash-footer">
+                    Quản lý tài khoản <i class="fas fa-arrow-circle-right float-right mt-1"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="dash-card bg-gradient-red">
+                <div class="dash-card-body">
+                    <div class="dash-count">@ViewBag.CountStock</div>
+                    <div class="dash-title">Tổng tồn kho</div>
+                    <i class="fas fa-warehouse dash-icon"></i>
+                </div>
+                <a href="@Url.Action("Index", "Kho")" class="dash-footer">
+                    Kiểm tra ngay <i class="fas fa-arrow-circle-right float-right mt-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+
+        <div class="col-lg-8 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">Đơn hàng mới nhất (Chờ xử lý)</h6>
+                    <a href="@Url.Action("Index", "DonHang")" class="btn btn-sm btn-primary">Xem tất cả</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover mb-0 align-middle">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>Mã đơn</th>
+                                    <th>Khách hàng</th>
+                                    <th>Tổng tiền</th>
+                                    <th>Trạng thái</th>
+                                    <th>Ngày đặt</th>
+                                    <th class="text-center">Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model != null && Model.Any())
+                                {
+                                    foreach (var item in Model)
+                                    {
+                                        // Link chi tiết để dùng chung
+                                        var linkDetail = Url.Action("Details", "DonHang", new { id = item.ID });
+
+                                        // Thêm onclick để bấm vào dòng là chuyển trang luôn
+                                        <tr style="cursor: pointer;" onclick="location.href='@linkDetail'">
+
+                                            <td>
+                                                <span class="font-weight-bold text-primary">@item.MaDonHang</span>
+                                            </td>
+                                            <td>@item.TenNguoiNhan</td>
+                                            <td class="text-danger font-weight-bold">@item.TongThanhToan.GetValueOrDefault(0).ToString("N0") đ</td>
+                                            <td>
+                                                @if (item.TrangThaiDonHang == 0)
+                                                {<span class="badge badge-secondary">Chờ xác nhận</span> }
+                                                else if (item.TrangThaiDonHang == 1)
+                                                { <span class="badge badge-info">Đã xác nhận</span> }
+                                                else if (item.TrangThaiDonHang == 3)
+                                                { <span class="badge badge-success">Hoàn thành</span> }
+                                                else
+                                                { <span class="badge badge-danger">Khác</span>}
+                                            </td>
+                                            <td class="small">@item.NgayDat.Value.ToString("dd/MM/yyyy HH:mm")</td>
+
+                                            <td class="text-center">
+                                                <a href="@linkDetail" class="btn btn-sm btn-info font-weight-bold shadow-sm">
+                                                    <i class="fas fa-edit mr-1"></i> Xử lý
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr><td colspan="6" class="text-center py-3 text-muted font-italic">Hiện không có đơn hàng mới nào cần xử lý.</td></tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 bg-danger text-white">
+                    <h6 class="m-0 font-weight-bold"><i class="fas fa-exclamation-triangle mr-1"></i> Cảnh báo sắp hết hàng</h6>
+                </div>
+                <div class="card-body">
+                    <p class="small text-muted mb-3">Các sản phẩm dưới đây có số lượng tồn kho <strong>dưới 5</strong>, cần nhập thêm hàng:</p>
+
+                    @if (lowStockList != null && lowStockList.Any())
+                    {
+                        <ul class="list-group list-group-flush">
+                            @foreach (var item in lowStockList)
+                            {
+                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                    <div>
+                                        <div class="font-weight-bold text-dark text-truncate" style="max-width: 200px;">
+                                            @item.SanPham.TenSanPham
+                                        </div>
+                                        <div class="small text-muted">
+                                            Size: @item.KichThuoc.TenSize | Màu: @item.MauSac.TenMau
+                                        </div>
+                                    </div>
+                                    <span class="badge badge-danger badge-pill px-3 py-2">Còn: @item.SoLuong</span>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <div class="text-center text-success py-4">
+                            <i class="fas fa-check-circle fa-2x mb-2"></i>
+                            <p>Tốt lắm! Kho hàng đang ổn định.</p>
+                        </div>
+                    }
+                </div>
+                <div class="card-footer text-center">
+                    <a href="@Url.Action("Index", "Kho")" class="small font-weight-bold text-danger">Đến quản lý kho <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+
+     @*========================================= 
+     CUSTOM CSS CHO KHỐI AI DASHBOARD          
+     =========================================*@ 
+
+<div class="row mt-4">
+
+    <div class="col-lg-4 mb-4">
+        <div class="card shadow-sm insight-card h-100">
+            <div class="card-header-custom d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-success"><i class="fas fa-trophy text-success mr-2"></i>Sản Phẩm Chốt Đơn Đỉnh</h6>
+            </div>
+            <div class="card-body">
+                <p class="small text-muted mb-3 pb-2 border-bottom">Xếp hạng sản phẩm mang lại doanh thu tốt nhất.</p>
+                @if (ViewBag.BestSellers != null)
+                {
+                    <div class="d-flex flex-column">
+                        @{ int rankBS = 1; }
+                        @foreach (var item in ViewBag.BestSellers)
+                        {
+                            string rankClass = rankBS == 1 ? "rank-1" : (rankBS == 2 ? "rank-2" : (rankBS == 3 ? "rank-3" : "rank-other"));
+                            <div class="d-flex align-items-center list-item-hover">
+                                <span class="rank-badge @rankClass">@rankBS</span>
+                                <div class="flex-grow-1 text-truncate mr-2">
+                                    <a href="@Url.Action("Edit", "SanPham", new { id = item.ID })" class="text-dark font-weight-bold text-decoration-none" title="@item.TenSanPham" style="font-size: 14px;">
+                                        @item.TenSanPham
+                                    </a>
+                                </div>
+                                <span class="badge badge-success px-2 py-1 shadow-sm" style="font-size: 12px;">@item.TongDaBan bán</span>
+                            </div>
+                            rankBS++;
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-5 text-muted"><i class="fas fa-spinner fa-spin mr-2"></i>Hệ thống đang nạp dữ liệu...</div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4 mb-4">
+        <div class="card shadow-sm insight-card h-100">
+            <div class="card-header-custom d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-danger"><i class="fas fa-heartbeat text-danger mr-2"></i>SP Cần "Giải Cứu" Gấp</h6>
+            </div>
+            <div class="card-body">
+                <p class="small text-muted mb-3 pb-2 border-bottom">View cực cao nhưng 0 lượt mua. Cần xem lại giá ngay.</p>
+                @if (ViewBag.WarningProducts != null)
+                {
+                    <div class="d-flex flex-column">
+                        @foreach (var item in ViewBag.WarningProducts)
+                        {
+                            <div class="d-flex align-items-center list-item-hover">
+                                <div class="icon-circle-custom bg-light text-danger mr-3">
+                                    <i class="fas fa-exclamation"></i>
+                                </div>
+                                <div class="flex-grow-1 text-truncate mr-2">
+                                    <span class="text-dark font-weight-bold d-block text-truncate" style="font-size: 14px; max-width: 170px;" title="@item.TenSanPham">@item.TenSanPham</span>
+                                    <span class="small text-muted"><i class="fas fa-eye mr-1"></i>@item.LuotXem lượt xem</span>
+                                </div>
+                                <span class="badge badge-danger px-2 py-1 shadow-sm" style="font-size: 12px;">0 chốt đơn</span>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-5 text-success font-weight-bold"><i class="fas fa-check-circle fa-2x d-block mb-2 text-success"></i>Không có báo động.</div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4 mb-4">
+        <div class="card shadow-sm insight-card h-100">
+            <div class="card-header-custom d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-info"><i class="fas fa-chart-line text-info mr-2"></i>Top Từ Khóa Đang Hot</h6>
+            </div>
+            <div class="card-body">
+                <p class="small text-muted mb-3 pb-2 border-bottom">Từ khóa được khách hàng săn lùng nhiều nhất 30 ngày qua.</p>
+                @if (ViewBag.TrendingKeywords != null)
+                {
+                    <div class="d-flex flex-column">
+                        @{ int rankTrend = 1; }
+                        @foreach (var item in ViewBag.TrendingKeywords)
+                        {
+                            string trendIcon = rankTrend <= 3 ? "fa-arrow-trend-up text-danger" : "fa-search text-secondary";
+                            <div class="d-flex align-items-center list-item-hover">
+                                <div class="icon-circle-custom bg-light mr-3">
+                                    <i class="fas @trendIcon"></i>
+                                </div>
+                                <div class="flex-grow-1 text-truncate">
+                                    <span class="text-dark font-weight-bold" style="font-size: 15px;">#@item.TuKhoa</span>
+                                </div>
+                                <span class="badge badge-info px-2 py-1 shadow-sm" style="font-size: 12px;">@item.SoLuotTim lượt</span>
+                            </div>
+                            rankTrend++;
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-5 text-muted">Chưa đủ dữ liệu tìm kiếm.</div>
+                }
+            </div>
+        </div>
+    </div>
+
+</div>
+</div>

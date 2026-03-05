@@ -1,0 +1,149 @@
+﻿@model List<DoAn_Ver2.Models.CauHinhChung>
+
+@{
+    ViewBag.Title = "Cấu hình hệ thống";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Thiết lập chung Website</h6>
+    </div>
+    <div class="card-body">
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success">@TempData["Success"]</div>
+        }
+
+        @using (Html.BeginForm("Update", "Config", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            @Html.AntiForgeryToken()
+
+            <div class="row">
+                <div class="col-md-6 border-right">
+                    <h5 class="text-info mb-4">Thông tin liên hệ</h5>
+
+
+                    @for (int i = 0; i < Model.Count; i++)
+                    {
+                        // 1. Nếu là các trường ẢNH -> Giữ hidden input nhưng phải đặt đúng tên "configs"
+                        if (Model[i].KeyName == "SiteLogo" || Model[i].KeyName == "SiteIcon" ||
+                            Model[i].KeyName == "BannerHome" || Model[i].KeyName == "BannerLogin" ||
+                            Model[i].KeyName == "BannerAbout" || Model[i].KeyName == "ImageAbout")
+                        {
+                            // SỬA: Dùng name="configs[...]" thay vì HiddenFor
+                            <input type="hidden" name="configs[@i].KeyName" value="@Model[i].KeyName" />
+                            <input type="hidden" name="configs[@i].Value" value="@Model[i].Value" />
+                            continue;
+                        }
+
+                        // 2. Xử lý Dropdown cho "SiteEffect"
+                        if (Model[i].KeyName == "SiteEffect")
+                        {
+                            // SỬA: KeyName phải có prefix "configs" để khớp với Controller
+                            <input type="hidden" name="configs[@i].KeyName" value="@Model[i].KeyName" />
+
+                            <div class="form-group">
+                                <label class="font-weight-bold text-danger">
+                                    <i class="fas fa-magic mr-1"></i> @Model[i].MoTa
+                                </label>
+                                @* Select này đã đúng tên configs *@
+                                <select name="configs[@i].Value" class="form-control">
+                                    <option value="none" @(Model[i].Value == "none" ? "selected" : "")>-- Tắt hiệu ứng --</option>
+                                    <option value="sakura" @(Model[i].Value == "sakura" ? "selected" : "")>🌸 Hoa đào rơi</option>
+                                    <option value="snow" @(Model[i].Value == "snow" ? "selected" : "")>❄️ Tuyết rơi</option>
+                                    <option value="autumn" @(Model[i].Value == "autumn" ? "selected" : "")>🍁 Lá thu rơi</option>
+                                    <option value="rain" @(Model[i].Value == "rain" ? "selected" : "")>🌧️ Mưa rơi</option>
+                                    <option value="fireworks" @(Model[i].Value == "fireworks" ? "selected" : "")>🎆 Pháo hoa</option>
+                                    <option value="grades" @(Model[i].Value == "grades" ? "selected" : "")>🅰️ Điểm số rơi</option>
+                                </select>
+                            </div>
+                        }
+                        else
+                        {
+                            // 3. Các trường Text bình thường (Hotline, Email...)
+                            // SỬA: Thay toàn bộ HiddenFor và TextBoxFor bằng input thủ công có "configs"
+                            <input type="hidden" name="configs[@i].KeyName" value="@Model[i].KeyName" />
+
+                            <div class="form-group">
+                                <label class="font-weight-bold">@Model[i].MoTa</label>
+                                <input type="text" name="configs[@i].Value" value="@Model[i].Value" class="form-control" />
+                            </div>
+                        }
+                    }
+                </div>
+
+                <div class="col-md-6">
+                    <h5 class="text-info mb-4">Hình ảnh & Banner</h5>
+
+                    <div class="form-group row">
+                        <label class="col-sm-4 col-form-label font-weight-bold">Logo Website</label>
+                        <div class="col-sm-8">
+                            @{ var logo = Model.FirstOrDefault(x => x.KeyName == "SiteLogo"); }
+                            <img src="@(logo != null ? logo.Value : "")" class="img-thumbnail mb-2" style="max-height: 80px;" />
+                            <input type="file" name="SiteLogo" class="form-control-file" accept="image/*" />
+                        </div>
+                    </div>
+                    <hr>
+
+                    <div class="form-group row">
+                        <label class="col-sm-4 col-form-label font-weight-bold">Icon (Favicon)</label>
+                        <div class="col-sm-8">
+                            @{ var icon = Model.FirstOrDefault(x => x.KeyName == "SiteIcon"); }
+                            <img src="@(icon != null ? icon.Value : "")" class="img-thumbnail mb-2" style="width: 32px;" />
+                            <input type="file" name="SiteIcon" class="form-control-file" accept="image/*" />
+                        </div>
+                    </div>
+                    <hr>
+
+                    <div class="form-group">
+                        <label class="font-weight-bold">Banner Chính (Trang chủ)</label>
+                        @{ var bnHome = Model.FirstOrDefault(x => x.KeyName == "BannerHome"); }
+                        <div class="mb-2">
+                            <img src="@(bnHome != null ? bnHome.Value : "")" class="img-fluid rounded border" style="height: 250px; width: 100%; object-fit: cover;" />
+                        </div>
+                        <input type="file" name="BannerHome" class="form-control-file" accept="image/*" />
+                    </div>
+                    <hr>
+
+                    <div class="form-group">
+                        <label class="font-weight-bold">Ảnh nền Đăng nhập</label>
+                        @{ var bnLogin = Model.FirstOrDefault(x => x.KeyName == "BannerLogin"); }
+                        <div class="mb-2">
+                            <img src="@(bnLogin != null ? bnLogin.Value : "")" class="img-fluid rounded border" style="height: 250px; width: 100%; object-fit: cover;" />
+                        </div>
+                        <input type="file" name="BannerLogin" class="form-control-file" accept="image/*" />
+                    </div>
+
+                    <hr>
+                    <div class="form-group">
+                        <label class="font-weight-bold text-primary">Banner trang Giới thiệu</label>
+                        @{ var bnAbout = Model.FirstOrDefault(x => x.KeyName == "BannerAbout"); }
+                        <div class="mb-2">
+                            <img src="@(bnAbout != null ? bnAbout.Value : "")" class="img-fluid rounded border" style="height: 250px; width: 100%; object-fit: cover;" />
+                        </div>
+                        <input type="file" name="BannerAbout" class="form-control-file" accept="image/*" />
+                    </div>
+
+                    <hr>
+                    <div class="form-group">
+                        <label class="font-weight-bold text-primary">Ảnh nội dung Giới thiệu</label>
+                        @{ var imgAbout = Model.FirstOrDefault(x => x.KeyName == "ImageAbout"); }
+                        <div class="mb-2">
+                            <img src="@(imgAbout != null ? imgAbout.Value : "")" class="img-fluid rounded border" style="height: 250px; width: auto; object-fit: cover;" />
+                        </div>
+                        <input type="file" name="ImageAbout" class="form-control-file" accept="image/*" />
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="mt-4 text-center">
+                <button type="submit" class="btn btn-primary btn-lg px-5 font-weight-bold">
+                    <i class="fas fa-save mr-2"></i> LƯU CẤU HÌNH
+                </button>
+            </div>
+        }
+    </div>
+</div>

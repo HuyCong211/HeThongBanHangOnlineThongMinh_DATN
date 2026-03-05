@@ -1,0 +1,169 @@
+﻿@{
+    ViewBag.Title = "Về chúng tôi";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="about-hero position-relative">
+    <img src="@ViewBag.BannerAbout"
+         class="w-100" style="height: 400px; object-fit: cover; filter: brightness(0.6);" alt="About Men Store">
+
+</div>
+<div class="hero-content text-center text-white position-absolute w-100" style="top: 50%; transform: translateY(-50%);">
+    <h1 class="font-weight-bold display-4 text-uppercase">Câu Chuyện Của Men Store</h1>
+    <p class="lead">Nơi định hình phong cách phái mạnh</p>
+    <nav aria-label="breadcrumb" class="d-flex justify-content-center">
+        <ol class="breadcrumb bg-transparent p-0 m-0">
+            <li class="breadcrumb-item"><a href="/" class="text-white-50">Trang chủ</a></li>
+            <li class="breadcrumb-item active text-white" aria-current="page">Giới thiệu</li>
+        </ol>
+    </nav>
+</div>
+</div>
+
+<section class="container py-5 my-4">
+    <div class="row align-items-center">
+        <div class="col-lg-6 mb-4 mb-lg-0">
+            <div class="position-relative pr-lg-4">
+                <img src="@ViewBag.ImageAbout"
+                     class="img-fluid rounded shadow-lg w-100" style="object-fit: cover;" alt="Men Fashion">
+                <div class="experience-box bg-primary text-white p-4 text-center rounded shadow position-absolute" style="bottom: -20px; right: 20px; max-width: 200px;">
+                    <h2 class="font-weight-bold mb-0">5+</h2>
+                    <div class="small text-uppercase">Năm kinh nghiệm</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <h5 class="text-primary font-weight-bold text-uppercase mb-2">Về Men Store</h5>
+            <h2 class="font-weight-bold mb-4">Đẳng cấp thời trang nam giới hiện đại</h2>
+            <p class="text-muted text-justify">
+                Được thành lập vào năm 2020, <strong>Men Store</strong> ra đời với sứ mệnh mang đến cho phái mạnh Việt Nam những lựa chọn thời trang không chỉ đẹp mà còn chất lượng. Chúng tôi hiểu rằng, thời trang không chỉ là trang phục khoác lên người, mà còn là sự tự tin và phong cách sống.
+            </p>
+            <p class="text-muted text-justify">
+                Từ những chiếc áo sơ mi công sở lịch lãm đến phong cách streetwear năng động, mỗi sản phẩm tại Men Store đều được tuyển chọn kỹ lưỡng về chất liệu và thiết kế. Chúng tôi cam kết mang đến trải nghiệm mua sắm tuyệt vời nhất cho bạn.
+            </p>
+
+            <div class="row mt-4">
+                <div class="col-6">
+                    <ul class="list-unstyled text-muted">
+                        <li class="mb-2"><i class="fas fa-check-circle text-primary mr-2"></i>Chất liệu cao cấp</li>
+                        <li class="mb-2"><i class="fas fa-check-circle text-primary mr-2"></i>Thiết kế xu hướng</li>
+                    </ul>
+                </div>
+                <div class="col-6">
+                    <ul class="list-unstyled text-muted">
+                        <li class="mb-2"><i class="fas fa-check-circle text-primary mr-2"></i>Giá cả hợp lý</li>
+                        <li class="mb-2"><i class="fas fa-check-circle text-primary mr-2"></i>Hỗ trợ 24/7</li>
+                    </ul>
+                </div>
+            </div>
+
+            <a href="@Url.Action("ProductByCategory", "Product", new { id = 1 })" class="btn btn-dark mt-3 px-4 py-2 font-weight-bold rounded-pill shadow-sm hover-up">
+                Khám phá ngay <i class="fas fa-arrow-right ml-2"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+<section class="bg-light py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h5 class="text-primary font-weight-bold text-uppercase">Tại sao chọn chúng tôi</h5>
+            <h2 class="font-weight-bold">Giá Trị Cốt Lõi</h2>
+        </div>
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card border-0 shadow-sm h-100 py-4 px-3 text-center feature-card">
+                    <div class="icon-box mb-3 mx-auto bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                        <i class="fas fa-tshirt fa-2x text-primary"></i>
+                    </div>
+                    <h5 class="font-weight-bold">Chất Lượng Hàng Đầu</h5>
+                    <p class="text-muted small mt-2">Sản phẩm được may từ các loại vải cao cấp, bền màu, thoáng mát và an toàn cho da.</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card border-0 shadow-sm h-100 py-4 px-3 text-center feature-card">
+                    <div class="icon-box mb-3 mx-auto bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                        <i class="fas fa-shipping-fast fa-2x text-success"></i>
+                    </div>
+                    <h5 class="font-weight-bold">Giao Hàng Nhanh Chóng</h5>
+                    <p class="text-muted small mt-2">Hợp tác với các đơn vị vận chuyển uy tín, đảm bảo hàng đến tay bạn nhanh nhất.</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card border-0 shadow-sm h-100 py-4 px-3 text-center feature-card">
+                    <div class="icon-box mb-3 mx-auto bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                        <i class="fas fa-headset fa-2x text-danger"></i>
+                    </div>
+                    <h5 class="font-weight-bold">Hỗ Trợ Tận Tâm</h5>
+                    <p class="text-muted small mt-2">Đội ngũ CSKH luôn sẵn sàng tư vấn size, phối đồ và giải quyết mọi thắc mắc của bạn.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="container py-5">
+    <div class="row bg-white shadow rounded overflow-hidden">
+        <div class="col-lg-6 p-0">
+            <iframe src="https://www.google.com/maps?q=21.053814,105.736005&z=16&t=m&hl=vi&gl=US&mapclient=embed&cid=2354416998981845914&output=embed"
+                    width="100%" height="100%" style="border:0; min-height: 400px;" allowfullscreen="" loading="lazy"></iframe>
+        </div>
+        <div class="col-lg-6 p-5 d-flex flex-column justify-content-center">
+            <h3 class="font-weight-bold mb-4 text-uppercase">Liên hệ với chúng tôi</h3>
+
+            <div class="d-flex mb-4">
+                <div class="mr-3">
+                    <i class="fas fa-map-marker-alt fa-2x text-primary"></i>
+                </div>
+                <div>
+                    <h6 class="font-weight-bold mb-1">Địa chỉ cửa hàng</h6>
+                    <p class="text-muted mb-0">@ViewBag.Address</p>
+                </div>
+            </div>
+
+            <div class="d-flex mb-4">
+                <div class="mr-3">
+                    <i class="fas fa-phone-alt fa-2x text-primary"></i>
+                </div>
+                <div>
+                    <h6 class="font-weight-bold mb-1">Hotline tư vấn</h6>
+                    <p class="text-muted mb-0">@ViewBag.Hotline</p>
+                </div>
+            </div>
+
+            <div class="d-flex mb-4">
+                <div class="mr-3">
+                    <i class="fas fa-envelope fa-2x text-primary"></i>
+                </div>
+                <div>
+                    <h6 class="font-weight-bold mb-1">Email hỗ trợ</h6>
+                    <p class="text-muted mb-0">@ViewBag.Email</p>
+                </div>
+            </div>
+
+            <div>
+                <h6 class="font-weight-bold mb-3">Theo dõi chúng tôi</h6>
+                <a href="#" class="btn btn-outline-primary btn-sm rounded-circle mr-2"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" class="btn btn-outline-danger btn-sm rounded-circle mr-2"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="btn btn-outline-info btn-sm rounded-circle"><i class="fab fa-twitter"></i></a>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section scripts {
+    <style>
+        .feature-card {
+            transition: all 0.3s ease;
+        }
+
+            .feature-card:hover {
+                transform: translateY(-10px);
+                background-color: #f8f9fa;
+            }
+
+        .hover-up:hover {
+            transform: translateY(-3px);
+        }
+    </style>
+}

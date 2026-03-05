@@ -1,0 +1,240 @@
+﻿@using DoAn_Ver2.Models
+@model DonHang
+
+@{
+    ViewBag.Title = "Chi tiết đơn hàng";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+
+    var chiTiet = ViewBag.ChiTiet as List<ChiTietDonHang>;
+    var listSKU = ViewBag.ListSKU as List<BienTheSanPham>;
+    var listSP = ViewBag.ListSP as List<SanPham>;
+    var listMau = ViewBag.ListMau as List<MauSac>;
+    var listSize = ViewBag.ListSize as List<KichThuoc>;
+    var listAnh = ViewBag.ListAnh as List<AnhSanPham>;
+}
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Thông tin sản phẩm - Đơn hàng: #@Model.MaDonHang</h6>
+                <span class="badge badge-secondary">@Model.NgayDat.Value.ToString("dd/MM/yyyy HH:mm")</span>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr class="bg-light text-dark">
+                                <th>Sản phẩm</th>
+                                <th class="text-center">Đơn giá</th>
+                                <th class="text-center">SL</th>
+                                <th class="text-right">Thành tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in chiTiet)
+                            {
+                                var sku = listSKU.FirstOrDefault(x => x.ID == item.BienTheSanPhamID);
+                                var sp = sku != null ? listSP.FirstOrDefault(x => x.ID == sku.SanPhamID) : null;
+                                var mau = sku != null ? listMau.FirstOrDefault(x => x.ID == sku.MauSacID) : null;
+                                var size = sku != null ? listSize.FirstOrDefault(x => x.ID == sku.KichThuocID) : null;
+
+                                // --- [LOGIC MỚI: TÌM ẢNH THEO MÀU] ---
+                                AnhSanPham anh = null;
+                                if (sku != null)
+                                {
+                                    // 1. Cố gắng tìm ảnh trùng với Mã màu của SKU này
+                                    // (Lưu ý: Bảng AnhSanPham cần có cột MauSacID)
+                                    anh = listAnh.FirstOrDefault(a => a.SanPhamID == sku.SanPhamID && a.MauSacID == sku.MauSacID);
+
+                                    // 2. Nếu không tìm thấy ảnh màu riêng, thì mới lấy ảnh đại diện (MacDinh)
+                                    if (anh == null)
+                                    {
+                                        anh = listAnh.FirstOrDefault(a => a.SanPhamID == sku.SanPhamID && a.MacDinh == true);
+                                    }
+                                }
+
+                                string imgUrl = anh != null ? anh.URL : "https://via.placeholder.com/60";
+                                // -------------------------------------
+
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="@imgUrl" class="img-thumbnail mr-3" style="width: 60px; height: auto; object-fit: cover;" alt="SP">
+
+                                            <div>
+                                                <div class="font-weight-bold text-primary">@(sp != null ? sp.TenSanPham : "Unknown")</div>
+                                                <small class="text-muted">
+                                                    Phân loại: @(mau != null ? mau.TenMau : "-") / @(size != null ? size.TenSize : "-")
+                                                </small>
+                                                <br />
+                                                <small class="text-muted font-italic">SKU: @(sku != null ? sku.SKU : "-")</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center align-middle">@(item.DonGia.HasValue ? item.DonGia.Value.ToString("N0") : "0")</td>
+                                    <td class="text-center align-middle font-weight-bold">x @item.SoLuong</td>
+                                    <td class="text-right align-middle font-weight-bold text-dark">@(item.ThanhTien.HasValue ? item.ThanhTien.Value.ToString("N0") : "0")</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot class="bg-light">
+                            <tr>
+                                <td colspan="3" class="text-right font-weight-bold">Tổng tiền hàng:</td>
+                                <td class="text-right">@(Model.TongTien.HasValue ? Model.TongTien.Value.ToString("N0") : "0")</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" class="text-right font-weight-bold">Phí vận chuyển:</td>
+                                <td class="text-right">@(Model.PhiVanChuyen.HasValue ? Model.PhiVanChuyen.Value.ToString("N0") : "0")</td>
+                            </tr>
+                            @* --- [MỚI] HIỂN THỊ VOUCHER GIẢM GIÁ --- *@
+                            @if (Model.GiamGia.HasValue && Model.GiamGia.Value > 0)
+                            {
+                                <tr class="text-success">
+                                    <td colspan="3" class="text-right font-weight-bold">
+                                        <i class="fas fa-ticket-alt mr-1"></i> Voucher giảm giá:
+                                    </td>
+                                    <td class="text-right font-weight-bold">-@(Model.GiamGia.Value.ToString("N0"))</td>
+                                </tr>
+                            }
+                            @* ---------------------------------------- *@
+                            <tr class="text-danger" style="font-size: 1.1em;">
+                                <td colspan="3" class="text-right font-weight-bold">TỔNG THANH TOÁN:</td>
+                                <td class="text-right font-weight-bold">@(Model.TongThanhToan.HasValue ? Model.TongThanhToan.Value.ToString("N0") : "0")</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Thông tin nhận hàng</h6>
+            </div>
+            <div class="card-body">
+                <p><i class="fas fa-user mr-2 text-gray-400"></i> <strong>@Model.TenNguoiNhan</strong></p>
+                <p><i class="fas fa-phone mr-2 text-gray-400"></i> <a href="tel:@Model.SDT_NguoiNhan">@Model.SDT_NguoiNhan</a></p>
+
+                <p><i class="fas fa-envelope mr-2 text-gray-400"></i> <a href="mailto:@Model.EmailNguoiNhan">@Model.EmailNguoiNhan</a></p>
+
+                <hr>
+
+                <p class="mb-1"><i class="fas fa-map-marker-alt mr-2 text-gray-400"></i> <strong>Địa chỉ giao hàng:</strong></p>
+                <div class="alert alert-secondary text-dark small">
+                    @{
+                        string fullAddress = Model.DiaChiGiaoHang;
+                        if (!string.IsNullOrEmpty(fullAddress) && fullAddress.Contains("(Ghi chú:"))
+                        {
+                            var parts = fullAddress.Split(new string[] { "(Ghi chú:" }, StringSplitOptions.None);
+                            <span>@parts[0]</span>
+                            <br />
+                            <div class="mt-2 pt-2 border-top border-secondary text-danger font-weight-bold">
+                                <i class="fas fa-sticky-note mr-1"></i> Ghi chú: @parts[1].Replace(")", "")
+                            </div>
+                        }
+                        else
+                        {
+                            <span>@fullAddress</span>
+                        }
+                    }
+                </div>
+
+                <hr>
+                <p>
+                    <i class="fas fa-credit-card mr-2 text-gray-400"></i>
+                    <strong>Thanh toán:</strong>
+                    <span class="badge badge-@(Model.PhuongThucThanhToanID == 2 ? "success" : "warning")">
+                        @(Model.PhuongThucThanhToanID == 2 ? "VNPay (Online)" : "COD (Tiền mặt)")
+                    </span>
+                </p>
+                <p>
+                    <i class="fas fa-money-check-alt mr-2 text-gray-400"></i>
+                    <strong>Trạng thái TT:</strong>
+                    @if (Model.TrangThaiThanhToan == true)
+                    {
+                        <span class="text-success font-weight-bold">Đã thanh toán</span>
+                    }
+                    else
+                    {
+                        <span class="text-danger font-weight-bold">Chưa thanh toán</span>
+                    }
+                </p>
+            </div>
+        </div>
+
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 bg-info text-white">
+                <h6 class="m-0 font-weight-bold">Xử lý đơn hàng</h6>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label>Trạng thái hiện tại:</label>
+                    <select id="ddlTrangThai" class="form-control font-weight-bold text-dark">
+                        <option value="0" @(Model.TrangThaiDonHang == 0 ? "selected" : "")>Chờ xác nhận</option>
+                        <option value="1" @(Model.TrangThaiDonHang == 1 ? "selected" : "")>Đã xác nhận (Chuẩn bị hàng)</option>
+                        <option value="2" @(Model.TrangThaiDonHang == 2 ? "selected" : "")>Đang giao hàng</option>
+                        <option value="3" @(Model.TrangThaiDonHang == 3 ? "selected" : "")>Hoàn thành</option>
+                        <option value="4" @(Model.TrangThaiDonHang == 4 ? "selected" : "") class="text-danger font-weight-bold">Hủy đơn hàng</option>
+                    </select>
+                </div>
+                <button class="btn btn-success btn-block font-weight-bold" onclick="UpdateStatus()">
+                    <i class="fas fa-save mr-2"></i> CẬP NHẬT TRẠNG THÁI
+                </button>
+                <a href="@Url.Action("Index")" class="btn btn-outline-secondary btn-block mt-3">
+                    <i class="fas fa-arrow-left mr-2"></i> Quay lại danh sách
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        function UpdateStatus() {
+            var status = $('#ddlTrangThai').val();
+            var id = '@Model.ID';
+            var statusText = $("#ddlTrangThai option:selected").text();
+            var reason = "";
+
+            // Nếu chọn HỦY ĐƠN (Giả sử value = 4 là Hủy)
+            if (status == 4) {
+                reason = prompt("Vui lòng nhập lý do hủy đơn hàng (Bắt buộc):");
+
+                // Nếu bấm Cancel hoặc để trống
+                if (reason === null) return; // Thoát nếu bấm Cancel
+                if (reason.trim() === "") {
+                    alert("Bạn phải nhập lý do hủy đơn để gửi email cho khách hàng!");
+                    return;
+                }
+            }
+
+            if (confirm('Bạn có chắc chắn muốn chuyển trạng thái đơn hàng sang: "' + statusText + '"?')) {
+                // Hiển thị loading (Optional)
+                $('button').prop('disabled', true).text('Đang xử lý...');
+
+                $.ajax({
+                    url: '/Admin/DonHang/UpdateStatus',
+                    type: 'POST',
+                    // Truyền thêm lyDo vào data
+                    data: { id: id, trangThai: status, lyDo: reason },
+                    success: function (res) {
+                        if (res.success) {
+                            alert('Cập nhật thành công!');
+                            location.reload();
+                        } else {
+                            alert('Lỗi: ' + res.message);
+                            $('button').prop('disabled', false).text('CẬP NHẬT TRẠNG THÁI');
+                        }
+                    },
+                    error: function() {
+                        alert('Lỗi kết nối server!');
+                        $('button').prop('disabled', false).text('CẬP NHẬT TRẠNG THÁI');
+                    }
+                });
+            }
+        }
+    </script>
+}

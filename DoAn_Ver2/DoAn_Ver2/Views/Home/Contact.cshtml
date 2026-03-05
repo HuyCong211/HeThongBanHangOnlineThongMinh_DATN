@@ -1,0 +1,142 @@
+﻿@model DoAn_Ver2.Models.ViewModel.LienHeViewModel
+
+@{
+    ViewBag.Title = "Liên hệ";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="bg-light py-4 border-bottom mb-5">
+    <div class="container">
+        <h3 class="font-weight-bold text-uppercase m-0">Liên hệ với chúng tôi</h3>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb bg-transparent p-0 m-0 small">
+                <li class="breadcrumb-item"><a href="/" class="text-muted">Trang chủ</a></li>
+                <li class="breadcrumb-item active text-dark">Liên hệ</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="container pb-5">
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            <h4 class="font-weight-bold text-uppercase mb-4">Thông tin cửa hàng</h4>
+
+            <div class="media mb-4">
+                <div class="icon-box bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mr-3" style="width: 50px; height: 50px;">
+                    <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <div class="media-body">
+                    <h6 class="mt-0 font-weight-bold">Địa chỉ</h6>
+                    <p class="text-muted mb-0">@ViewBag.Address</p>
+                </div>
+            </div>
+
+            <div class="media mb-4">
+                <div class="icon-box bg-success text-white rounded-circle d-flex align-items-center justify-content-center mr-3" style="width: 50px; height: 50px;">
+                    <i class="fas fa-phone-alt"></i>
+                </div>
+                <div class="media-body">
+                    <h6 class="mt-0 font-weight-bold">Hotline</h6>
+                    <p class="text-muted mb-0">@ViewBag.Hotline</p>
+                </div>
+            </div>
+
+            <div class="media mb-4">
+                <div class="icon-box bg-info text-white rounded-circle d-flex align-items-center justify-content-center mr-3" style="width: 50px; height: 50px;">
+                    <i class="fas fa-envelope"></i>
+                </div>
+                <div class="media-body">
+                    <h6 class="mt-0 font-weight-bold">Email</h6>
+                    <p class="text-muted mb-0">@ViewBag.Email</p>
+                </div>
+            </div>
+
+            <div class="map-container rounded overflow-hidden shadow-sm mt-4 border">
+                <iframe src="https://www.google.com/maps?q=21.053814,105.736005&z=16&t=m&hl=vi&gl=US&mapclient=embed&cid=2354416998981845914&output=embed"
+                        width="100%" height="300" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h4 class="font-weight-bold text-uppercase mb-4">Gửi tin nhắn cho chúng tôi</h4>
+                    <p class="text-muted mb-4 small">Bạn có thắc mắc về sản phẩm hoặc dịch vụ? Hãy để lại lời nhắn, chúng tôi sẽ phản hồi sớm nhất có thể.</p>
+
+                    <form id="contactForm">
+                        @Html.AntiForgeryToken()
+
+                        <div class="form-group">
+                            <label class="font-weight-bold small text-uppercase">Họ tên <span class="text-danger">*</span></label>
+                            @Html.TextBoxFor(m => m.HoTen, new { @class = "form-control bg-light", placeholder = "Nhập họ tên của bạn" })
+                            @Html.ValidationMessageFor(m => m.HoTen, "", new { @class = "text-danger small" })
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 form-group">
+                                <label class="font-weight-bold small text-uppercase">Email <span class="text-danger">*</span></label>
+                                @Html.TextBoxFor(m => m.Email, new { @class = "form-control bg-light", placeholder = "email@example.com" })
+                                @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger small" })
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label class="font-weight-bold small text-uppercase">Số điện thoại <span class="text-danger">*</span></label>
+                                @Html.TextBoxFor(m => m.SDT, new { @class = "form-control bg-light", placeholder = "09xxxxxxxxx" })
+                                @Html.ValidationMessageFor(m => m.SDT, "", new { @class = "text-danger small" })
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="font-weight-bold small text-uppercase">Nội dung <span class="text-danger">*</span></label>
+                            @Html.TextAreaFor(m => m.NoiDung, new { @class = "form-control bg-light", rows = 5, placeholder = "Nội dung cần hỗ trợ..." })
+                            @Html.ValidationMessageFor(m => m.NoiDung, "", new { @class = "text-danger small" })
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-block font-weight-bold py-2 shadow hover-up" id="btnSubmit">
+                            <i class="fas fa-paper-plane mr-2"></i> GỬI TIN NHẮN
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        $(document).ready(function() {
+            $('#contactForm').submit(function(e) {
+                e.preventDefault();
+
+                var btn = $('#btnSubmit');
+                var originalText = btn.html();
+
+                // Hiệu ứng loading
+                btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-2"></i> Đang gửi...');
+
+                $.ajax({
+                    // [QUAN TRỌNG] Sửa "Contact" thành "Home" vì Action nằm trong HomeController
+                    url: '@Url.Action("SubmitContact", "Home")',
+                    type: 'POST',
+                    data: $(this).serialize(),
+                    success: function(res) {
+                        if (res.success) {
+                            alert(res.msg);
+                            $('#contactForm')[0].reset();
+                        } else {
+                            alert('Lỗi: ' + res.msg);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        // In lỗi chi tiết ra console để debug nếu cần
+                        console.error(xhr.responseText);
+                        alert('Đã có lỗi xảy ra khi kết nối server.');
+                    },
+                    complete: function() {
+                        btn.prop('disabled', false).html(originalText);
+                    }
+                });
+            });
+        });
+    </script>
+}

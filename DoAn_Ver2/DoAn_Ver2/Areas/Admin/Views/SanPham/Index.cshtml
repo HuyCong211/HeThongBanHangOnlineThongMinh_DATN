@@ -1,0 +1,240 @@
+﻿@using PagedList.Mvc
+@using PagedList
+@model IPagedList<DoAn_Ver2.Models.SanPham>
+
+@{
+    ViewBag.Title = "Danh sách Sản phẩm";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+
+    var dmMap = ViewBag.TenDanhMucMap as Dictionary<int, string>;
+    var imgMap = ViewBag.AnhDaiDienMap as Dictionary<int, string>;
+}
+
+<style>
+    /* CSS Phân trang */
+    .pagination-container ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+    }
+
+    .pagination-container li {
+        margin-right: 5px;
+    }
+
+        .pagination-container li a, .pagination-container li span {
+            position: relative;
+            display: block;
+            padding: 0.5rem 0.75rem;
+            margin-left: -1px;
+            line-height: 1.25;
+            color: #007bff;
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            text-decoration: none;
+            border-radius: 3px;
+        }
+
+    .pagination-container .active span {
+        z-index: 1;
+        color: #fff;
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+
+    /* CSS Cắt tên sản phẩm dài (Giới hạn 2 dòng) */
+    .product-name-limit {
+        display: -webkit-box;
+        -webkit-line-clamp: 3; /* Số dòng muốn hiển thị */
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 300px; /* Giới hạn chiều rộng nếu cần */
+    }
+</style>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+        <h5 class="m-0 font-weight-bold text-primary">QUẢN LÝ SẢN PHẨM</h5>
+        <a href="@Url.Action("Create")" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Thêm mới</a>
+    </div>
+    <div class="card-body">
+
+        @using (Html.BeginForm("Index", "SanPham", FormMethod.Get, new { @class = "mb-3" }))
+        {
+            <div class="form-row align-items-end">
+                <div class="col-md-3 mb-2">
+                    <label class="small mb-1">Từ khóa (Tên, Mã, Slug)</label>
+                    <input type="text" name="searchString" value="@ViewBag.CurrentFilter" class="form-control" placeholder="Nhập từ khóa..." />
+                </div>
+                <div class="col-md-2 mb-2">
+                    <label class="small mb-1">Danh mục</label>
+                    @Html.DropDownList("danhMucId", (SelectList)ViewBag.ListDanhMuc, "--- Tất cả ---", new { @class = "form-control" })
+                </div>
+                <div class="col-md-2 mb-2">
+                    <label class="small text-muted mb-1">Hiển thị</label>
+                    <select name="pageSize" class="form-control">
+                        <option value="5" @(ViewBag.PageSize == 5 ? "selected" : "")>5 dòng</option>
+                        <option value="10" @(ViewBag.PageSize == 10 ? "selected" : "")>10 dòng</option>
+                        <option value="20" @(ViewBag.PageSize == 20 ? "selected" : "")>20 dòng</option>
+                        <option value="50" @(ViewBag.PageSize == 50 ? "selected" : "")>50 dòng</option>
+                    </select>
+                </div>
+                <div class="col-md-1 mb-2">
+                    <button type="submit" class="btn btn-info btn-block"><i class="fas fa-search"></i> Lọc</button>
+                </div>
+
+                <div class="col-md-1 mb-2">
+                    <a href="@Url.Action("Index")" class="btn btn-secondary btn-block" title="Reset"><i class="fas fa-sync"></i></a>
+                </div>
+            </div>
+        }
+
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th style="width: 50px;">STT</th>
+                        <th style="width: 80px;">Mã SP</th>
+                        <th style="width: 70px;">Ảnh</th>
+                        <th style="min-width: 200px;">Tên sản phẩm</th>
+                        <th>Danh mục</th>
+                        <th>Giá bán</th>
+                        <th>Ngày tạo</th>
+                        <th>Trạng thái</th>
+                        <th class="text-center" style="width: 140px;">Tác vụ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Any())
+                    {
+                        // Khai báo biến đếm
+                        int i = 0;
+                        int pageSize = ViewBag.PageSize;
+                        int pageNumber = Model.PageNumber;
+                        foreach (var item in Model)
+                        {
+                            i++;
+                            int stt = (pageNumber - 1) * pageSize + i;
+                            <tr>
+                                <td class="text-center font-weight-bold">@stt</td>
+                                <td>@item.MaSanPham</td>
+                                <td class="text-center">
+                                    @{
+                                        string imgUrl = "/Content/images/no-image.png";
+                                        if (imgMap != null && imgMap.ContainsKey(item.ID))
+                                        {
+                                            imgUrl = imgMap[item.ID];
+                                        }
+                                    }
+                                    <img src="@imgUrl" style="width:50px; height:auto; object-fit:cover; border-radius:4px; border:1px solid #eee;" />
+                                </td>
+                                <td>
+                                    <div class="font-weight-bold text-primary product-name-limit" title="@item.TenSanPham">
+                                        @item.TenSanPham
+                                    </div>
+                                </td>
+                                <td>
+                                    @if (item.DanhMucID.HasValue && dmMap != null && dmMap.ContainsKey(item.DanhMucID.Value))
+                                    {
+                                        <span class="badge badge-info">@dmMap[item.DanhMucID.Value]</span>
+                                    }
+                                    else
+                                    { <span class="text-muted small">--</span>}
+                                </td>
+                                <td>@(item.GiaBan.HasValue ? item.GiaBan.Value.ToString("N0") + " đ" : "Liên hệ")</td>
+                                <td>@(item.NgayTao.HasValue ? item.NgayTao.Value.ToString("dd/MM/yyyy") : "")</td>
+                                <td>
+                                    @if (item.TrangThai == 1)
+                                    {<span class="badge badge-success">Đang bán</span> }
+                                    else if (item.TrangThai == 2)
+                                    { <span class="badge badge-warning">Hết hàng</span> }
+                                    else
+                                    { <span class="badge badge-secondary">Ngừng KD</span>}
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="@Url.Action("Details", new { id = item.ID })" class="btn btn-warning" title="Xem chi tiết">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="@Url.Action("Edit", new { id = item.ID })" class="btn btn-info" title="Cập nhật">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="@Url.Action("Delete", new { id = item.ID })" class="btn btn-danger" title="Xóa">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                        <a href="@Url.Action("Index", "BienThe", new { sanPhamId = item.ID })" class="btn btn-dark" title="Quản lý SKU">
+                                            <i class="fas fa-boxes"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr><td colspan="8" class="text-center text-muted">Không tìm thấy dữ liệu</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap">
+            <div class="small text-muted mb-2">
+                Trang @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) / @Model.PageCount
+                (Tổng: @Model.TotalItemCount SP)
+            </div>
+            <div class="d-flex align-items-center mb-2">
+                <div class="mr-3">
+                    @Html.PagedListPager(Model, page => Url.Action("Index", new
+                    {
+                        page,
+                        searchString = ViewBag.CurrentFilter,
+                        danhMucId = ViewBag.CurrentDanhMuc,
+                        pageSize = ViewBag.PageSize
+                    }),
+                    new PagedListRenderOptions
+                    {
+                        // CẤU HÌNH HIỂN THỊ TRANG
+                        DisplayLinkToFirstPage = PagedListDisplayMode.Always, // Luôn hiện nút Đầu
+                        DisplayLinkToLastPage = PagedListDisplayMode.Always,  // Luôn hiện nút Cuối
+                        DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+                        DisplayLinkToNextPage = PagedListDisplayMode.Always,
+
+                        // Giới hạn số lượng nút trang hiển thị (Ví dụ: 1 2 3 4 5 ...)
+                        MaximumPageNumbersToDisplay = 5,
+
+                        // Hiển thị dấu ... nếu vượt quá giới hạn
+                        DisplayEllipsesWhenNotShowingAllPageNumbers = true,
+
+                        // Việt hóa text các nút
+                        LinkToFirstPageFormat = "« Đầu",
+                        LinkToPreviousPageFormat = "‹ Trước",
+                        LinkToNextPageFormat = "Sau ›",
+                        LinkToLastPageFormat = "Cuối »",
+
+                        // Cấu hình CSS cho Bootstrap (Nếu CSS của bạn chưa chuẩn)
+                        // LiElementClasses = new string[] { "page-item" },
+                        // UlElementClasses = new string[] { "pagination" }
+                    })
+                </div>
+
+                @using (Html.BeginForm("Index", "SanPham", FormMethod.Get, new { @class = "form-inline" }))
+                {
+                    <input type="hidden" name="searchString" value="@ViewBag.CurrentFilter" />
+                    <input type="hidden" name="pageSize" value="@ViewBag.PageSize" />
+
+                    <div class="input-group input-group-sm">
+                        <input type="number" name="page" class="form-control" placeholder="Trang..."
+                               min="1" max="@Model.PageCount" style="width: 70px;" required>
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" type="submit">Đến</button>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+    </div>
+</div>

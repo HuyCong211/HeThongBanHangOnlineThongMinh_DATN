@@ -1,0 +1,753 @@
+﻿@{
+    Layout = null;
+    string bgLogin = DoAn_Ver2.Common.ConfigHelper.Get("BannerLogin");
+    if (string.IsNullOrEmpty(bgLogin)) { bgLogin = "/Content/images/config/bg-login.jpg"; }
+    string hieuung = DoAn_Ver2.Common.ConfigHelper.Get("SiteEffect");
+
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Đăng nhập hệ thống - Men Store Admin</title>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: url('@bgLogin') no-repeat center center fixed;
+            background-size: cover;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.1); z-index: 0;
+        }
+
+        /* --- ANIMATION --- */
+        @@keyframes slideDown {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @@keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            50% { transform: translateX(10px); }
+            75% { transform: translateX(-10px); }
+            100% { transform: translateX(0); }
+        }
+
+        .shake-animation {
+            animation: shake 0.4s ease-in-out;
+        }
+
+        .login-card {
+            position: relative; z-index: 1; width: 100%; max-width: 400px; padding: 40px 30px;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            box-shadow: 0 15px 25px rgba(0,0,0,0.3);
+            color: #fff; text-align: center;
+            animation: slideDown 0.8s ease-out forwards;
+        }
+
+        .login-header h2 { font-weight: 700; font-size: 24px; margin-bottom: 5px; }
+        .login-header p { font-size: 14px; opacity: 0.8; margin-bottom: 25px; }
+        .login-icon { font-size: 50px; margin-bottom: 15px; opacity: 0.9; }
+
+        .form-group { position: relative; margin-bottom: 25px; /* Tăng margin để chứa lỗi */ text-align: left; }
+
+        .form-control-custom {
+            width: 100%; padding: 12px 20px 12px 45px;
+            border: 2px solid transparent; /* Viền trong suốt */
+            border-radius: 30px; font-size: 14px; outline: none;
+            background: #fff; color: #333; transition: all 0.3s;
+        }
+        .form-control-custom:focus { box-shadow: 0 0 10px rgba(255,255,255,0.5); }
+
+        /* Style lỗi */
+        .form-control-custom.is-invalid {
+            border-color: #ff6b6b;
+            background-color: #fff0f0;
+        }
+
+        .invalid-feedback-custom {
+            color: #ff6b6b;
+            font-size: 12px;
+            font-weight: bold;
+            margin-top: 5px;
+            margin-left: 20px;
+            display: none; /* Mặc định ẩn */
+        }
+
+        .input-icon {
+            position: absolute; left: 15px; top: 22px; /* Chỉnh lại top vì form-group có label error */
+            transform: translateY(-50%); color: #666; font-size: 16px;
+        }
+
+        /* CHECKBOX */
+        .custom-control-label { font-size: 13px; cursor: pointer; padding-left: 5px; user-select: none; }
+        .custom-checkbox .custom-control-input:checked ~ .custom-control-label::before {
+            background-color: #0f2027; border-color: #0f2027;
+        }
+
+        .btn-login {
+            width: 100%; padding: 12px; border-radius: 30px; border: none;
+            background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+            color: #fff; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+            cursor: pointer; transition: all 0.3s; margin-top: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .btn-login:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.3); color: #fff; }
+
+        .forgot-pass {
+            display: block; margin-top: 20px; font-size: 13px;
+            color: rgba(255,255,255,0.7); text-decoration: none; transition: 0.3s;
+        }
+        .forgot-pass:hover { color: #fff; text-decoration: underline; }
+
+        .alert-custom {
+            background: rgba(255,255,255,0.9); color: #e74a3b; font-size: 13px;
+            border-radius: 10px; padding: 10px; margin-bottom: 20px; font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="login-card" id="loginCard">
+        <div class="login-icon"><i class="fas fa-user-shield"></i></div>
+        <div class="login-header">
+            <h2>Hệ thống Quản trị</h2>
+            <p>Website Thời Trang Nam</p>
+        </div>
+
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert-custom"><i class="fas fa-exclamation-triangle mr-1"></i> @ViewBag.Error</div>
+        }
+
+        @using (Html.BeginForm("Login", "Auth", FormMethod.Post, new { id = "frmLogin" }))
+        {
+            @Html.AntiForgeryToken()
+
+            <div class="form-group">
+                <i class="fas fa-envelope input-icon"></i>
+                <input type="text" id="username" name="username" class="form-control-custom" placeholder="Tên đăng nhập / Email">
+                <div class="invalid-feedback-custom" id="err-username">Vui lòng nhập tên đăng nhập!</div>
+            </div>
+
+            <div class="form-group mb-2">
+                <i class="fas fa-lock input-icon"></i>
+                <input type="password" id="password" name="password" class="form-control-custom" placeholder="Mật khẩu">
+                <div class="invalid-feedback-custom" id="err-password">Vui lòng nhập mật khẩu!</div>
+            </div>
+
+            <div class="form-group text-left pl-3 mb-3">
+                <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="rememberMe">
+                    <label class="custom-control-label text-white-50" for="rememberMe">Nhớ mật khẩu</label>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-login">
+                <i class="fas fa-sign-in-alt mr-2"></i> Đăng nhập
+            </button>
+        }
+
+        <a href="@Url.Action("ForgotPassword")" class="forgot-pass">Quên mật khẩu?</a>
+        <a href="/" class="forgot-pass" style="margin-top: 5px; opacity: 0.5;">&larr; Về trang chủ</a>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script>
+        $(document).ready(function () {
+
+            // Xử lý khi submit form
+            $('#frmLogin').on('submit', function (e) {
+                var isValid = true;
+
+                // Reset lỗi cũ
+                $('.form-control-custom').removeClass('is-invalid');
+                $('.invalid-feedback-custom').hide();
+
+                // Check Username
+                var user = $('#username').val().trim();
+                if (user == '') {
+                    $('#username').addClass('is-invalid');
+                    $('#err-username').show();
+                    isValid = false;
+                }
+
+                // Check Password
+                var pass = $('#password').val().trim();
+                if (pass == '') {
+                    $('#password').addClass('is-invalid');
+                    $('#err-password').show();
+                    isValid = false;
+                }
+
+                if (!isValid) {
+                    e.preventDefault(); // Chặn submit
+
+                    // Hiệu ứng rung lắc form
+                    $('#loginCard').addClass('shake-animation');
+                    setTimeout(function () {
+                        $('#loginCard').removeClass('shake-animation');
+                    }, 500);
+                }
+            });
+
+            // Xóa lỗi khi người dùng bắt đầu gõ
+            $('.form-control-custom').on('input', function () {
+                $(this).removeClass('is-invalid');
+                $(this).next('.invalid-feedback-custom').hide();
+            });
+        });
+    </script>
+
+
+
+    @*================================================
+        HIỆU ỨNG RƠI (Hoa, Tuyết, Điểm) + MƯA + PHÁO HOA
+        ================================================*@
+
+    @*<style>
+            /* 1. CẤU HÌNH CHUNG CHO CONTAINER */
+            #ultimate-effect-container {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                pointer-events: none; /* Quan trọng: click xuyên qua */
+                z-index: 9999;
+                overflow: hidden;
+            }
+
+            /* 2. CSS CHO CHẾ ĐỘ RƠI EMOJI (Hoa, Tuyết, Điểm) */
+            .falling-emoji {
+                position: absolute;
+                top: -50px;
+                user-select: none;
+                cursor: default;
+                animation-timing-function: linear, ease-in-out;
+                animation-iteration-count: infinite, infinite;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                line-height: 1;
+                will-change: transform, top, opacity;
+            }
+
+            /* Hiệu ứng rơi lả tả (cho emoji) */
+            @@keyframes emoji-fall {
+                0% {
+                    top: -10%;
+                    opacity: 0;
+                }
+
+                20% {
+                    opacity: 1;
+                }
+
+                100% {
+                    top: 110%;
+                    opacity: 0;
+                }
+            }
+
+            @@keyframes emoji-sway {
+                0% {
+                    transform: translateX(0) rotate(0deg);
+                }
+
+                50% {
+                    transform: translateX(35px) rotate(180deg);
+                }
+
+                100% {
+                    transform: translateX(0) rotate(360deg);
+                }
+            }
+
+            /* 3. CSS CHO CHẾ ĐỘ MƯA (Rain) */
+            .rain-drop {
+                position: absolute;
+                width: 2px; /* Độ mảnh của hạt mưa */
+                height: 25px; /* Độ dài hạt mưa */
+                background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(174, 194, 224, 0.8));
+                top: -50px;
+                animation: rain-fall linear infinite;
+                will-change: top, opacity;
+            }
+
+            /* Mưa rơi thẳng và nhanh */
+            @@keyframes rain-fall {
+                0% {
+                    top: -5%;
+                    opacity: 0;
+                }
+
+                10% {
+                    opacity: 1;
+                }
+
+                100% {
+                    top: 105%;
+                    opacity: 0.3;
+                }
+            }
+
+            /* 4. CSS CHO CHẾ ĐỘ PHÁO HOA (Fireworks) */
+            .firework-particle {
+                position: absolute;
+                width: 4px;
+                height: 4px;
+                border-radius: 50%;
+                /* [ĐÃ SỬA] Thêm hiệu ứng phát sáng (Glow) cho sang trọng */
+                box-shadow: 0 0 10px 2px currentColor;
+                /* [ĐÃ SỬA] Thời gian nổ: Tăng từ 1s lên 2.5s cho chậm rãi
+                   [ĐÃ SỬA] cubic-bezier: Tạo cảm giác nổ bung mạnh lúc đầu rồi trôi chậm dần (Vật lý thực) */
+                animation: explode 2.5s cubic-bezier(0, 0, 0.2, 1) forwards;
+                will-change: transform, opacity;
+            }
+
+            /* Hạt pháo hoa nổ ra xung quanh */
+            @@keyframes explode {
+                0% {
+                    transform: translate(0, 0) scale(1);
+                    opacity: 1;
+                }
+
+                40% {
+                    opacity: 1;
+                }
+                /* Giữ sáng lâu hơn */
+                100% {
+                    transform: translate(var(--x), var(--y)) scale(0.1);
+                    opacity: 0;
+                }
+            }
+        </style>
+
+        <div id="ultimate-effect-container"></div>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const container = document.getElementById('ultimate-effect-container');
+
+                // --- CẤU HÌNH CHÍNH Ở ĐÂY (CHỈ CẦN SỬA DÒNG NÀY) ---
+                // Các lựa chọn: 'sakura' | 'snow' | 'autumn' | 'grades' | 'rain' | 'fireworks'
+                const activeMode = '@hieuung';
+
+                // Nếu admin chọn 'none' thì không chạy gì cả
+                if (activeMode === 'none' || !activeMode) return;
+
+
+                // Cấu hình chi tiết cho từng chế độ (Có thể tùy chỉnh sâu hơn nếu muốn)
+                const modesConfig = {
+                    // Chế độ rơi Emoji (Hoa, Tuyết, Lá...)
+                    emojiBase: {
+                        quantity: 25, minSize: 15, maxSize: 25, minSpeed: 7, maxSpeed: 15,
+                        isGrades: false // Mặc định không phải là điểm số
+                    },
+                    // Cấu hình riêng cho từng loại emoji
+                    sakura: { icons: ['🌸', '🌺'], useBase: 'emojiBase' },
+                    autumn: { icons: ['🍁', '🍂'], useBase: 'emojiBase' },
+                    snow: {
+                        icons: ['❄️', '❅', '❆'], useBase: 'emojiBase',
+                        styleOverride: { color: 'white', textShadow: '0 0 5px rgba(255,255,255,0.8)' }
+                    },
+                    grades: {
+                        icons: ['A', 'B+', 'A', 'B+'], useBase: 'emojiBase',
+                        isGrades: true, // Đánh dấu là điểm số
+                        styleOverride: { color: '#e74a3b', fontWeight: '900', fontFamily: 'Arial, sans-serif' } // Màu đỏ
+                    },
+
+                    // Chế độ Mưa
+                    rain: {
+                        quantity: 60, // Mưa cần nhiều hạt hơn
+                        minSpeed: 0.8, maxSpeed: 1.5 // Mưa rơi rất nhanh
+                    },
+
+                    // Chế độ Pháo hoa
+                    fireworks: {
+                        frequency: 800, // Bao lâu bắn 1 quả (ms)
+                        particlesPerExplosion: 800 // Số hạt mỗi quả
+                    }
+                };
+
+
+                // --- HÀM KHỞI TẠO CHÍNH ---
+                function initEffect() {
+                    container.innerHTML = ''; // Xóa hiệu ứng cũ nếu có
+
+                    if (modesConfig[activeMode]?.useBase === 'emojiBase') {
+                        // Chế độ rơi Emoji (Sakura, Snow, Grades...)
+                        initFallingEmojis(activeMode);
+                    } else if (activeMode === 'rain') {
+                        // Chế độ Mưa
+                        initRain();
+                    } else if (activeMode === 'fireworks') {
+                        // Chế độ Pháo hoa
+                        initFireworks();
+                    } else {
+                        console.warn('Chế độ hiệu ứng không hợp lệ:', activeMode);
+                    }
+                }
+
+                // ======================================================
+                // 1. XỬ LÝ CHẾ ĐỘ RƠI EMOJI & ĐIỂM SỐ
+                // ======================================================
+                function initFallingEmojis(modeKey) {
+                    const config = { ...modesConfig.emojiBase, ...modesConfig[modeKey] };
+                    const iconList = config.icons;
+
+                    for (let i = 0; i < config.quantity; i++) {
+                        const item = document.createElement('div');
+                        item.classList.add('falling-emoji');
+
+                        // Random icon từ danh sách
+                        item.textContent = iconList[Math.floor(Math.random() * iconList.length)];
+
+                        // Áp dụng style đặc biệt (nếu có - VD: tuyết trắng, điểm đỏ)
+                        if (config.styleOverride) {
+                            Object.assign(item.style, config.styleOverride);
+                        }
+
+                        // Random vị trí và kích thước
+                        item.style.left = Math.random() * 100 + 'vw';
+                        const size = Math.random() * (config.maxSize - config.minSize) + config.minSize;
+                        item.style.fontSize = size + 'px';
+                        item.style.opacity = (Math.random() * 0.4 + 0.6).toFixed(2);
+
+                        // Random tốc độ
+                        const duration = Math.random() * (config.maxSpeed - config.minSpeed) + config.minSpeed;
+                        // Gán animation: tên | thời gian | kiểu chạy | delay | lặp lại
+                        item.style.animation = `emoji-fall ${duration}s linear -${Math.random() * 5}s infinite, emoji-sway ${duration * 1.2}s ease-in-out -${Math.random() * 5}s infinite alternate`;
+
+                        container.appendChild(item);
+                    }
+                }
+
+                // ======================================================
+                // 2. XỬ LÝ CHẾ ĐỘ MƯA
+                // ======================================================
+                function initRain() {
+                    const config = modesConfig.rain;
+                    for (let i = 0; i < config.quantity; i++) {
+                        const drop = document.createElement('div');
+                        drop.classList.add('rain-drop');
+
+                        drop.style.left = Math.random() * 100 + 'vw';
+                        // Random độ dài ngắn của hạt mưa một chút
+                        drop.style.height = (Math.random() * 10 + 20) + 'px';
+
+                        const duration = Math.random() * (config.maxSpeed - config.minSpeed) + config.minSpeed;
+                        // Delay âm để mưa xuất hiện ngay lập tức khi load
+                        drop.style.animation = `rain-fall ${duration}s linear -${Math.random() * 2}s infinite`;
+
+                        container.appendChild(drop);
+                    }
+                }
+
+                // ======================================================
+                // 3. XỬ LÝ CHẾ ĐỘ PHÁO HOA
+                // ======================================================
+                function initFireworks() {
+                    const config = modesConfig.fireworks;
+
+                    // Hàm màu sắc sang trọng (Vàng Gold, Xanh Neon, Đỏ, Tím...)
+                    function getRandomColor() {
+                        const colors = ['#FFD700', '#FF4500', '#00FFFF', '#FF00FF', '#7FFF00', '#ffffff'];
+                        return colors[Math.floor(Math.random() * colors.length)];
+                    }
+
+                    function launchFirework() {
+                        // [ĐÃ SỬA] startX: 5% -> 95% màn hình (Tránh sát mép quá)
+                        const startX = Math.random() * 90 + 5;
+
+                        // [ĐÃ SỬA] startY: 5% -> 95% màn hình (Nổ bất kỳ độ cao nào, không bay từ dưới lên)
+                        const startY = Math.random() * 90 + 5;
+
+                        const color = getRandomColor();
+
+                        for (let i = 0; i < config.particlesPerExplosion; i++) {
+                            const particle = document.createElement('div');
+                            particle.classList.add('firework-particle');
+                            particle.style.left = startX + 'vw';
+                            particle.style.top = startY + 'vh';
+                            particle.style.color = color;
+
+                            // Tính toán góc 360 độ
+                            const angle = (Math.random() * 360) * (Math.PI / 180);
+
+                            // [ĐÃ SỬA] Lực bắn (Radius): Tăng lên 200-450 để tán rộng ra toàn màn hình
+                            const force = Math.random() * 250 + 200;
+
+                            // Tính tọa độ đích đến (X, Y) dựa trên góc và lực
+                            particle.style.setProperty('--x', Math.cos(angle) * force + 'px');
+                            particle.style.setProperty('--y', Math.sin(angle) * force + 'px');
+
+                            container.appendChild(particle);
+
+                            // [ĐÃ SỬA] Xóa hạt sau 2.5s (Khớp với thời gian animation CSS)
+                            setTimeout(() => { particle.remove(); }, 2500);
+                        }
+                    }
+
+                    launchFirework();
+                    setInterval(launchFirework, config.frequency);
+                }
+
+                // CHẠY ỨNG DỤNG
+                initEffect();
+            });
+        </script>*@
+
+
+
+
+
+    @*================================================
+        HIỆU ỨNG CANVAS ULTIMATE: PHÁO HOA NGHỆ THUẬT
+        ================================================*@
+
+    <style>
+        /* 1. CẤU HÌNH CHUNG */
+        #ultimate-effect-container {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none; z-index: 9999; overflow: hidden;
+            /* Nền tối nhẹ để pháo hoa nổi bật hơn nếu muốn (tuỳ chọn) */
+            /* background: rgba(0,0,0,0.1); */
+        }
+        /* Canvas phải full màn hình */
+        canvas { display: block; }
+
+        /* CSS CHO EMOJI & MƯA (GIỮ NGUYÊN ĐỂ PHÒNG KHI ADMIN ĐỔI LẠI) */
+        .falling-emoji {
+            position: absolute; top: -50px; user-select: none; cursor: default;
+            animation: emoji-fall linear infinite, emoji-sway ease-in-out infinite alternate;
+            display: flex; align-items: center; justify-content: center;
+            line-height: 1; will-change: transform, top, opacity;
+        }
+        @@keyframes emoji-fall { 0% { top: -10%; opacity: 0; } 20% { opacity: 1; } 100% { top: 110%; opacity: 0; } }
+        @@keyframes emoji-sway { 0% { transform: translateX(0) rotate(0deg); } 100% { transform: translateX(35px) rotate(360deg); } }
+
+        .rain-drop {
+            position: absolute; width: 2px; height: 25px;
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(174, 194, 224, 0.8));
+            top: -50px; animation: rain-fall linear infinite; will-change: top, opacity;
+        }
+        @@keyframes rain-fall { 0% { top: -5%; opacity: 0; } 10% { opacity: 1; } 100% { top: 105%; opacity: 0.3; } }
+    </style>
+
+    <div id="ultimate-effect-container"></div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const container = document.getElementById('ultimate-effect-container');
+            const activeMode = '@hieuung';
+
+            if (activeMode === 'none' || !activeMode) return;
+
+            // CẤU HÌNH CÁC CHẾ ĐỘ CŨ
+            const modesConfig = {
+                emojiBase: { quantity: 80, minSize: 15, maxSize: 25, minSpeed: 7, maxSpeed: 15 },
+                sakura: { icons: ['🌸', '🌺'], useBase: 'emojiBase' },
+                autumn: { icons: ['🍁', '🍂'], useBase: 'emojiBase' },
+                snow: { icons: ['❄️', '❅', '❆'], useBase: 'emojiBase', styleOverride: { color: 'white', textShadow: '0 0 5px rgba(255,255,255,0.8)' } },
+                grades: { icons: ['A', 'B+', 'A', 'B+'], useBase: 'emojiBase', isGrades: true, styleOverride: { color: '#e74a3b', fontWeight: '900', fontFamily: 'Arial, sans-serif' } },
+                rain: { quantity: 60, minSpeed: 0.8, maxSpeed: 1.5 }
+            };
+
+            // --- BỘ ĐIỀU KHIỂN CHÍNH ---
+            function initEffect() {
+                container.innerHTML = '';
+                // Nếu chọn pháo hoa -> Chạy chế độ Canvas đặc biệt
+                if (activeMode === 'fireworks') {
+                    initCanvasFireworksHighEnd();
+                }
+                // Các chế độ cũ (dùng thẻ div)
+                else if (modesConfig[activeMode]?.useBase === 'emojiBase') { initFallingEmojis(activeMode); }
+                else if (activeMode === 'rain') { initRain(); }
+            }
+
+            // ==================================================================================
+            //  CANVAS FIREWORKS HIGH-END ENGINE (CỖ MÁY PHÁO HOA CAO CẤP)
+            // ==================================================================================
+            function initCanvasFireworksHighEnd() {
+                const canvas = document.createElement('canvas');
+                container.appendChild(canvas);
+                const ctx = canvas.getContext('2d');
+                let cw = window.innerWidth;
+                let ch = window.innerHeight;
+                canvas.width = cw; canvas.height = ch;
+
+                window.addEventListener('resize', () => { cw = window.innerWidth; ch = window.innerHeight; canvas.width = cw; canvas.height = ch; });
+
+                const particles = []; // Chứa các hạt pháo đang nổ
+                let lastLaunchTime = 0;
+
+                // === CẤU HÌNH PHÁO HOA TẠI ĐÂY ===
+                const FW_CONFIG = {
+                    frequency: 1200,       // Bao lâu bắn 1 quả (ms) - Tăng lên để nổ thưa hơn, sang hơn
+                    particleCount: 180,    // Số hạt mỗi quả (Nhiều hạt = dày đặc)
+                    explodePower: 15,      // Lực nổ bung ra (Tán rộng)
+                    friction: 0.96,        // Ma sát không khí (Càng gần 1 càng bay xa, càng nhỏ càng nhanh dừng lại -> tạo hiệu ứng chậm)
+                    gravity: 0.08,         // Trọng lực kéo hạt rơi xuống
+                    trailLength: 0.15,     // Độ dài đuôi (0.1 = dài, 0.5 = ngắn, 1 = không đuôi) - Kỹ thuật làm mờ màn hình
+                    colors: ['#ff0040', '#00ffff', '#ffff00', '#ff8000', '#00ff80', '#ffffff', '#da00ff'] // Bảng màu sang trọng
+                };
+
+                function random(min, max) { return Math.random() * (max - min) + min; }
+
+                // --- LỚP ĐỐI TƯỢNG HẠT PHÁO (PARTICLE) ---
+                class Particle {
+                    constructor(x, y, hue) {
+                        this.x = x; this.y = y;
+                        // Tạo lịch sử toạ độ để vẽ đuôi
+                        this.coordinates = [];
+                        this.coordinateCount = 6; // Số đốt đuôi
+                        while (this.coordinateCount--) { this.coordinates.push([this.x, this.y]); }
+
+                        // Vật lý vụ nổ
+                        this.angle = random(0, Math.PI * 2); // Góc ngẫu nhiên 360 độ
+                        this.speed = random(1, FW_CONFIG.explodePower); // Tốc độ bay
+
+                        // Tính toán vận tốc theo trục X, Y
+                        this.vx = Math.cos(this.angle) * this.speed;
+                        this.vy = Math.sin(this.angle) * this.speed;
+
+                        // Màu sắc và độ sáng
+                        this.hue = hue;
+                        this.brightness = random(60, 90); // Độ sáng (lấp lánh)
+                        this.alpha = 1; // Độ trong suốt bắt đầu
+                        this.decay = random(0.008, 0.015); // Tốc độ mờ dần (Càng nhỏ càng lâu tắt -> nổ chậm)
+                    }
+
+                    update(index) {
+                        // Xoá đốt đuôi cũ nhất, thêm toạ độ hiện tại vào đầu
+                        this.coordinates.pop();
+                        this.coordinates.unshift([this.x, this.y]);
+
+                        // Áp dụng vật lý
+                        this.vx *= FW_CONFIG.friction; // Chậm dần do ma sát
+                        this.vy *= FW_CONFIG.friction;
+                        this.vy += FW_CONFIG.gravity; // Rơi xuống do trọng lực
+                        this.x += this.vx;
+                        this.y += this.vy;
+
+                        // Mờ dần
+                        this.alpha -= this.decay;
+                        // Nếu mờ hết thì xoá khỏi mảng
+                        if (this.alpha <= 0) { particles.splice(index, 1); }
+                    }
+
+                    draw() {
+                        ctx.beginPath();
+                        // Vẽ đường nối từ đốt đuôi cuối cùng đến vị trí hiện tại
+                        ctx.moveTo(this.coordinates[this.coordinates.length - 1][0], this.coordinates[this.coordinates.length - 1][1]);
+                        ctx.lineTo(this.x, this.y);
+                        // Màu HSL: Hue, Saturation, Lightness, Alpha
+                        ctx.strokeStyle = `hsla(${this.hue}, 100%, ${this.brightness}%, ${this.alpha})`;
+                        ctx.lineWidth = 2; // Độ dày đuôi
+                        ctx.lineCap = 'round'; // Đầu cọ tròn
+                        ctx.stroke();
+                    }
+                }
+
+                // --- HÀM TẠO VỤ NỔ ---
+                function explode(x, y) {
+                    let count = FW_CONFIG.particleCount;
+                    // Chọn màu chủ đạo cho quả pháo này
+                    const baseColorHex = FW_CONFIG.colors[Math.floor(random(0, FW_CONFIG.colors.length))];
+                    // Chuyển đổi màu hex sang HSL hue (ước lượng để tạo dải màu tương đồng)
+                    let baseHue = 0;
+                    if (baseColorHex === '#ff0040') baseHue = 345;
+                    else if (baseColorHex === '#00ffff') baseHue = 180;
+                    else if (baseColorHex === '#ffff00') baseHue = 60;
+                    else if (baseColorHex === '#da00ff') baseHue = 280;
+                    else baseHue = random(0, 360);
+
+                    while (count--) {
+                        // Tạo các hạt với màu sắc biến thiên nhẹ quanh màu chủ đạo cho tự nhiên
+                        particles.push(new Particle(x, y, random(baseHue - 20, baseHue + 20)));
+                    }
+                }
+
+                // --- VÒNG LẶP HOẠT HÌNH CHÍNH (GAME LOOP) ---
+                function animate(currentTime) {
+                    requestAnimationFrame(animate);
+
+                    // KỸ THUẬT TẠO ĐUÔI: Thay vì xoá trắng màn hình, ta phủ lên một lớp màu đen bán trong suốt.
+                    // Điều này làm cho frame cũ mờ đi từ từ, tạo ra hiệu ứng vệt sáng kéo dài.
+                    ctx.globalCompositeOperation = 'destination-out';
+                    ctx.fillStyle = `rgba(0, 0, 0, ${FW_CONFIG.trailLength})`;
+                    ctx.fillRect(0, 0, cw, ch);
+
+                    // KỸ THUẬT PHÁT SÁNG: 'lighter' làm cho các pixel chồng lên nhau sáng rực lên.
+                    ctx.globalCompositeOperation = 'lighter';
+
+                    // Cập nhật và vẽ tất cả các hạt
+                    let i = particles.length;
+                    while (i--) {
+                        particles[i].draw();
+                        particles[i].update(i);
+                    }
+
+                    // Tự động bắn pháo theo thời gian
+                    if (currentTime - lastLaunchTime > FW_CONFIG.frequency) {
+                        // Nổ ở vị trí ngẫu nhiên trong vùng an toàn của màn hình (tránh sát mép)
+                        explode(random(cw * 0.1, cw * 0.9), random(ch * 0.1, ch * 0.8));
+                        lastLaunchTime = currentTime;
+                    }
+                }
+
+                // Bắt đầu vòng lặp
+                animate();
+            }
+
+
+            // --- CÁC HÀM CŨ (GIỮ LẠI ĐỂ KHÔNG LỖI KHI CHỌN HIỆU ỨNG KHÁC) ---
+            function initFallingEmojis(modeKey) {
+                const config = { ...modesConfig.emojiBase, ...modesConfig[modeKey] }; const iconList = config.icons;
+                for (let i = 0; i < config.quantity; i++) {
+                    const item = document.createElement('div'); item.classList.add('falling-emoji');
+                    item.textContent = iconList[Math.floor(Math.random() * iconList.length)];
+                    if (config.styleOverride) Object.assign(item.style, config.styleOverride);
+                    item.style.left = Math.random() * 100 + 'vw'; item.style.fontSize = Math.random() * (config.maxSize - config.minSize) + config.minSize + 'px';
+                    item.style.opacity = (Math.random() * 0.4 + 0.6).toFixed(2); item.style.animationDuration = Math.random() * (config.maxSpeed - config.minSpeed) + config.minSpeed + 's';
+                    container.appendChild(item);
+                }
+            }
+            function initRain() {
+                const config = modesConfig.rain;
+                for (let i = 0; i < config.quantity; i++) {
+                    const drop = document.createElement('div'); drop.classList.add('rain-drop');
+                    drop.style.left = Math.random() * 100 + 'vw'; drop.style.height = (Math.random() * 10 + 20) + 'px';
+                    drop.style.animationDuration = Math.random() * (config.maxSpeed - config.minSpeed) + config.minSpeed + 's';
+                    container.appendChild(drop);
+                }
+            }
+
+            initEffect();
+        });
+    </script>
+
+
+</body>
+</html>

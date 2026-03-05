@@ -1,0 +1,136 @@
+﻿@using PagedList.Mvc
+@model PagedList.IPagedList<DoAn_Ver2.Models.NguoiDung>
+
+@{
+    ViewBag.Title = "Quản lý Người dùng";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">Danh sách Người dùng</h6>
+        <a href="@Url.Action("Create")" class="btn btn-success btn-sm font-weight-bold">
+            <i class="fas fa-user-plus mr-1"></i> Thêm mới
+        </a>
+    </div>
+    <div class="card-body">
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success">@TempData["Success"]</div>
+        }
+
+        <form action="@Url.Action("Index")" method="get" class="form-inline mb-4">
+            <input type="text" name="searchString" value="@ViewBag.CurrentFilter" class="form-control mr-2" placeholder="Tìm tên, email, sđt...">
+
+            <select name="vaiTro" class="form-control mr-2">
+                <option value="">-- Tất cả vai trò --</option>
+                <option value="Admin" @(ViewBag.CurrentRole == "Admin" ? "selected" : "")>Quản trị viên (Admin)</option>
+                <option value="Staff" @(ViewBag.CurrentRole == "Staff" ? "selected" : "")>Nhân viên (Staff)</option>
+                <option value="Customer" @(ViewBag.CurrentRole == "Customer" ? "selected" : "")>Khách hàng (Customer)</option>
+            </select>
+
+            <button class="btn btn-primary" type="submit"><i class="fas fa-search"></i> Lọc</button>
+            <a href="@Url.Action("Index")" class="btn btn-secondary ml-2">Reset</a>
+        </form>
+
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle" width="100%" cellspacing="0">
+                <thead class="thead-light">
+                    <tr>
+                        <th width="80">Avatar</th>
+                        <th>Thông tin tài khoản</th>
+                        <th>Liên hệ</th>
+                        <th>Vai trò</th>
+                        <th>Trạng thái</th>
+                        <th>Tác vụ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="text-center">
+                                    <img src="@(string.IsNullOrEmpty(item.Avt) ? "/Content/images/user-default.png" : item.Avt)"
+                                         class="rounded-circle" style="width: 50px; height: 50px; object-fit:cover;" />
+                                </td>
+                                <td>
+                                    <strong>@item.TenDangNhap</strong><br />
+                                    <small class="text-muted">Họ tên: @item.HoTen</small>
+                                </td>
+                                <td>
+                                    <i class="fas fa-envelope text-gray-400"></i> @item.Email <br />
+                                    <i class="fas fa-phone text-gray-400"></i> @item.SDT
+                                </td>
+                                <td>
+                                    @if (item.VaiTro == "Admin")
+                                    {<span class="badge badge-danger">Admin</span> }
+                                    else if (item.VaiTro == "Staff")
+                                    { <span class="badge badge-primary">Staff</span> }
+                                    else
+                                    { <span class="badge badge-secondary">Customer</span>}
+                                </td>
+                                <td>
+                                    @if (item.TrangThai == true)
+                                    {
+                                        <span class="badge badge-success">Hoạt động</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-dark">Đã khóa</span>
+                                    }
+                                </td>
+                                <td>
+                                    <a href="@Url.Action("Edit", new { id = item.ID })" class="btn btn-warning btn-sm" title="Sửa">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    @if (item.VaiTro != "Admin")
+                                    {
+                                        <button class="btn btn-danger btn-sm" onclick="DeleteUser(@item.ID)" title="Xóa">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr><td colspan="6" class="text-center">Không tìm thấy người dùng nào</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="float-right">
+            @Html.PagedListPager(Model, page => Url.Action("Index", new { page, searchString = ViewBag.CurrentFilter, vaiTro = ViewBag.CurrentRole }),
+                new PagedListRenderOptions
+                     {
+                    LiElementClasses = new string[] { "page-item" },
+                    FunctionToTransformEachPageLink = (li, a) => { a.AddCssClass("page-link"); return a; }
+                })
+        </div>
+    </div>
+</div>
+
+<script>
+    function DeleteUser(id) {
+        if (confirm('CẢNH BÁO: Bạn có chắc muốn xóa người dùng này? Nếu họ đã mua hàng, hệ thống sẽ chặn xóa. Bạn nên Sửa và Khóa tài khoản thay vì Xóa.')) {
+            $.ajax({
+                url: '/Admin/User/Delete',
+                type: 'POST',
+                data: { id: id },
+                success: function (res) {
+                    if (res.success) {
+                        alert('Xóa thành công!');
+                        location.reload();
+                    } else {
+                        alert('Lỗi: ' + res.message);
+                    }
+                }
+            });
+        }
+    }
+</script>

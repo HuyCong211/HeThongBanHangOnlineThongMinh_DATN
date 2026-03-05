@@ -1,0 +1,82 @@
+﻿@model DoAn_Ver2.Models.SanPham
+@using DoAn_Ver2.Infrastructure
+@using DoAn_Ver2.Models
+
+@{
+    var db = new UnitOfWork();
+    // Lấy ảnh đại diện
+    var img = db.Repository<DoAn_Ver2.Models.AnhSanPham>().GetMany(x => x.SanPhamID == Model.ID && x.MacDinh == true).FirstOrDefault();
+    string url = img != null ? img.URL : "https://via.placeholder.com/300x300";
+
+    // 1. Kiểm tra có phải Slider không?
+    bool isSlider = ViewData["IsSlider"] != null && (bool)ViewData["IsSlider"];
+
+    // 2. Kiểm tra có số thứ tự Rank không? (Dành cho Top bán chạy)
+    int rank = ViewData["Rank"] != null ? (int)ViewData["Rank"] : 0;
+
+    // --- KIỂM TRA ĐÃ THÍCH CHƯA (ĐỂ TÔ ĐỎ TIM) ---
+    bool isLiked = false;
+    if (Session["KhachHang"] != null)
+    {
+        var user = Session["KhachHang"] as NguoiDung;
+        isLiked = db.Repository<SanPhamYeuThich>().GetMany(x => x.NguoiDungID == user.ID && x.SanPhamID == Model.ID).Any();
+    }
+    else
+    {
+        var cookie = Request.Cookies["Wishlist"];
+        if (cookie != null && !string.IsNullOrEmpty(cookie.Value))
+        {
+            isLiked = cookie.Value.Split(',').Contains(Model.ID.ToString());
+        }
+    }
+}
+
+@* Nếu KHÔNG phải slider thì mới bọc trong col-lg-3 *@
+@if (!isSlider)
+{
+    @:<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+    }
+
+<div class="product-card h-100 position-relative">
+    @if (rank > 0)
+    {
+        <div class="rank-badge @(rank <= 3 ? "top-"+rank : "")">#@rank</div>
+    }
+
+    <div class="p-img">
+        <a href="@Url.Action("Detail", "Product", new { id = Model.ID })">
+            <img src="@url" alt="@Model.TenSanPham">
+        </a>
+        <div class="p-actions">
+            <button type="button" class="btn btn-outline-danger btn-sm mx-1" title="Yêu thích" onclick="toggleWishlist(@Model.ID, this)">
+                <i class="@(isLiked ? "fas" : "far") fa-heart"></i>
+            </button>
+            <button class="btn btn-outline-primary btn-sm mx-1" title="Thêm vào giỏ"><i class="fas fa-shopping-cart"></i></button>
+            <a href="@Url.Action("Detail", "Product", new { id = Model.ID })" class="btn btn-outline-dark btn-sm mx-1" title="Xem chi tiết"><i class="far fa-eye"></i></a>
+        </div>
+        @if (Model.GiaGoc > Model.GiaBan)
+        {
+            <span class="badge badge-danger position-absolute" style="top:10px; right:10px">-@((int)((1 - Model.GiaBan / Model.GiaGoc) * 100))%</span>
+        }
+    </div>
+    <div class="p-info">
+        <a href="@Url.Action("Detail", "Product", new { id = Model.ID })" class="p-name text-truncate" title="@Model.TenSanPham">@Model.TenSanPham</a>
+        <div class="p-price">
+            @if (Model.GiaGoc > Model.GiaBan)
+            {
+                <del>@Model.GiaGoc.Value.ToString("N0")đ</del>
+            }
+            <span>@(Model.GiaBan.HasValue ? Model.GiaBan.Value.ToString("N0") : "Liên hệ")đ</span>
+        </div>
+
+        @if (isSlider)
+        {
+            <a href="@Url.Action("Detail", "Product", new { id = Model.ID })" class="btn btn-black btn-sm mt-2 shadow-sm">CHI TIẾT</a>
+        }
+    </div>
+</div>
+
+@if (!isSlider)
+{
+@:</div>
+}

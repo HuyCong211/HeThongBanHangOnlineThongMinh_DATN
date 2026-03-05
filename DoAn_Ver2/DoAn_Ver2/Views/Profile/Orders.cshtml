@@ -1,0 +1,119 @@
+﻿@model IEnumerable<DoAn_Ver2.Models.DonHang>
+@{
+    ViewBag.Title = "Lịch sử đơn hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-3">
+            @Html.Partial("~/Views/Profile/_ProfileSidebar.cshtml")
+        </div>
+        <div class="col-lg-9">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white font-weight-bold text-uppercase">
+                    Lịch sử mua hàng
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0 text-center">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>Mã đơn</th>
+                                    <th>Ngày đặt</th>
+                                    <th>Tổng tiền</th>
+                                    <th>Trạng thái</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td class="font-weight-bold text-primary align-middle">
+                                            <a href="@Url.Action("OrderDetail", "Profile", new { id = item.ID })">#@item.MaDonHang</a>
+                                        </td>
+                                        <td class="align-middle">@item.NgayDat.Value.ToString("dd/MM/yyyy")</td>
+                                        <td class="text-danger font-weight-bold align-middle">@item.TongThanhToan.Value.ToString("N0")đ</td>
+                                        <td class="align-middle">
+                                            @if (item.TrangThaiDonHang == 0)
+                                            {<span class="badge badge-secondary p-2">Chờ xác nhận</span> }
+                                            else if (item.TrangThaiDonHang == 1)
+                                            { <span class="badge badge-info p-2">Đã xác nhận</span> }
+                                            else if (item.TrangThaiDonHang == 2)
+                                            { <span class="badge badge-warning p-2">Đang giao</span> }
+                                            else if (item.TrangThaiDonHang == 3)
+                                            { <span class="badge badge-success p-2">Hoàn thành</span> }
+                                            else
+                                            { <span class="badge badge-danger p-2">Đã hủy</span>}
+                                        </td>
+                                        <td class="align-middle">
+                                            <div class="btn-group-vertical btn-group-sm">
+                                                <a href="@Url.Action("OrderDetail", "Profile", new { id = item.ID })" class="btn btn-outline-primary mb-1">Chi tiết</a>
+
+                                                <button type="button" class="btn btn-outline-success mb-1" onclick="reOrder(@item.ID)">Mua lại</button>
+
+                                                @if (item.TrangThaiDonHang == 0 || item.TrangThaiDonHang == 1)
+                                                {
+                                                    <button type="button" class="btn btn-outline-danger" onclick="cancelOrder(@item.ID, '@item.MaDonHang')">Hủy đơn</button>
+                                                }
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        // 1. Script Hủy Đơn
+        function cancelOrder(id, code) {
+            let reason = prompt("Vui lòng nhập lý do hủy đơn hàng #" + code + ":");
+            if (reason != null && reason.trim() !== "") {
+                if (confirm("Bạn chắc chắn muốn hủy đơn hàng này?")) {
+                    $.ajax({
+                        url: '/Order/CancelOrder',
+                        type: 'POST',
+                        data: { id: id, lyDo: reason },
+                        success: function (res) {
+                            if (res.success) {
+                                alert(res.msg);
+                                location.reload();
+                            } else {
+                                alert(res.msg);
+                            }
+                        }
+                    });
+                }
+            } else if (reason != null) {
+                alert("Bạn phải nhập lý do để hủy đơn hàng.");
+            }
+        }
+
+        // 2. Script Mua Lại
+        function reOrder(id) {
+            $.ajax({
+                url: '/Order/ReOrder',
+                type: 'POST',
+                data: { id: id },
+                success: function (res) {
+                    if (res.success) {
+                        if(confirm(res.msg + " Bạn có muốn đến giỏ hàng ngay không?")) {
+                            window.location.href = "/Cart/Index";
+                        } else {
+                            location.reload(); // Reload để cập nhật số lượng trên header
+                        }
+                    } else {
+                        alert(res.msg);
+                    }
+                }
+            });
+        }
+    </script>
+}

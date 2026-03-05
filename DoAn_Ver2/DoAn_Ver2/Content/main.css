@@ -1,0 +1,346 @@
+﻿/* ========================================= */
+/* CSS CHUNG (TOAST, SEARCH, CHATBOT)        */
+/* ========================================= */
+
+/* 1. TOAST NOTIFICATION */
+#toast-container {
+    position: fixed;
+    top: 80px; /* Cách top để tránh header che */
+    right: 20px;
+    z-index: 99999;
+}
+
+.custom-toast {
+    min-width: 300px;
+    background: #333;
+    color: #fff;
+    padding: 15px 20px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    opacity: 0;
+    transition: all 0.4s ease-in-out;
+    transform: translateX(100%);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    font-weight: 500;
+    text-align: left;
+}
+
+    .custom-toast.show {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    .custom-toast.success {
+        background-color: #d4edda;
+        color: #155724;
+        border-left: 6px solid #28a745;
+    }
+
+    .custom-toast.danger {
+        background-color: #f8d7da;
+        color: #721c24;
+        border-left: 6px solid #dc3545;
+    }
+
+    .custom-toast i {
+        font-size: 1.2rem;
+        margin-right: 12px;
+    }
+
+/* 2. SEARCH BOX WITH CAMERA */
+.search-box-top {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+    .search-box-top input[type="text"] {
+        padding-right: 70px; /* Chừa chỗ cho 2 nút */
+    }
+
+.btn-camera {
+    position: absolute;
+    right: 35px; /* Đặt cạnh nút kính lúp */
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: none;
+    color: #666;
+    cursor: pointer;
+    padding: 5px;
+}
+
+    .btn-camera:hover {
+        color: #333;
+    }
+
+/* 3. CHATBOT UI (STYLE ĐẸP) */
+/* ── 3. CHATBOT — nút mở ── */
+#ai-chat-circle {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
+    z-index: 2147483647;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+    #ai-chat-circle:hover {
+        transform: scale(1.08);
+        box-shadow: 0 6px 20px rgba(0, 123, 255, 0.5);
+    }
+
+/* ── 3b. CHATBOT — hộp chat ── */
+#ai-chat-box {
+    /* display controlled by JS (none / flex) */
+    position: fixed;
+    bottom: 100px;
+    right: 30px;
+    width: 350px;
+    height: 480px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 5px 30px rgba(0,0,0,0.2);
+    z-index: 2147483647;
+    flex-direction: column; /* áp dụng khi JS set display:flex */
+    border: 1px solid #ddd;
+    overflow: hidden;
+}
+
+/* Header */
+.ai-header {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    padding: 14px 16px;
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    font-size: 15px;
+}
+
+.ai-close {
+    cursor: pointer;
+    font-size: 22px;
+    line-height: 1;
+    opacity: 0.85;
+    transition: opacity 0.2s;
+}
+
+    .ai-close:hover {
+        opacity: 1;
+    }
+
+/* Body (scroll area) */
+.ai-body {
+    flex: 1;
+    padding: 14px;
+    overflow-y: auto;
+    background: #f8f9fa;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Footer (input) */
+.ai-footer {
+    padding: 10px;
+    background: #fff;
+    border-top: 1px solid #eee;
+    display: flex;
+    align-items: center;
+}
+
+    .ai-footer input {
+        flex: 1;
+        border: 1px solid #ccc;
+        padding: 8px 14px;
+        border-radius: 20px;
+        outline: none;
+        font-size: 14px;
+        transition: border-color 0.2s;
+    }
+
+        .ai-footer input:focus {
+            border-color: #007bff;
+        }
+
+    .ai-footer button {
+        background: none;
+        border: none;
+        color: #007bff;
+        font-size: 20px;
+        margin-left: 8px;
+        cursor: pointer;
+        padding: 4px 6px;
+        border-radius: 50%;
+        transition: background 0.2s;
+    }
+
+        .ai-footer button:hover {
+            background: #e8f0fe;
+        }
+
+/* ── 4. CHAT BUBBLES ── */
+.msg-row {
+    display: flex;
+    width: 100%;
+    align-items: flex-end;
+}
+
+    .msg-row.user {
+        justify-content: flex-end;
+    }
+
+    .msg-row.bot {
+        justify-content: flex-start;
+    }
+
+.msg-bubble {
+    max-width: 82%;
+    padding: 8px 12px;
+    border-radius: 15px;
+    font-size: 14px;
+    word-wrap: break-word;
+    line-height: 1.4;
+}
+
+/* User bubble (bên phải, màu xanh) */
+.msg-row.user .msg-bubble {
+    background: #007bff;
+    color: #fff;
+    border-bottom-right-radius: 4px;
+}
+
+/* Bot bubble (bên trái, màu xám nhạt) */
+.msg-row.bot .msg-bubble {
+    background: #e9ecef;
+    color: #333;
+    border-bottom-left-radius: 4px;
+}
+
+/* Avatar bot */
+.bot-avatar {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    border-radius: 50%;
+    background: #dee2e6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 6px;
+    font-size: 13px;
+    color: #495057;
+}
+
+/* ── 5. PRODUCT CARD trong chat ── */
+.chat-product {
+    display: flex;
+    background: #fff;
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    margin-top: 4px;
+    align-items: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+    .chat-product img {
+        width: 54px;
+        height: 54px;
+        object-fit: cover;
+        border-radius: 6px;
+        margin-right: 10px;
+        background: #f0f0f0;
+    }
+
+.cp-info {
+    flex: 1;
+    overflow: hidden;
+}
+
+.cp-name {
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #333;
+}
+
+.cp-price {
+    color: #d0021b;
+    font-size: 13px;
+    font-weight: 700;
+    margin-top: 2px;
+}
+
+.cp-btn {
+    display: inline-block;
+    margin-top: 4px;
+    font-size: 11px;
+    background: #007bff;
+    color: #fff;
+    padding: 3px 10px;
+    border-radius: 10px;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+
+    .cp-btn:hover {
+        background: #0056b3;
+        color: #fff;
+        text-decoration: none;
+    }
+
+/* ── 6. TYPING INDICATOR ── */
+.typing {
+    display: flex;
+    gap: 4px;
+    padding: 6px 4px;
+    align-items: center;
+}
+
+    .typing span {
+        width: 7px;
+        height: 7px;
+        background: #adb5bd;
+        border-radius: 50%;
+        animation: typingBlink 1.4s infinite;
+    }
+
+        .typing span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+@keyframes typingBlink {
+    0% {
+        opacity: 0.2;
+        transform: scale(0.85);
+    }
+
+    20% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    100% {
+        opacity: 0.2;
+        transform: scale(0.85);
+    }
+}

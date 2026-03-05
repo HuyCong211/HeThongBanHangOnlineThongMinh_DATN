@@ -1,0 +1,56 @@
+﻿@model IEnumerable<DoAn_Ver2.Models.LichSuKho>
+
+@{
+    ViewBag.Title = "Thẻ kho";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+        <h6 class="m-0 font-weight-bold text-primary">Lịch sử biến động kho: @ViewBag.SKU_Code</h6>
+        <a href="@Url.Action("Index")" class="btn btn-secondary btn-sm">Quay lại</a>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Thời gian</th>
+                        <th>Loại giao dịch</th>
+                        <th>Mã tham chiếu</th>
+                        <th>Biến động</th>
+                        <th>Tồn sau GD</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.NgayGhi.Value.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>@item.LoaiGiaoDich</td>
+                                <td>@item.MaThamChieu</td>
+                                <td class="font-weight-bold text-right">
+                                    @if (item.SoLuongBienDong > 0)
+                                    {
+                                        <span class="text-success">+@item.SoLuongBienDong</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-danger">@item.SoLuongBienDong</span>
+                                    }
+                                </td>
+                                <td class="text-right font-weight-bold">@item.TonThucTeSauBienDong</td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr><td colspan="5" class="text-center">Chưa có lịch sử giao dịch.</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

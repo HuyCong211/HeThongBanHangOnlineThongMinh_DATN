@@ -1,0 +1,113 @@
+﻿@using DoAn_Ver2.Models
+@model IEnumerable<BienTheSanPham>
+
+@{
+    var sanPham = ViewBag.SanPham as SanPham;
+    ViewBag.Title = "Quản lý SKU: " + sanPham.TenSanPham;
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+
+    var listMau = ViewBag.ListMau as List<MauSac>;
+    var listSize = ViewBag.ListSize as List<KichThuoc>;
+    var listAnhMau = ViewBag.ListAnhMau as List<AnhSanPham>;
+}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+        <div>
+            <h6 class="m-0 font-weight-bold text-primary">Biến thể: @sanPham.TenSanPham</h6>
+            <small class="text-muted">Tổng số: @Model.Count() biến thể (SKU)</small>
+        </div>
+        <div>
+            <a href="@Url.Action("Index", "SanPham")" class="btn btn-secondary btn-sm mr-2">
+                <i class="fas fa-arrow-left"></i> Về danh sách SP
+            </a>
+            <a href="@Url.Action("Create", new { sanPhamId = sanPham.ID })" class="btn btn-success btn-sm">
+                <i class="fas fa-plus-circle"></i> Thêm SKU mới
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        @if (TempData["Message"] != null)
+        {
+            <div class="alert alert-success">@TempData["Message"]</div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger">@TempData["Error"]</div>
+        }
+
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle">
+                <thead class="thead-light">
+                    <tr>
+                        <th>SKU (Mã kho)</th>
+                        <th>Màu sắc</th>
+                        <th class="text-center">Hình ảnh</th>
+                        <th>Kích thước</th>
+                        <th>Tồn kho</th>
+                        <th>Tạm giữ</th>
+                        <th>Tác vụ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var item in Model)
+                        {
+                            var mau = listMau.FirstOrDefault(m => m.ID == item.MauSacID);
+                            var size = listSize.FirstOrDefault(s => s.ID == item.KichThuocID);
+
+                            // Tìm ảnh tương ứng với màu của SKU này
+                            var anhMinhHoa = listAnhMau.FirstOrDefault(x => x.MauSacID == item.MauSacID);
+
+                            <tr>
+                                <td class="font-weight-bold text-info align-middle">@item.SKU</td>
+
+                                <td class="align-middle">
+                                    @if (mau != null)
+                                    {
+                                        <div class="d-flex align-items-center">
+                                            <span class="badge border mr-2" style="background-color: @mau.MaHex; width: 25px; height: 25px; display:inline-block; box-shadow: 1px 1px 2px rgba(0,0,0,0.1);"></span>
+                                            <span class="font-weight-bold">@mau.TenMau</span>
+                                        </div>
+                                    }
+                                </td>
+
+                                <td class="align-middle text-center">
+                                    @if (anhMinhHoa != null)
+                                    {
+                                        <img src="@anhMinhHoa.URL" class="rounded border shadow-sm" style="width: 100px; height: auto; object-fit: cover;" title="Ảnh đại diện màu @(mau?.TenMau)" />
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small font-italic" style="font-size: 0.8rem;">(Chưa có ảnh)</span>
+                                    }
+                                </td>
+
+                                <td class="align-middle">
+                                    <span class="badge badge-secondary p-2" style="min-width: 40px; font-size: 0.9rem;">@(size != null ? size.TenSize : "N/A")</span>
+                                </td>
+                                <td class="align-middle font-weight-bold @(item.SoLuong == 0 ? "text-danger" : "text-dark")">
+                                    @item.SoLuong
+                                </td>
+                                <td class="align-middle text-muted">@item.SoLuongTamGiu</td>
+                                <td class="align-middle">
+                                    <a href="@Url.Action("Edit", new { id = item.ID })" class="btn btn-info btn-sm" title="Sửa">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="@Url.Action("Delete", new { id = item.ID })" class="btn btn-danger btn-sm" onclick="return confirm('Bạn có chắc chắn muốn xóa SKU này?');" title="Xóa">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr><td colspan="7" class="text-center text-muted py-4">Chưa có biến thể nào. Hãy thêm mới!</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
