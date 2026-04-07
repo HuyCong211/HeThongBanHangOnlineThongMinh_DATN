@@ -458,6 +458,7 @@ namespace DoAn_Ver2.Controllers
 
 
         [HttpPost]
+        [ValidateInput(false)]
         public async Task<JsonResult> SendMessage(string userMessage, string historyJson)
         {
             try

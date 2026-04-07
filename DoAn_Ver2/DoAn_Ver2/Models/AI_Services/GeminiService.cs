@@ -13,7 +13,7 @@ namespace DoAn_Ver2.Models.AI_Services
     public class GeminiService
     {
         // Dán API Key Google AI Studio của em vào đây
-        private readonly string _apiKey = "AIzaSyCjxscWDGcRqYe3fzoTNmPJtQMGSNYAi18";
+        private readonly string _apiKey = "AIzaSyCutGufD0msvMjcSTK4T2gxzZKkJvIKlWM";
 
         // HÀM ĐÃ ĐƯỢC NÂNG CẤP LÊN 3 THAM SỐ (Thêm chatHistory)
         public async Task<string> ChatAsync(string userMessage, string contextData, List<dynamic> chatHistory)
@@ -48,28 +48,73 @@ namespace DoAn_Ver2.Models.AI_Services
                     "LƯU Ý QUAN TRỌNG: Thay thế [ID] bằng ID thực tế của sản phẩm để link hoạt động.\n\n" +
                     "[KẾT QUẢ TÌM KIẾM MỚI TỪ DB (Chỉ dùng khi khách hỏi món đồ mới)]:\n" + contextData;
 
+                var systemInstructionObj = new JObject(
+                    new JProperty("parts", new JArray(new JObject(new JProperty("text", systemInstruction))))
+                );
+
                 var contentsArray = new JArray();
 
-                // Đưa lịch sử cũ vào (nếu có)
-                if (chatHistory != null)
+                // 2. XỬ LÝ LỊCH SỬ CHAT
+                if (chatHistory != null && chatHistory.Count > 0)
                 {
+                    var cleanedHistory = new List<JObject>();
+
                     foreach (var msg in chatHistory)
                     {
-                        contentsArray.Add(new JObject(
-                            new JProperty("role", msg.role.ToString()),
-                            new JProperty("parts", new JArray(new JObject(new JProperty("text", msg.text.ToString()))))
+                        string currentRole = msg.role.ToString().ToLower();
+                        if (currentRole == "bot" || currentRole == "assistant")
+                            currentRole = "model";
+                        else if (currentRole != "user" && currentRole != "model")
+                            currentRole = "user";
+
+                        // *** SỬA LỖI CHÍNH: Strip HTML khỏi text trước khi gửi ***
+                        string cleanText = StripHtml(msg.text.ToString());
+                        if (string.IsNullOrWhiteSpace(cleanText)) continue;
+
+                        cleanedHistory.Add(new JObject(
+                            new JProperty("role", currentRole),
+                            new JProperty("parts", new JArray(
+                                new JObject(new JProperty("text", cleanText))
+                            ))
                         ));
                     }
+
+                    // *** SỬA LỖI CHÍNH: Đảm bảo history bắt đầu bằng role "user" ***
+                    // Gemini yêu cầu turn đầu tiên luôn là "user", không được là "model"
+                    while (cleanedHistory.Count > 0 && cleanedHistory[0]["role"]?.ToString() == "model")
+                    {
+                        cleanedHistory.RemoveAt(0);
+                    }
+
+                    // *** SỬA LỖI PHỤ: Loại bỏ các turn liên tiếp cùng role (Gemini không chấp nhận) ***
+                    for (int i = cleanedHistory.Count - 1; i > 0; i--)
+                    {
+                        if (cleanedHistory[i]["role"]?.ToString() == cleanedHistory[i - 1]["role"]?.ToString())
+                        {
+                            // Gộp 2 turn cùng role thành 1
+                            string merged = cleanedHistory[i - 1]["parts"][0]["text"].ToString()
+                                          + "\n" + cleanedHistory[i]["parts"][0]["text"].ToString();
+                            cleanedHistory[i - 1]["parts"][0]["text"] = merged;
+                            cleanedHistory.RemoveAt(i);
+                        }
+                    }
+
+                    foreach (var item in cleanedHistory)
+                        contentsArray.Add(item);
                 }
 
-                // Đưa câu hỏi mới nhất của khách vào
-                string finalMessage = $"[HƯỚNG DẪN HỆ THỐNG]:\n{systemInstruction}\n\n[KHÁCH HÀNG HỎI]: {userMessage}";
+                // 3. THÊM CÂU HỎI MỚI CỦA KHÁCH HÀNG (Chỉ chứa câu hỏi, không chứa Hướng dẫn hệ thống)
                 contentsArray.Add(new JObject(
                     new JProperty("role", "user"),
-                    new JProperty("parts", new JArray(new JObject(new JProperty("text", finalMessage))))
+                    new JProperty("parts", new JArray(new JObject(new JProperty("text", userMessage))))
                 ));
 
-                var requestBody = new JObject(new JProperty("contents", contentsArray));
+                // 4. ĐÓNG GÓI REQUEST BODY
+                var requestBody = new JObject(
+                    new JProperty("system_instruction", systemInstructionObj), // Truyền riêng hướng dẫn hệ thống
+                    new JProperty("contents", contentsArray)
+                );
+
                 var content = new StringContent(requestBody.ToString(), Encoding.UTF8, "application/json");
 
                 HttpResponseMessage response = await client.PostAsync(url, content);
@@ -82,9 +127,26 @@ namespace DoAn_Ver2.Models.AI_Services
                 }
                 else
                 {
-                    throw new Exception("Lỗi API: " + await response.Content.ReadAsStringAsync());
+                    // Bắt lỗi chi tiết từ Google để dễ debug thay vì báo lỗi chung chung
+                    string errorDetail = await response.Content.ReadAsStringAsync();
+                    throw new Exception($"Lỗi API ({response.StatusCode}): {errorDetail}");
                 }
             }
+        }
+
+
+
+
+
+        // Thêm hàm helper này vào cuối class GeminiService
+        private string StripHtml(string html)
+        {
+            if (string.IsNullOrEmpty(html)) return html;
+            // Xóa toàn bộ thẻ HTML, giữ lại text thuần
+            return System.Text.RegularExpressions.Regex.Replace(html, "<[^>]+>", " ")
+                .Replace("&nbsp;", " ")
+                .Replace("  ", " ")
+                .Trim();
         }
     }
 }
