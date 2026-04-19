@@ -32,6 +32,30 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
 
             return View(query.ToPagedList(pageNumber, pageSize));
         }
+
+        //  XEM CHI TIẾT & LỊCH SỬ ÁP DỤNG MÃ (GET)
+        public ActionResult Details(int id, int? page)
+        {
+            // 1. Lấy thông tin mã giảm giá
+            var item = _unitOfWork.Repository<MaGiamGia>().GetById(id);
+            if (item == null) return HttpNotFound();
+
+            int pageSize = 10;
+            int pageNumber = (page ?? 1);
+
+            // 2. Truy vấn tìm các đơn hàng ĐÃ LƯU cái MaCode này
+            var listOrders = _unitOfWork.Repository<DonHang>().GetAll()
+                                .Where(x => x.MaGiamGiaApDung == item.MaCode)
+                                .OrderByDescending(x => x.NgayDat);
+
+            // Truyền sang View
+            ViewBag.OrderHistory = listOrders.ToPagedList(pageNumber, pageSize);
+
+            return View(item);
+        }
+
+
+
         // 1. GET: Hiển thị form thêm mới (BẠN ĐANG THIẾU CÁI NÀY)
         public ActionResult Create()
         {

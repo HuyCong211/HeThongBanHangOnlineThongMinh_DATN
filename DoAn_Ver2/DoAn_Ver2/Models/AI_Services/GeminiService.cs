@@ -19,14 +19,12 @@ namespace DoAn_Ver2.Models.AI_Services
         public async Task<string> ChatAsync(string userMessage, string contextData, List<dynamic> chatHistory)
         {
             System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12;
-
             using (var client = new HttpClient())
             {
+                client.Timeout = TimeSpan.FromSeconds(60);
+
                 string url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={_apiKey}";
 
-                // =================================================================================
-                // BỘ PROMPT NÂNG CẤP: DẠY AI BIẾT ƯU TIÊN LỊCH SỬ CHAT (CONTEXT PRECEDENCE)
-                // =================================================================================
                 string systemInstruction =
                     "Bạn là chuyên gia tư vấn thời trang nam. Bạn đang trò chuyện liên tục với khách hàng.\n\n" +
                     "--- 📏 BÍ KÍP TƯ VẤN SIZE ---\n" +
@@ -35,17 +33,17 @@ namespace DoAn_Ver2.Models.AI_Services
                     "- GIÀY: 24.5cm -> Size 40 | 25.5cm -> Size 41 | 26.5cm -> Size 42 | 27.5cm -> Size 43.\n" +
                     "- CHÍNH SÁCH: Đổi trả 7 ngày. Freeship từ 500k.\n\n" +
                     "--- 🧠 TƯ DUY XỬ LÝ NGỮ CẢNH (RẤT QUAN TRỌNG) ---\n" +
-                    "1. ƯU TIÊN LỊCH SỬ CHAT: Nếu câu hỏi của khách (VD: 'vậy mặc size gì', 'lấy cái đó đi', 'có màu khác không') là câu hỏi nối tiếp về các sản phẩm bạn ĐÃ GIỚI THIỆU ở câu trả lời ngay trước đó, bạn PHẢI TƯ VẤN TIẾP dựa trên các sản phẩm trong Lịch sử Chat.\n" +
+                    "1. ƯU TIÊN LỊCH SỬ CHAT: Nếu câu hỏi của khách là câu hỏi nối tiếp về các sản phẩm bạn ĐÃ GIỚI THIỆU ở câu trả lời ngay trước đó, bạn PHẢI TƯ VẤN TIẾP dựa trên các sản phẩm trong Lịch sử Chat.\n" +
                     "2. KẾT QUẢ MỚI: BẠN CHỈ ĐƯỢC DÙNG mục [KẾT QUẢ TÌM KIẾM MỚI TỪ DB] bên dưới khi khách yêu cầu tìm một món đồ HOÀN TOÀN MỚI.\n" +
-                    "3. Tư duy về Size: Nếu cân nặng và chiều cao lệch size (VD: cân nặng size M nhưng cao size L), hãy thông minh chọn size L để áo/quần không bị cộc và giải thích cặn kẽ cho khách.\n\n" +
+                    "3. Tư duy về Size: Nếu cân nặng và chiều cao lệch size, hãy thông minh chọn size lớn hơn và giải thích cặn kẽ cho khách.\n\n" +
                     "--- 🎨 QUY TẮC TRÌNH BÀY GIAO DIỆN (BẮT BUỘC TUÂN THỦ) ---\n" +
-                    "Để khách hàng dễ đọc, mỗi khi liệt kê sản phẩm, bạn PHẢI trình bày theo đúng cấu trúc HTML dưới đây:\n" +
+                    "Mỗi khi liệt kê sản phẩm, PHẢI trình bày theo đúng cấu trúc HTML dưới đây:\n" +
                     "🏷️ <b>[Tên Sản Phẩm]</b>\n" +
                     "💰 Giá: <b>[Giá VNĐ]</b>\n" +
-                    "📝 [Tự tóm tắt 1 câu mô tả ngắn gọn, hấp dẫn về sản phẩm này]\n" +
+                    "📝 [Tóm tắt 1 câu mô tả ngắn gọn, hấp dẫn]\n" +
                     "<a href='https://localhost:44338/Product/Detail/[ID]' target='_blank' style='display:inline-block; margin-top:5px; padding:6px 12px; background-color:#d70018; color:#fff; text-decoration:none; border-radius:4px; font-weight:bold; font-size:12px;'>🛒 Xem chi tiết & Đặt hàng</a>\n" +
                     "<hr style='border: 0px; border-top: 1px dashed #ccc; margin: 15px 0;'>\n" +
-                    "LƯU Ý QUAN TRỌNG: Thay thế [ID] bằng ID thực tế của sản phẩm để link hoạt động.\n\n" +
+                    "LƯU Ý: Thay [ID] bằng ID thực tế của sản phẩm.\n\n" +
                     "[KẾT QUẢ TÌM KIẾM MỚI TỪ DB (Chỉ dùng khi khách hỏi món đồ mới)]:\n" + contextData;
 
                 var systemInstructionObj = new JObject(
@@ -54,44 +52,35 @@ namespace DoAn_Ver2.Models.AI_Services
 
                 var contentsArray = new JArray();
 
-                // 2. XỬ LÝ LỊCH SỬ CHAT
                 if (chatHistory != null && chatHistory.Count > 0)
                 {
                     var cleanedHistory = new List<JObject>();
 
+                    // Bước 1: Chuẩn hóa role và strip HTML
                     foreach (var msg in chatHistory)
                     {
-                        string currentRole = msg.role.ToString().ToLower();
-                        if (currentRole == "bot" || currentRole == "assistant")
-                            currentRole = "model";
-                        else if (currentRole != "user" && currentRole != "model")
-                            currentRole = "user";
+                        string role = msg.role.ToString().ToLower();
+                        if (role == "bot" || role == "assistant") role = "model";
+                        else if (role != "user" && role != "model") role = "user";
 
-                        // *** SỬA LỖI CHÍNH: Strip HTML khỏi text trước khi gửi ***
                         string cleanText = StripHtml(msg.text.ToString());
                         if (string.IsNullOrWhiteSpace(cleanText)) continue;
 
                         cleanedHistory.Add(new JObject(
-                            new JProperty("role", currentRole),
-                            new JProperty("parts", new JArray(
-                                new JObject(new JProperty("text", cleanText))
-                            ))
+                            new JProperty("role", role),
+                            new JProperty("parts", new JArray(new JObject(new JProperty("text", cleanText))))
                         ));
                     }
 
-                    // *** SỬA LỖI CHÍNH: Đảm bảo history bắt đầu bằng role "user" ***
-                    // Gemini yêu cầu turn đầu tiên luôn là "user", không được là "model"
+                    // Bước 2: Bỏ các turn "model" ở đầu
                     while (cleanedHistory.Count > 0 && cleanedHistory[0]["role"]?.ToString() == "model")
-                    {
                         cleanedHistory.RemoveAt(0);
-                    }
 
-                    // *** SỬA LỖI PHỤ: Loại bỏ các turn liên tiếp cùng role (Gemini không chấp nhận) ***
+                    // Bước 3: Gộp các turn liên tiếp cùng role
                     for (int i = cleanedHistory.Count - 1; i > 0; i--)
                     {
                         if (cleanedHistory[i]["role"]?.ToString() == cleanedHistory[i - 1]["role"]?.ToString())
                         {
-                            // Gộp 2 turn cùng role thành 1
                             string merged = cleanedHistory[i - 1]["parts"][0]["text"].ToString()
                                           + "\n" + cleanedHistory[i]["parts"][0]["text"].ToString();
                             cleanedHistory[i - 1]["parts"][0]["text"] = merged;
@@ -99,25 +88,43 @@ namespace DoAn_Ver2.Models.AI_Services
                         }
                     }
 
+                    // Bước 4: Nếu turn cuối history là "user" thì gộp với userMessage
+                    // để tránh 2 "user" turns liên tiếp → Gemini báo lỗi 503
+                    string finalUserMessage = userMessage;
+                    if (cleanedHistory.Count > 0 &&
+                        cleanedHistory[cleanedHistory.Count - 1]["role"]?.ToString() == "user")
+                    {
+                        string lastText = cleanedHistory[cleanedHistory.Count - 1]["parts"][0]["text"].ToString();
+                        finalUserMessage = lastText + "\n" + userMessage;
+                        cleanedHistory.RemoveAt(cleanedHistory.Count - 1);
+                    }
+
+                    // Bước 5: Đưa history vào contents
                     foreach (var item in cleanedHistory)
                         contentsArray.Add(item);
+
+                    // Bước 6: Thêm tin nhắn user cuối
+                    contentsArray.Add(new JObject(
+                        new JProperty("role", "user"),
+                        new JProperty("parts", new JArray(new JObject(new JProperty("text", finalUserMessage))))
+                    ));
+                }
+                else
+                {
+                    // Không có history (chưa đăng nhập / câu đầu tiên)
+                    contentsArray.Add(new JObject(
+                        new JProperty("role", "user"),
+                        new JProperty("parts", new JArray(new JObject(new JProperty("text", userMessage))))
+                    ));
                 }
 
-                // 3. THÊM CÂU HỎI MỚI CỦA KHÁCH HÀNG (Chỉ chứa câu hỏi, không chứa Hướng dẫn hệ thống)
-                contentsArray.Add(new JObject(
-                    new JProperty("role", "user"),
-                    new JProperty("parts", new JArray(new JObject(new JProperty("text", userMessage))))
-                ));
-
-                // 4. ĐÓNG GÓI REQUEST BODY
                 var requestBody = new JObject(
-                    new JProperty("system_instruction", systemInstructionObj), // Truyền riêng hướng dẫn hệ thống
+                    new JProperty("system_instruction", systemInstructionObj),
                     new JProperty("contents", contentsArray)
                 );
 
-                var content = new StringContent(requestBody.ToString(), Encoding.UTF8, "application/json");
-
-                HttpResponseMessage response = await client.PostAsync(url, content);
+                var httpContent = new StringContent(requestBody.ToString(), Encoding.UTF8, "application/json");
+                HttpResponseMessage response = await client.PostAsync(url, httpContent);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -127,7 +134,6 @@ namespace DoAn_Ver2.Models.AI_Services
                 }
                 else
                 {
-                    // Bắt lỗi chi tiết từ Google để dễ debug thay vì báo lỗi chung chung
                     string errorDetail = await response.Content.ReadAsStringAsync();
                     throw new Exception($"Lỗi API ({response.StatusCode}): {errorDetail}");
                 }

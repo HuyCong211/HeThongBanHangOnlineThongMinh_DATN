@@ -1,0 +1,156 @@
+﻿@using PagedList.Mvc
+@using PagedList
+@model DoAn_Ver2.Models.MaGiamGia
+
+@{
+    ViewBag.Title = "Chi tiết mã giảm giá";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    var orderHistory = ViewBag.OrderHistory as IPagedList<DoAn_Ver2.Models.DonHang>;
+}
+
+<div class="row">
+    <div class="col-xl-4 col-lg-5">
+        <div class="card shadow mb-4 border-left-info">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-info"><i class="fas fa-ticket-alt"></i> Cấu hình Mã Giảm Giá</h6>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4 mt-2">
+                    <h3 class="font-weight-bold text-danger border border-danger d-inline-block px-4 py-2 rounded" style="border-style: dashed !important;">
+                        @Model.MaCode
+                    </h3>
+                </div>
+                <table class="table table-borderless table-sm">
+                    <tbody>
+                        <tr>
+                            <td class="text-muted">Loại giảm:</td>
+                            <td class="font-weight-bold">
+                                @(Model.LoaiGiam == "PERCENT" ? "Giảm theo phần trăm (%)" : "Giảm tiền mặt (VNĐ)")
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Giá trị:</td>
+                            <td class="font-weight-bold text-success" style="font-size:1.1rem;">
+                                @if (Model.LoaiGiam == "PERCENT")
+                                {
+                                    <span>@Model.GiaTri %</span>
+                                }
+                                else
+                                {
+                                    <span>@string.Format("{0:N0}", Model.GiaTri) đ</span>
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Đơn tối thiểu:</td>
+                            <td class="font-weight-bold">@string.Format("{0:N0}", Model.DonToiThieu) đ</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Tổng số lượng voucher:</td>
+                            <td class="font-weight-bold">
+                                @(Model.SoLuong + orderHistory.TotalItemCount) lượt
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Số voucher còn lại:</td>
+                            <td class="font-weight-bold text-danger">@Model.SoLuong lượt</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Ngày hết hạn:</td>
+                            <td class="font-weight-bold @(Model.NgayHetHan < DateTime.Now ? "text-danger" : "")">
+                                @(Model.NgayHetHan.HasValue ? Model.NgayHetHan.Value.ToString("dd/MM/yyyy HH:mm") : "Không thời hạn")
+                                @if (Model.NgayHetHan < DateTime.Now)
+                                {
+                                    <span class="badge badge-danger ml-1">Đã hết hạn</span>
+                                }
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-8 col-lg-7">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-history"></i> Lịch Sử Khách Hàng Áp Dụng</h6>
+                <span class="badge badge-primary px-3 py-2">Tổng cộng: @orderHistory.TotalItemCount đơn</span>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover table-striped" width="100%" cellspacing="0">
+                        <thead class="bg-light text-center">
+                            <tr>
+                                <th>Mã Đơn</th>
+                                <th>Ngày Đặt</th>
+                                <th>Tên Khách Hàng</th>
+                                <th>Mức Giảm</th>
+                                <th>Tổng Thu</th>
+                                <th>Trạng Thái</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (orderHistory != null && orderHistory.Count > 0)
+                            {
+                                foreach (var donHang in orderHistory)
+                                {
+                                    <tr class="text-center align-middle">
+                                        <td class="font-weight-bold">
+                                            <a href="@Url.Action("Details", "DonHang", new { id = donHang.ID })" target="_blank">@donHang.MaDonHang</a>
+                                        </td>
+                                        <td>@(donHang.NgayDat.HasValue ? donHang.NgayDat.Value.ToString("dd/MM/yyyy HH:mm") : "")</td>
+                                        <td>@donHang.TenNguoiNhan</td>
+                                        <td class="text-danger font-weight-bold">-@string.Format("{0:N0}", donHang.GiamGia)đ</td>
+                                        <td class="text-success font-weight-bold">@string.Format("{0:N0}", donHang.TongThanhToan)đ</td>
+                                        <td>
+                                            @if (donHang.TrangThaiDonHang == 0)
+                                            {<span class="badge badge-secondary">Chờ duyệt</span> }
+                                            else if (donHang.TrangThaiDonHang == 1)
+                                            { <span class="badge badge-info">Đang giao</span> }
+                                            else if (donHang.TrangThaiDonHang == 2)
+                                            { <span class="badge badge-success">Thành công</span> }
+                                            else
+                                            { <span class="badge badge-danger">Đã hủy</span>}
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted py-4">
+                                        <i class="fas fa-box-open fa-2x mb-2"></i><br />
+                                        Chưa có khách hàng nào sử dụng mã giảm giá này.
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                @if (orderHistory != null && orderHistory.PageCount > 1)
+                {
+                    <div class="d-flex justify-content-end mt-3">
+                        @Html.PagedListPager(orderHistory, page => Url.Action("Details", new { id = Model.ID, page = page }),
+                        new PagedListRenderOptions
+                        {
+                            DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+                            DisplayLinkToLastPage = PagedListDisplayMode.Always,
+                            DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+                            DisplayLinkToNextPage = PagedListDisplayMode.Always,
+                            MaximumPageNumbersToDisplay = 5,
+                            LiElementClasses = new string[] { "page-item" },
+                            UlElementClasses = new string[] { "pagination" }
+                        })
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="text-left mt-2 mb-4">
+    <a href="@Url.Action("Index")" class="btn btn-secondary px-4"><i class="fas fa-arrow-left"></i> Quay lại</a>
+    <a href="@Url.Action("Edit", new { id = Model.ID })" class="btn btn-warning px-4 text-dark font-weight-bold"><i class="fas fa-edit"></i> Chỉnh sửa mã</a>
+</div>

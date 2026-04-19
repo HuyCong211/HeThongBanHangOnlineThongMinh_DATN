@@ -1,4 +1,4 @@
-namespace DoAn_Ver2.Models
+﻿namespace DoAn_Ver2.Models
 {
     using System;
     using System.Collections.Generic;
@@ -52,6 +52,9 @@ namespace DoAn_Ver2.Models
 
         [StringLength(255)]
         public string LyDoHuy { get; set; }
+        // Bạn tìm đến chỗ chứa các thuộc tính của DonHang và chèn thêm dòng này vào
+        [StringLength(50)]
+        public string MaGiamGiaApDung { get; set; }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<ChiTietDonHang> ChiTietDonHangs { get; set; }

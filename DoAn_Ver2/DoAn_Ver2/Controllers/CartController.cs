@@ -458,6 +458,7 @@ namespace DoAn_Ver2.Controllers
                 // [QUAN TRỌNG] Lưu giá trị giảm giá và tổng thanh toán thực tế
                 GiamGia = tienGiam,
                 TongThanhToan = (model.TongTienHang + model.PhiShip) - tienGiam,
+                MaGiamGiaApDung = appliedVoucher != null ? appliedVoucher.MaCode : null,
                 TrangThaiDonHang = 0,
                 TrangThaiThanhToan = false,
                 PhuongThucThanhToanID = model.PhuongThucThanhToan

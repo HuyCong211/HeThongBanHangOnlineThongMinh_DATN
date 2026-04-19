@@ -227,5 +227,88 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
                 System.Diagnostics.Debug.WriteLine("Lỗi gửi mail hủy: " + ex.Message);
             }
         }
+
+        // ==============================================================
+        // XUẤT HÓA ĐƠN PDF (IN HÓA ĐƠN)
+        // ==============================================================
+        public ActionResult PrintInvoice(int id)
+        {
+            var donHang = _unitOfWork.Repository<DonHang>().GetById(id);
+            if (donHang == null) return HttpNotFound();
+
+            // 1. Lấy chi tiết đơn hàng
+            ViewBag.ChiTiet = _unitOfWork.Repository<ChiTietDonHang>().GetMany(x => x.DonHangID == id).ToList();
+
+            // 2. LẤY THÔNG TIN NGƯỜI BÁN (Lấy đúng Session["UserAdmin"] theo code AuthController của bạn)
+            if (Session["UserAdmin"] != null)
+            {
+                var currentUser = Session["UserAdmin"] as NguoiDung;
+                ViewBag.SellerName = currentUser.HoTen ?? currentUser.TenDangNhap; // Nếu chưa có Họ tên thì lấy Tên đăng nhập
+                ViewBag.SellerPhone = string.IsNullOrEmpty(currentUser.SDT) ? "Không có" : currentUser.SDT;
+                ViewBag.SellerEmail = string.IsNullOrEmpty(currentUser.Email) ? "Không có" : currentUser.Email;
+            }
+            else
+            {
+                // Phòng trường hợp session hết hạn nhưng vẫn mở tab hóa đơn
+                ViewBag.SellerName = "Nhân viên Men Store";
+                ViewBag.SellerPhone = "---";
+                ViewBag.SellerEmail = "---";
+            }
+
+            // 3. Lấy Data cho Sản Phẩm (SKU)
+            ViewBag.ListSKU = _unitOfWork.Repository<BienTheSanPham>().GetAll().ToList();
+            ViewBag.ListSP = _unitOfWork.Repository<SanPham>().GetAll().ToList();
+            ViewBag.ListMau = _unitOfWork.Repository<MauSac>().GetAll().ToList();
+            ViewBag.ListSize = _unitOfWork.Repository<KichThuoc>().GetAll().ToList();
+
+            // 4. THÔNG TIN CỬA HÀNG (Lấy từ Cấu hình chung)
+            var configs = _unitOfWork.Repository<CauHinhChung>().GetAll().ToList();
+            ViewBag.Logo = configs.FirstOrDefault(x => x.KeyName == "SiteLogo")?.Value ?? "/Content/images/logo.png";
+            ViewBag.Hotline = configs.FirstOrDefault(x => x.KeyName == "Hotline")?.Value ?? "1900 xxxx";
+            ViewBag.Email = configs.FirstOrDefault(x => x.KeyName == "Email")?.Value ?? "contact@menstore.com";
+            ViewBag.Address = configs.FirstOrDefault(x => x.KeyName == "FooterInfo")?.Value ?? "Hà Nội";
+
+            // 5. Đổi tổng tiền ra chữ
+            ViewBag.TienBangChu = NumberToWords(donHang.TongThanhToan ?? 0) + " đồng.";
+
+            return View(donHang);
+        }
+
+        // Hàm hỗ trợ đổi số thành chữ
+        private string NumberToWords(decimal number)
+        {
+            if (number == 0) return "Không";
+            string[] units = { "", "nghìn", "triệu", "tỷ", "nghìn tỷ", "triệu tỷ" };
+            string[] digits = { "không", "một", "hai", "ba", "bốn", "năm", "sáu", "bảy", "tám", "chín" };
+            string sNumber = number.ToString("0");
+            string words = "";
+            int unitIndex = 0;
+            while (sNumber.Length > 0)
+            {
+                string chunk = sNumber.Length > 3 ? sNumber.Substring(sNumber.Length - 3) : sNumber;
+                sNumber = sNumber.Length > 3 ? sNumber.Substring(0, sNumber.Length - 3) : "";
+                int num = int.Parse(chunk);
+                if (num > 0)
+                {
+                    string chunkWords = "";
+                    int tram = num / 100, chuc = (num % 100) / 10, donVi = num % 10;
+                    if (tram > 0 || (sNumber.Length > 0 && num > 0)) chunkWords += digits[tram] + " trăm ";
+                    if (chuc > 1) chunkWords += digits[chuc] + " mươi ";
+                    else if (chuc == 1) chunkWords += "mười ";
+                    else if (chuc == 0 && donVi > 0 && tram > 0) chunkWords += "lẻ ";
+                    if (donVi > 0)
+                    {
+                        if (chuc > 1 && donVi == 1) chunkWords += "mốt ";
+                        else if (chuc > 0 && donVi == 5) chunkWords += "lăm ";
+                        else chunkWords += digits[donVi] + " ";
+                    }
+                    words = chunkWords + units[unitIndex] + " " + words;
+                }
+                unitIndex++;
+            }
+            words = words.Trim();
+            return char.ToUpper(words[0]) + words.Substring(1);
+        }
+
     }
 }

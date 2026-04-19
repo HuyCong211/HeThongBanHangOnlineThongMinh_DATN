@@ -352,10 +352,45 @@ namespace DoAn_Ver2.Controllers
 
 
 
+        public ActionResult TestTrangThaiDuLieuAI()
+        {
+            AIDataService aiService = new AIDataService();
+
+            // Gọi hàm lấy dữ liệu text
+            var lstData = aiService.ExtractDataForAI();
+
+            // In thẳng ra màn hình trình duyệt dưới dạng JSON để kiểm tra kết quả
+            return Json(lstData, JsonRequestBehavior.AllowGet);
+        }
 
 
+        public async Task<ActionResult> TestTaoVector()
+        {
+            AIDataService aiService = new AIDataService();
+            var lstData = aiService.ExtractDataForAI();
 
+            if (lstData.Count == 0) return Content("Không có sản phẩm nào!");
+            string textSanPhamDauTien = lstData[0];
 
+            // GỌI COHERE SERVICE CHUYÊN NGHIỆP
+            CohereService cohere = new CohereService();
+
+            try
+            {
+                var vector = await cohere.GetEmbeddingAsync(textSanPhamDauTien);
+
+                string htmlResult = $"<h3 style='color:blue;'>Text gốc:</h3> <p>{textSanPhamDauTien}</p>";
+                htmlResult += $"<h3 style='color:green;'>Vector sinh ra từ Cohere (Độ dài: {vector.Count} chiều):</h3>";
+
+                htmlResult += "<p>[ " + string.Join(", ", vector.GetRange(0, 10)) + ", ... ]</p>";
+
+                return Content(htmlResult, "text/html", System.Text.Encoding.UTF8);
+            }
+            catch (System.Exception ex)
+            {
+                return Content("<h3 style='color:red;'>Lỗi:</h3> " + ex.Message);
+            }
+        }
 
 
         /*========================CHAT BOT AI===================================*/

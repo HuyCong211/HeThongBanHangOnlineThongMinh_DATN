@@ -17,6 +17,7 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
         // GET: Admin/SanPham
         public ActionResult Index(string searchString, int? danhMucId, int? page, int? pageSize)
         {
+            Session["CurrentSanPhamUrl"] = Request.Url.PathAndQuery;
             int pageNumber = (page ?? 1);
             int size = (pageSize ?? 10);
             ViewBag.PageSize = size;
@@ -142,6 +143,7 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
             // --- MỚI: Load dữ liệu cho Dropdown Biến thể (Màu, Size) ---
             ViewBag.MauSacList = new SelectList(_unitOfWork.Repository<MauSac>().GetAll(), "ID", "TenMau");
             ViewBag.KichThuocList = new SelectList(_unitOfWork.Repository<KichThuoc>().GetAll(), "ID", "TenSize");
+            ViewBag.AllTags = new List<string> { "Đi biển", "Đi làm", "Đi học", "Đi chơi", "Thể thao", "Dự tiệc", "Mặc nhà", "Dạo phố" };
             // -----------------------------------------------------------
             return View();
         }
@@ -343,7 +345,8 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
                         // Lấy dữ liệu sản phẩm vừa lưu
                         string textData = $"[ID: {model.ID}] Tên sản phẩm: {model.TenSanPham}. " +
                                           $"Mô tả: {model.MoTa}. " +
-                                          $"Giá bán: {model.GiaBan} VNĐ.";
+                                          $"Giá bán: {model.GiaBan} VNĐ." +
+                                          (!string.IsNullOrEmpty(model.Tags) ? $" Phù hợp cho: {model.Tags.Replace(",", ", ")}." : "");
 
                         CohereService cohere = new CohereService();
                         PineconeService pinecone = new PineconeService();
@@ -359,7 +362,7 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
                     }
                 });
 
-                return RedirectToAction("Index");
+                return RedirectToCurrentIndex();
             }
 
             // Nếu lỗi: Load lại dropdown
@@ -391,6 +394,7 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
             var anhChinh = _unitOfWork.Repository<AnhSanPham>().GetMany(x => x.SanPhamID == id && x.MacDinh == true).FirstOrDefault();
             ViewBag.AnhChinh = anhChinh != null ? anhChinh.URL : "";
             ViewBag.AnhPhu = _unitOfWork.Repository<AnhSanPham>().GetMany(x => x.SanPhamID == id && x.MacDinh == false).ToList();
+            ViewBag.AllTags = new List<string> { "Đi biển", "Đi làm", "Đi học", "Đi chơi", "Thể thao", "Dự tiệc", "Mặc nhà", "Dạo phố" };
 
             return View(model);
         }
@@ -432,6 +436,7 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
                 existItem.ChatLieu = model.ChatLieu;
                 existItem.KieuDang = model.KieuDang;
                 existItem.TrangThai = model.TrangThai;
+                existItem.Tags = model.Tags;
                 existItem.NgayCapNhat = DateTime.Now;
 
                 // ... (Logic Cập nhật ảnh đại diện giữ nguyên) ...
@@ -484,7 +489,8 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
                         // Lấy dữ liệu sản phẩm vừa cập nhật
                         string textData = $"[ID: {existItem.ID}] Tên sản phẩm: {existItem.TenSanPham}. " +
                                           $"Mô tả: {existItem.MoTa}. " +
-                                          $"Giá bán: {existItem.GiaBan} VNĐ.";
+                                          $"Giá bán: {existItem.GiaBan} VNĐ." +
+                                          (!string.IsNullOrEmpty(existItem.Tags) ? $" Phù hợp cho: {existItem.Tags.Replace(",", ", ")}." : "");
 
                         CohereService cohere = new CohereService();
                         PineconeService pinecone = new PineconeService();
@@ -501,7 +507,7 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
                 });
                 // =========================================================================
 
-                return RedirectToAction("Index");
+                return RedirectToCurrentIndex();
             }
 
             // Nếu lỗi validate, load lại dữ liệu để trả về View
@@ -605,7 +611,7 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
                 _unitOfWork.Repository<SanPham>().Delete(model);
                 _unitOfWork.Save();
 
-                return RedirectToAction("Index");
+                return RedirectToCurrentIndex();
             }
             catch (Exception)
             {
@@ -630,7 +636,7 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
                 _unitOfWork.Repository<SanPham>().Update(model);
                 _unitOfWork.Save();
             }
-            return RedirectToAction("Index");
+            return RedirectToCurrentIndex();
         }
 
 
@@ -689,6 +695,29 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
             {
                 return Json(new { success = false, message = ex.Message });
             }
+        }
+
+
+
+
+
+        // [THÊM HÀM NÀY VÀO CUỐI CONTROLLER]
+        private ActionResult RedirectToCurrentIndex()
+        {
+            string returnUrl = Session["CurrentSanPhamUrl"] as string;
+            if (!string.IsNullOrEmpty(returnUrl))
+            {
+                return Redirect(returnUrl); // Trở về đúng trang đã lưu kèm đầy đủ bộ lọc
+            }
+            return RedirectToAction("Index"); // Phòng hờ nếu Session rỗng thì về trang chủ mặc định
+        }
+
+        // [THÊM MỚI] Hàm dùng riêng cho các nút "Quay lại" trên giao diện
+        [HttpGet]
+        public ActionResult BackToIndex()
+        {
+            // Gọi lại hàm dùng chung đã viết ở bước trước
+            return RedirectToCurrentIndex();
         }
 
     }

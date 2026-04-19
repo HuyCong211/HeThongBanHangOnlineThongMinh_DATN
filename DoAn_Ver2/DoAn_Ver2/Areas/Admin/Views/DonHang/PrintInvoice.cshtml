@@ -1,0 +1,231 @@
+﻿@using DoAn_Ver2.Models
+@model DonHang
+@{
+    Layout = null; // Bắt buộc null để trang trắng tinh, in mới đẹp
+    var chiTiet = ViewBag.ChiTiet as List<ChiTietDonHang>;
+    var listSKU = ViewBag.ListSKU as List<BienTheSanPham>;
+    var listSP = ViewBag.ListSP as List<SanPham>;
+    var listMau = ViewBag.ListMau as List<MauSac>;
+    var listSize = ViewBag.ListSize as List<KichThuoc>;
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <title>HoaDon_@Model.MaDonHang</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        @@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,700;1,400&display=swap');
+        body { font-family: 'Roboto', Arial, sans-serif; margin: 0; padding: 0; background: #525659; }
+        * { box-sizing: border-box; }
+
+        /* Giả lập tờ giấy A4 */
+        .invoice-box {
+            width: 21cm;
+            min-height: 29.7cm;
+            margin: 20px auto;
+            padding: 1.5cm 2cm; /* Chỉnh lại padding cho cân đối */
+            background: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            font-size: 15px;
+            line-height: 24px;
+            color: #000;
+        }
+
+        /* Khi bấm In sẽ ẩn hình nền xám đi */
+        @@media print {
+            body { background: white; margin: 0; padding: 0; -webkit-print-color-adjust: exact; }
+            .invoice-box { margin: 0; box-shadow: none; width: 100%; border: none; padding: 0; }
+            .no-print { display: none !important; }
+        }
+
+        /* PHẦN 1: HEADER CỬA HÀNG */
+        .header { display: flex; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 15px; margin-bottom: 20px; align-items: flex-start; }
+        .logo-store { display: flex; align-items: center; max-width: 55%; }
+        .logo-store img { max-width: 90px; max-height: 90px; margin-right: 15px; object-fit: contain; }
+        .store-info h2 { margin: 0 0 5px; text-transform: uppercase; font-size: 20px; }
+        .store-info p { margin: 2px 0; font-size: 13px; }
+
+        .invoice-title { text-align: right; max-width: 45%; }
+        /* Sửa CSS cho tiêu đề hóa đơn để không rớt chữ */
+        .invoice-title h1 { margin: 0; color: #000; text-transform: uppercase; font-size: 24px; letter-spacing: 1px; white-space: nowrap; }
+        .invoice-title p { margin: 3px 0; font-size: 14px; }
+
+        /* PHẦN 2 & 3: THÔNG TIN 2 BÊN */
+        .info-section { display: flex; justify-content: space-between; margin-bottom: 25px; }
+        .info-box { width: 48%; padding: 10px 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .info-box h4 { margin: 0 0 8px; border-bottom: 1px dashed #999; padding-bottom: 5px; text-transform: uppercase; font-size: 14px; }
+        .info-box p { margin: 4px 0; font-size: 14px; }
+
+        /* PHẦN 4: BẢNG SẢN PHẨM & TÍNH TIỀN */
+        table.items { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        table.items th, table.items td { padding: 10px; border: 1px solid #000; }
+        table.items th { background: #f2f2f2; text-align: center; font-weight: bold;}
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+
+        .totals-wrapper { display: flex; justify-content: flex-end; }
+        .totals { width: 55%; }
+        .totals table { width: 100%; border-collapse: collapse; }
+        .totals td { padding: 6px 10px; text-align: right; }
+        .totals .final-total { font-weight: bold; font-size: 18px; border-top: 2px solid #000; }
+        .words { clear: both; text-align: right; margin-top: 15px; font-weight: bold; font-style: italic; }
+
+        /* PHẦN 5: LỜI CẢM ƠN */
+        .footer { text-align: center; margin-top: 50px; border-top: 1px dashed #000; padding-top: 20px; }
+        .footer h3 { margin: 0 0 5px; font-size: 16px; }
+        .footer p { font-style: italic; font-size: 14px; color: #555; }
+    </style>
+</head>
+<body>
+
+    <div class="no-print" style="text-align:center; padding: 15px; background: #fff3cd; border-bottom: 1px solid #ffeeba; position: fixed; top: 0; width: 100%; z-index: 999; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <span id="loadingMsg">Đang tạo file PDF, vui lòng đợi...</span>
+        <button onclick="downloadPDF()" style="margin-left: 15px; padding: 8px 20px; background: #28a745; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">
+            TẢI LẠI FILE PDF
+        </button>
+        <button onclick="window.print()" style="margin-left: 10px; padding: 8px 20px; background: #007bff; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">
+            IN RA GIẤY
+        </button>
+    </div>
+
+    <div class="no-print" style="height: 60px;"></div>
+
+    <div class="invoice-box" id="invoice-content">
+        <div class="header">
+            <div class="logo-store">
+                <img src="@ViewBag.Logo" alt="Logo">
+                <div class="store-info">
+                    <h2>MEN STORE</h2>
+                    <p><strong>Địa chỉ:</strong> @ViewBag.Address</p>
+                    <p><strong>Hotline:</strong> @ViewBag.Hotline</p>
+                    <p><strong>Email:</strong> @ViewBag.Email</p>
+                </div>
+            </div>
+            <div class="invoice-title">
+                <h1>HÓA ĐƠN BÁN HÀNG</h1>
+                <p><strong>Số HĐ:</strong> @Model.MaDonHang</p>
+                <p><strong>Ngày đặt:</strong> @(Model.NgayDat.HasValue ? Model.NgayDat.Value.ToString("dd/MM/yyyy HH:mm") : "")</p>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <div class="info-box">
+                <h4>Thông tin người bán</h4>
+                <p><strong>Nhân viên:</strong> @ViewBag.SellerName</p>
+                <p><strong>SĐT liên hệ:</strong> @ViewBag.SellerPhone</p>
+                <p><strong>Email:</strong> @ViewBag.SellerEmail</p>
+            </div>
+            <div class="info-box">
+                <h4>Thông tin khách hàng</h4>
+                <p><strong>Họ tên:</strong> @Model.TenNguoiNhan</p>
+                <p><strong>Điện thoại:</strong> @Model.SDT_NguoiNhan</p>
+                <p><strong>Email:</strong> @Model.EmailNguoiNhan</p>
+                <p><strong>Giao đến:</strong> @Model.DiaChiGiaoHang</p>
+                <p><strong>Hình thức TT:</strong> @(Model.PhuongThucThanhToanID == 2 ? "VNPay" : "Tiền mặt (COD)")</p>
+                <p><strong>Trạng thái TT:</strong> @(Model.TrangThaiThanhToan == true ? "Đã thanh toán" : "Chưa thanh toán")</p>
+            </div>
+        </div>
+
+        <table class="items">
+            <thead>
+                <tr>
+                    <th style="width: 5%;">STT</th>
+                    <th style="text-align: left;">Sản phẩm (Phân loại)</th>
+                    <th style="width: 10%;">SL</th>
+                    <th style="width: 20%;">Đơn giá</th>
+                    <th style="width: 20%;">Thành tiền</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{ int stt = 1; }
+                @foreach (var item in chiTiet)
+                {
+                    var sku = listSKU.FirstOrDefault(x => x.ID == item.BienTheSanPhamID);
+                    var sp = sku != null ? listSP.FirstOrDefault(x => x.ID == sku.SanPhamID) : null;
+                    var mau = sku != null ? listMau.FirstOrDefault(x => x.ID == sku.MauSacID) : null;
+                    var size = sku != null ? listSize.FirstOrDefault(x => x.ID == sku.KichThuocID) : null;
+
+                    <tr>
+                        <td class="text-center">@stt</td>
+                        <td>
+                            <strong>@(sp?.TenSanPham ?? "Sản phẩm")</strong><br />
+                            <small>Màu: @(mau?.TenMau ?? "") | Size: @(size?.TenSize ?? "")</small>
+                        </td>
+                        <td class="text-center">@item.SoLuong</td>
+                        <td class="text-right">@(item.DonGia?.ToString("N0") ?? "0")</td>
+                        <td class="text-right">@(item.ThanhTien?.ToString("N0") ?? "0")</td>
+                    </tr>
+                    stt++;
+                }
+            </tbody>
+        </table>
+
+        <div class="totals-wrapper">
+            <div class="totals">
+                <table>
+                    <tr>
+                        <td>Tổng tiền hàng:</td>
+                        <td>@(Model.TongTien?.ToString("N0") ?? "0") đ</td>
+                    </tr>
+                    <tr>
+                        <td>Phí vận chuyển:</td>
+                        <td>@(Model.PhiVanChuyen?.ToString("N0") ?? "0") đ</td>
+                    </tr>
+                    @if (Model.GiamGia > 0)
+                    {
+                        <tr>
+                            <td>Giảm giá:</td>
+                            <td>-@(Model.GiamGia?.ToString("N0")) đ</td>
+                        </tr>
+                    }
+                    <tr class="final-total">
+                        <td>TỔNG THANH TOÁN:</td>
+                        <td>@(Model.TongThanhToan?.ToString("N0") ?? "0") đ</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="words">
+            (Bằng chữ: <span style="font-weight: normal;">@ViewBag.TienBangChu</span>)
+        </div>
+
+        <div class="footer">
+            <h3>CẢM ƠN QUÝ KHÁCH ĐÃ MUA SẮM TẠI MEN STORE!</h3>
+            <p>
+                Quý khách vui lòng kiểm tra kỹ hàng hóa trước khi nhận.<br />
+                Hỗ trợ đổi trả trong vòng 7 ngày nếu sản phẩm bị lỗi do nhà sản xuất và còn nguyên tem mác.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function downloadPDF() {
+            var element = document.getElementById('invoice-content');
+            var opt = {
+                margin:       0,
+                filename:     'HoaDon_@Model.MaDonHang\.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            // Gọi lệnh tạo PDF và lưu máy
+            html2pdf().set(opt).from(element).save().then(function() {
+                document.getElementById('loadingMsg').innerText = "Đã tải file PDF thành công!";
+
+                // Mở hộp thoại In sau khi tải PDF xong (tuỳ chọn)
+                setTimeout(function() {
+                     window.print();
+                }, 500);
+            });
+        }
+
+        // Tự động chạy khi trang load xong
+        window.onload = function() {
+            downloadPDF();
+        };
+    </script>
+</body>
+</html>

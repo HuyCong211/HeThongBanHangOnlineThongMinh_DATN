@@ -183,6 +183,9 @@
                 <button class="btn btn-success btn-block font-weight-bold" onclick="UpdateStatus()">
                     <i class="fas fa-save mr-2"></i> CẬP NHẬT TRẠNG THÁI
                 </button>
+                <hr /> <a href="@Url.Action("PrintInvoice", "DonHang", new { id = Model.ID })" target="_blank" class="btn btn-danger btn-block font-weight-bold">
+                    <i class="fas fa-file-pdf mr-2"></i> IN / XUẤT HÓA ĐƠN PDF
+                </a>
                 <a href="@Url.Action("Index")" class="btn btn-outline-secondary btn-block mt-3">
                     <i class="fas fa-arrow-left mr-2"></i> Quay lại danh sách
                 </a>

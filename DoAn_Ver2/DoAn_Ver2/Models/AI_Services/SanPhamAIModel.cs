@@ -17,6 +17,7 @@ namespace DoAn_Ver2.Models.AI_Services
         public decimal GiaBan { get; set; }
         public string MauSacHienCo { get; set; }
         public string KichThuocHienCo { get; set; }
+        public string Tags { get; set; }
 
         // Hàm biến đổi 1 object sản phẩm thành 1 đoạn văn bản (Text) cho AI đọc
         public string ToAITextDocument()
@@ -39,9 +40,11 @@ namespace DoAn_Ver2.Models.AI_Services
             string kieuDangStr = string.IsNullOrEmpty(KieuDang) ? "Chưa cập nhật" : KieuDang;
             string mauSacStr = string.IsNullOrEmpty(MauSacHienCo) ? "Chưa cập nhật" : MauSacHienCo;
             string kichThuocStr = string.IsNullOrEmpty(KichThuocHienCo) ? "Chưa cập nhật" : KichThuocHienCo;
+            string tagsStr = string.IsNullOrEmpty(Tags) ? "Không có" : Tags;
 
             return $"[ID: {SanPhamID}] Tên sản phẩm: {TenSanPham}. " +
                    $"Danh mục: {TenDanhMuc}. " +
+                   $"Sử dụng/Phong cách (Tags): {tagsStr}. " +
                    $"Mô tả: {moTaSach}. " +
                    $"Chất liệu: {chatLieuStr}. " +
                    $"Kiểu dáng: {kieuDangStr}. " +

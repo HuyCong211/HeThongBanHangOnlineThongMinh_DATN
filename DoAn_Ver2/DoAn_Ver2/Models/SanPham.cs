@@ -52,6 +52,9 @@
         public int? LuotXem { get; set; }
 
         public int? TrangThai { get; set; }
+        // Thêm thuộc tính này
+        [StringLength(500)]
+        public string Tags { get; set; }
 
         public DateTime? NgayTao { get; set; }
 

@@ -304,6 +304,8 @@
     <Content Include="Areas\Admin\Views\Auth\ResetPassword.cshtml" />
     <Content Include="Areas\Admin\Views\Auth\ErrorReset.cshtml" />
     <Content Include="Areas\Admin\Views\Review\Index.cshtml" />
+    <Content Include="Areas\Admin\Views\Marketing\Details.cshtml" />
+    <Content Include="Areas\Admin\Views\DonHang\PrintInvoice.cshtml" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\jquery-3.7.0.js" />
     <Content Include="Scripts\jquery-3.7.0.min.js" />
