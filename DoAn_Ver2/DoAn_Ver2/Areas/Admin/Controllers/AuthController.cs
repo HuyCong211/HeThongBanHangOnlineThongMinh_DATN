@@ -1,4 +1,4 @@
-﻿using DoAn_Ver2.Common; // Chứa hàm MD5Hash
+﻿using DoAn_Ver2.Common; 
 using DoAn_Ver2.Infrastructure;
 using DoAn_Ver2.Models;
 using System;
@@ -18,7 +18,7 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
         // 1. ĐĂNG NHẬP (GET)
         public ActionResult Login()
         {
-            // Nếu đã đăng nhập rồi thì đá vào Dashboard
+            
             if (Session["UserAdmin"] != null)
             {
                 return RedirectToAction("Index", "Dashboard");
@@ -97,7 +97,7 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
                 // Tạo Token ngẫu nhiên
                 string token = Guid.NewGuid().ToString();
 
-                // Lưu Token và hạn dùng (ví dụ 15 phút) vào DB
+                // Lưu Token và hạn dùng vào DB
                 user.ResetToken = token;
                 user.ResetTokenExpiry = DateTime.Now.AddMinutes(15);
                 _unitOfWork.Repository<NguoiDung>().Update(user);
@@ -139,7 +139,7 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
             if (user == null)
             {
                 ViewBag.Error = "Link không hợp lệ hoặc đã hết hạn.";
-                return View("ErrorReset"); // Bạn cần tạo View này để báo lỗi
+                return View("ErrorReset"); 
             }
 
             ViewBag.Token = token;

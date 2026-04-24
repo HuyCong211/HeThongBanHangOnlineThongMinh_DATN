@@ -11,7 +11,7 @@ namespace DoAn_Ver2.Common
         // Hàm static để gọi trực tiếp từ View: @ConfigHelper.Get("SiteLogo")
         public static string Get(string key)
         {
-            using (var db = new DoAn_DbModel()) // Hoặc DbContext của bạn
+            using (var db = new DoAn_DbModel()) 
             {
                 var config = db.CauHinhChungs.FirstOrDefault(x => x.KeyName == key);
                 return config != null ? config.Value : "";

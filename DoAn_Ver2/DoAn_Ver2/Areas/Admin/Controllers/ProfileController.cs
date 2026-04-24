@@ -21,7 +21,6 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
             if (userSession == null) return RedirectToAction("Login", "Auth");
 
             var user = _unitOfWork.Repository<NguoiDung>().GetById(userSession.ID);
-            // Xóa pass để ko hiện ra view
             user.MatKhau = "";
             return View(user);
         }
@@ -32,20 +31,14 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
         {
             var user = _unitOfWork.Repository<NguoiDung>().GetById(model.ID);
             if (user == null) return HttpNotFound();
-
-            // Cập nhật thông tin cơ bản
             user.HoTen = model.HoTen;
             user.Email = model.Email;
             user.SDT = model.SDT;
             user.NgayCapNhat = DateTime.Now;
-
-            // Đổi mật khẩu nếu có nhập
             if (!string.IsNullOrEmpty(NewPassword))
             {
                 user.MatKhau = SecurityHelper.MD5Hash(NewPassword);
             }
-
-            // Đổi avatar
             if (uploadBtn != null && uploadBtn.ContentLength > 0)
             {
                 string _FileName = Path.GetFileName(uploadBtn.FileName);
@@ -60,7 +53,6 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
             _unitOfWork.Repository<NguoiDung>().Update(user);
             _unitOfWork.Save();
 
-            // Cập nhật lại Session
             Session["UserAdmin"] = user;
             TempData["Success"] = "Cập nhật hồ sơ thành công!";
             return RedirectToAction("Index");

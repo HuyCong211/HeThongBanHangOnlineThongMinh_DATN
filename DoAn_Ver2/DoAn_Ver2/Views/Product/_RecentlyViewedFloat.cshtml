@@ -21,7 +21,6 @@
             <div class="panel-body">
                 @foreach (var item in Model)
                 {
-                    // Lấy URL ảnh từ ViewData đã xử lý ở Controller
                     string imgUrl = ViewData["Img_" + item.ID] as string;
 
                     <a href="@Url.Action("Detail", "Product", new { id = item.ID })" class="history-item">

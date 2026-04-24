@@ -8,9 +8,9 @@ using DoAn_Ver2.Infrastructure;
 using DoAn_Ver2.Models.ViewModel;
 using System.Data.Entity;
 using System.IO;
-using System.Net.Http; // Để gọi sang Python
-using System.Threading.Tasks; // Để chạy bất đồng bộ
-using Newtonsoft.Json; // Để đọc JSON từ Python
+using System.Net.Http;
+using System.Threading.Tasks; 
+using Newtonsoft.Json; 
 
 
 namespace DoAn_Ver2.Controllers
@@ -18,34 +18,23 @@ namespace DoAn_Ver2.Controllers
     public class ProductController : Controller
     {
         private UnitOfWork _unitOfWork = new UnitOfWork();
-
-        // 1. TRANG DANH SÁCH SẢN PHẨM (THEO DANH MỤC)
         public ActionResult ProductByCategory(int? id, int? page, int? pageSize,
                                       string sort, string minPrice, string maxPrice,
                                       List<int> colorIds, List<int> sizeIds, string style)
         {
-            // 1. CẤU HÌNH PHÂN TRANG
             int pNumber = page ?? 1;
-            int pSize = pageSize ?? 12; // Mặc định 12 sản phẩm
+            int pSize = pageSize ?? 12; 
 
 
             if (id == null) return RedirectToAction("Index", "Home");
-            // 2. LẤY DANH MỤC (Cha + Con)
-            // 2. LẤY DANH MỤC (Cha + Con)
-            var danhMuc = _unitOfWork.Repository<DanhMuc>().GetById(id.Value); // Dùng .Value để lấy int
+            var danhMuc = _unitOfWork.Repository<DanhMuc>().GetById(id.Value); 
             if (danhMuc == null) return HttpNotFound();
             ViewBag.CurrentCategory = danhMuc;
-
-            // Khởi tạo listId với id.Value (đã chắc chắn là int)
             var listId = new List<int> { id.Value };
-
-            // Tìm các ID con
             var subIds = _unitOfWork.Repository<DanhMuc>()
                             .GetMany(x => x.DanhMucChaID == id.Value)
                             .Select(x => x.ID).ToList();
             listId.AddRange(subIds);
-
-            // 3. KHỞI TẠO QUERY (Chưa chạy lệnh SQL)
             var query = _unitOfWork.Repository<SanPham>().GetMany(x => listId.Contains(x.DanhMucID.Value) && x.TrangThai == 1);
 
             // --- A. LỌC THEO GIÁ (Slider gửi lên string "100000" hoặc null) ---
@@ -92,10 +81,10 @@ namespace DoAn_Ver2.Controllers
                 case "price_asc": query = query.OrderBy(x => x.GiaBan); break;
                 case "price_desc": query = query.OrderByDescending(x => x.GiaBan); break;
                 case "name": query = query.OrderBy(x => x.TenSanPham); break;
-                default: query = query.OrderByDescending(x => x.NgayTao); break; // Mới nhất
+                default: query = query.OrderByDescending(x => x.NgayTao); break; 
             }
 
-            // --- E. PHÂN TRANG (EXECUTE QUERY) ---
+            // --- E. PHÂN TRANG  ---
             int totalItems = query.Count();
             int totalPages = (int)Math.Ceiling((double)totalItems / pSize);
 
@@ -122,7 +111,7 @@ namespace DoAn_Ver2.Controllers
                 TotalPages = totalPages,
                 MinPrice = min,
                 MaxPrice = max,
-                SelectedColors = colorIds ?? new List<int>(), // Gán lại để View biết cái nào đang tích
+                SelectedColors = colorIds ?? new List<int>(), 
                 SelectedSizes = sizeIds ?? new List<int>(),
                 SelectedStyle = style
             };
@@ -131,7 +120,6 @@ namespace DoAn_Ver2.Controllers
         }
 
         // 2. TÌM KIẾM SẢN PHẨM
-        // 1. [FIX LỖI] ACTION TÌM KIẾM TEXT (Sửa lại để khớp với View ProductByCategory)
         public ActionResult Search(string keyword, int? page, int? pageSize,
                               string sort, string minPrice, string maxPrice,
                               List<int> colorIds, List<int> sizeIds, string style)
@@ -140,7 +128,6 @@ namespace DoAn_Ver2.Controllers
             int pNumber = page ?? 1;
             ViewBag.Keyword = keyword;
 
-            // Query tìm kiếm
             var query = _unitOfWork.Repository<SanPham>()
                            .GetMany(x => (x.TenSanPham.Contains(keyword) ||
                                          (x.DanhMuc != null && x.DanhMuc.TenDanhMuc.Contains(keyword)))
@@ -182,7 +169,7 @@ namespace DoAn_Ver2.Controllers
                 Colors = _unitOfWork.Repository<MauSac>().GetAll().ToList(),
                 Sizes = _unitOfWork.Repository<KichThuoc>().GetAll().ToList(),
                 Styles = _unitOfWork.Repository<SanPham>().GetAll().Where(x => x.KieuDang != null).Select(x => x.KieuDang).Distinct().ToList(),
-                CurrentCateID = null, // Search không theo ID danh mục cụ thể
+                CurrentCateID = null, 
                 PageNumber = pNumber,
                 PageSize = pSize,
                 TotalPages = totalPages,
@@ -207,15 +194,17 @@ namespace DoAn_Ver2.Controllers
                 repoSearch.Add(new LichSuTimKiem { NguoiDungID = userId, SessionID = sessionId, TuKhoa = keyword, ThoiGian = DateTime.Now });
                 _unitOfWork.Save();
             }
-
-            // Trả về View ProductByCategory với đúng Model
             return View("ProductByCategory", model);
         }
 
+
+
+
+
+
         // ---------------------------------------------------------
-        // 2. ACTION TÌM KIẾM BẰNG ẢNH (GỌI SANG PYCHARM)
+        // 2. ACTION TÌM KIẾM BẰNG ẢNH (GỌI SANG AI SERVER)
         // ---------------------------------------------------------
-        // ACTION TÌM KIẾM BẰNG ẢNH (ĐÃ KHỚP DATABASE CỦA BẠN)
         [HttpPost]
         public async Task<ActionResult> SearchByImage(HttpPostedFileBase imageFile)
         {
@@ -226,22 +215,20 @@ namespace DoAn_Ver2.Controllers
                     // --- 1. XỬ LÝ HIỂN THỊ ẢNH (MỚI THÊM) ---
                     // Chuyển file ảnh sang dạng Base64 để gửi xuống View hiển thị luôn
                     string base64Image = "";
-                    // Cách sửa: Đọc trực tiếp vào mảng byte thay vì dùng 'using BinaryReader'
+                    // Đọc trực tiếp vào mảng byte thay vì dùng 'using BinaryReader'
                     byte[] fileData = new byte[imageFile.ContentLength];
                     imageFile.InputStream.Read(fileData, 0, imageFile.ContentLength);
 
                     base64Image = "data:image/png;base64," + Convert.ToBase64String(fileData);
                     ViewBag.SearchImage = base64Image;
 
-                    // Lưu vào ViewBag để bên View dùng
                     ViewBag.SearchImage = base64Image;
 
-                    // [QUAN TRỌNG] Reset lại vị trí đọc file về 0
-                    // Vì nãy ta đã đọc hết file để tạo Base64 rồi, nếu không reset thì gửi sang Python sẽ bị rỗng
+                    // Reset lại vị trí đọc file về 0
                     imageFile.InputStream.Position = 0;
 
 
-                    // --- 2. GỬI SANG PYTHON (CODE CŨ) ---
+                    // --- 2. GỬI SANG PYTHON ---
                     List<SanPham> foundProducts = new List<SanPham>();
                     HashSet<int> addedProductIds = new HashSet<int>();
 
@@ -261,7 +248,6 @@ namespace DoAn_Ver2.Controllers
                                 string imageName = item.image_name;
                                 string fileNameOnly = Path.GetFileName(imageName);
 
-                                // Logic tìm kiếm trong DB của bạn
                                 var anhSP = _unitOfWork.Repository<AnhSanPham>()
                                     .GetMany(x => x.URL.Contains(fileNameOnly))
                                     .FirstOrDefault();
@@ -306,39 +292,34 @@ namespace DoAn_Ver2.Controllers
         }
 
 
-        // 3. CHI TIẾT SẢN PHẨM (QUAN TRỌNG)
+
+
+
+
+
+        //====================================
+        // 3. CHI TIẾT SẢN PHẨM 
+        //====================================
         public ActionResult Detail(int id)
         {
             var sp = _unitOfWork.Repository<SanPham>().GetById(id);
             if (sp == null) return HttpNotFound();
-
-            // Tăng lượt xem
             sp.LuotXem++;
             _unitOfWork.Repository<SanPham>().Update(sp);
             _unitOfWork.Save();
-            
-            // ===> GHI NHẬN LỊCH SỬ XEM TẠI ĐÂY <===
+
             AddToHistory(id);
 
-            // Lấy tất cả biến thể (SKU) của SP này
             var listSKU = _unitOfWork.Repository<BienTheSanPham>()
                             .GetMany(x => x.SanPhamID == id).ToList();
-
-            // Lấy tất cả ảnh
             var listAnh = _unitOfWork.Repository<AnhSanPham>()
                             .GetMany(x => x.SanPhamID == id).ToList();
-
-            // Lọc ra các Màu sắc có trong kho của SP này
             var listMauID = listSKU.Select(x => x.MauSacID).Distinct().ToList();
             var listMau = _unitOfWork.Repository<MauSac>()
                             .GetMany(x => listMauID.Contains(x.ID)).ToList();
-
-            // Lọc ra các Size có trong kho
             var listSizeID = listSKU.Select(x => x.KichThuocID).Distinct().ToList();
             var listSize = _unitOfWork.Repository<KichThuoc>()
                             .GetMany(x => listSizeID.Contains(x.ID)).ToList();
-
-            // --- LẤY ĐÁNH GIÁ ---
             var reviews = _unitOfWork.Repository<DanhGia>()
                 .GetMany(x => x.SanPhamID == id && (x.TrangThai == true || x.TrangThai == null))
                 .OrderByDescending(x => x.NgayDanhGia).ToList();
@@ -349,34 +330,72 @@ namespace DoAn_Ver2.Controllers
             ViewBag.AvgStar = avgStar;
             ViewBag.ReviewCount = reviewCount;
 
-            // --- [FIX LỖI] LOGIC KIỂM TRA QUYỀN ĐÁNH GIÁ TỐI ƯU ---
+            // ---LOGIC KIỂM TRA QUYỀN ĐÁNH GIÁ TỐI ƯU ---
             bool canReview = false;
+            int remainingReviews = 0;
             if (Session["KhachHang"] != null)
             {
                 var user = (NguoiDung)Session["KhachHang"];
 
-                // B1: Lấy ID các đơn hàng đã hoàn thành của user
                 var completedOrderIds = _unitOfWork.Repository<DonHang>()
                     .GetMany(d => d.NguoiDungID == user.ID && d.TrangThaiDonHang == 3)
                     .Select(d => d.ID).ToList();
 
                 if (completedOrderIds.Any())
                 {
-                    // B2: Lấy ID các biến thể của sản phẩm hiện tại
                     var currentSkuIds = listSKU.Select(s => s.ID).ToList();
-
-                    // B3: Kiểm tra giao điểm trong ChiTietDonHang
-                    // "Có dòng nào mà DonHangID thuộc danh sách đã mua VÀ BienTheID thuộc sản phẩm này không?"
-                    canReview = _unitOfWork.Repository<ChiTietDonHang>()
+                    int totalBought = _unitOfWork.Repository<ChiTietDonHang>()
                         .GetMany(ct => completedOrderIds.Contains(ct.DonHangID) && currentSkuIds.Contains(ct.BienTheSanPhamID))
-                        .Any();
+                        .Select(ct => ct.DonHangID).Distinct().Count();
+                    int totalReviewed = _unitOfWork.Repository<DanhGia>()
+                        .GetMany(x => x.SanPhamID == id && x.NguoiDungID == user.ID).Count();
+
+                    remainingReviews = totalBought - totalReviewed;
+                    canReview = remainingReviews > 0;
                 }
             }
             ViewBag.CanReview = canReview;
+            ViewBag.RemainingReviews = remainingReviews;
 
 
             // =========================================================
-            // [PHẦN AI] - LOGIC AN TOÀN TUYỆT ĐỐI
+            // LẤY SỐ LƯỢNG ĐÃ CÓ TRONG GIỎ HÀNG ĐỂ TRỪ ĐI
+            // =========================================================
+            var cartQtyDict = new Dictionary<int, int>();
+            if (Session["KhachHang"] != null)
+            {
+                var user = (NguoiDung)Session["KhachHang"];
+                var cart = _unitOfWork.Repository<GioHang>().GetMany(x => x.NguoiDungID == user.ID).FirstOrDefault();
+                if (cart != null)
+                {
+                    var cartItems = _unitOfWork.Repository<GioHangChiTiet>().GetMany(x => x.GioHangID == cart.ID).ToList();
+                    foreach (var item in cartItems)
+                    {
+                        cartQtyDict[item.BienTheSanPhamID] = item.SoLuong ?? 0;
+                    }
+                }
+            }
+            else
+            {
+                var sessionCart = Session["Cart"] as List<CartItemViewModel>;
+                if (sessionCart != null)
+                {
+                    foreach (var item in sessionCart)
+                    {
+                        cartQtyDict[item.SKU_ID] = item.SoLuong;
+                    }
+                }
+            }
+            ViewBag.CartQtyDict = cartQtyDict; 
+            // =========================================================
+
+
+
+
+
+
+            // =========================================================
+            // [PHẦN AI]
             // =========================================================
 
             // A. "Sản phẩm tương tự" (Similar)
@@ -403,7 +422,7 @@ namespace DoAn_Ver2.Controllers
                     .OrderByDescending(x => x.LuotXem).Take(8).ToList();
             }
 
-            // B. "Thường mua cùng" (Bought Together)
+            // B. "Thường mua cùng" 
             var boughtTogetherProducts = new List<SanPham>();
             var boughtIds = _unitOfWork.Repository<GoiYSanPham>()
                 .GetMany(x => x.SanPhamNguonID == id && x.LoaiGoiY == "CoBuy")
@@ -416,31 +435,28 @@ namespace DoAn_Ver2.Controllers
                 var raw = _unitOfWork.Repository<SanPham>().GetMany(x => boughtIds.Contains(x.ID) && x.TrangThai == 1).ToList();
                 boughtTogetherProducts = boughtIds.Join(raw, sID => sID, p => p.ID, (sID, p) => p).ToList();
             }
-            // Truyền dữ liệu sang View
             ViewBag.ListSKU = listSKU;
             ViewBag.ListAnh = listAnh;
             ViewBag.ListMau = listMau;
             ViewBag.ListSize = listSize;
 
-            // [QUAN TRỌNG] ViewBag chứa dữ liệu AI
+            //ViewBag chứa dữ liệu AI
             ViewBag.SimilarProducts = similarProducts;
             ViewBag.BoughtTogetherProducts = boughtTogetherProducts;
 
+
+
             // =========================================================
-            // [PHẦN MỚI] 6. KÍCH HOẠT AI CHẠY NGẦM (TRIGGER)
+            //  6. KÍCH HOẠT AI CHẠY NGẦM (TRIGGER)
             // =========================================================
             // =========================================================
             // [TRIGGER AI THÔNG MINH]
             // =========================================================
             var aiService = new DoAn_Ver2.Services.RecommendationService();
-
-            // Kịch bản: Nếu danh sách gợi ý đang RỖNG (lần đầu xem), ta bắt buộc tính toán NGAY LẬP TỨC (Synchronous)
-            // Để đảm bảo người dùng thấy dữ liệu ngay lần đầu tiên.
             if (similarProducts.Count == 0 && boughtTogetherProducts.Count == 0)
             {
                 aiService.CalculateProductRecommendations(id);
 
-                // Sau khi tính xong, query lại DB ngay lập tức để lấy dữ liệu vừa tạo
                 // 1. Lấy lại Similar
                 var newSimilarIds = _unitOfWork.Repository<GoiYSanPham>()
                     .GetMany(x => x.SanPhamNguonID == id && x.LoaiGoiY == "Similar")
@@ -463,11 +479,8 @@ namespace DoAn_Ver2.Controllers
             }
             else
             {
-                // Nếu đã có dữ liệu rồi, cứ hiển thị cái cũ cho nhanh, còn việc cập nhật lại điểm số thì chạy ngầm
                 Task.Run(() => aiService.CalculateProductRecommendations(id));
             }
-
-            // Phần User Recommendation giữ nguyên chạy ngầm vì nó nằm ở trang chủ, không ảnh hưởng trang này
             if (Session["KhachHang"] != null)
             {
                 var user = (NguoiDung)Session["KhachHang"];
@@ -478,19 +491,18 @@ namespace DoAn_Ver2.Controllers
             return View(sp);
         }
 
-        // Action hiển thị Sidebar Danh mục bên trái
+
+
         [ChildActionOnly]
         public ActionResult _SidebarCategoryPartial(int? categoryId)
         {
             if (categoryId == null)
             {
-                // Trường hợp đang Search hoặc không có ID -> Hiển thị các danh mục GỐC (Cha)
                 var rootCats = _unitOfWork.Repository<DanhMuc>().GetMany(x => x.DanhMucChaID == null).ToList();
                 ViewBag.TitleBlock = "DANH MỤC";
                 return PartialView(rootCats);
             }
 
-            // Lấy thông tin danh mục hiện tại
             var current = _unitOfWork.Repository<DanhMuc>().GetById(categoryId.Value);
 
             int rootId;
@@ -498,21 +510,18 @@ namespace DoAn_Ver2.Controllers
 
             if (current.DanhMucChaID == null)
             {
-                // Nếu đang đứng ở danh mục Cha (VD: Áo Nam) -> Lấy chính nó làm gốc
                 rootId = current.ID;
                 rootName = current.TenDanhMuc;
             }
             else
             {
-                // Nếu đang đứng ở danh mục Con (VD: Áo thun) -> Lấy ID cha của nó (Áo Nam) làm gốc
                 rootId = current.DanhMucChaID.Value;
                 var parent = _unitOfWork.Repository<DanhMuc>().GetById(rootId);
                 rootName = parent.TenDanhMuc;
             }
 
-            ViewBag.TitleBlock = rootName; // Tên danh mục cha để hiện tiêu đề box
+            ViewBag.TitleBlock = rootName; 
 
-            // Lấy tất cả danh mục con cùng nhóm
             var subCats = _unitOfWork.Repository<DanhMuc>()
                             .GetMany(x => x.DanhMucChaID == rootId)
                             .ToList();
@@ -520,7 +529,13 @@ namespace DoAn_Ver2.Controllers
             return PartialView(subCats);
         }
 
-        // Action Gửi đánh giá (ĐÃ SỬA LỖI LOGIC)
+
+
+
+
+
+
+        // Action Gửi đánh giá
         [HttpPost]
         public ActionResult SubmitReview(int SanPhamID, int SoSao, string BinhLuan)
         {
@@ -528,55 +543,49 @@ namespace DoAn_Ver2.Controllers
 
             var user = (NguoiDung)Session["KhachHang"];
 
-            // --- [FIX LỖI] LOGIC KIỂM TRA LẠI Ở SERVER SIDE ---
-            bool bought = false;
-
-            // 1. Lấy đơn hàng hoàn thành
-            var orderIds = _unitOfWork.Repository<DonHang>()
+            // --- LOGIC CHẶN SPAM KÉP TẠI BACKEND ---
+            var completedOrderIds = _unitOfWork.Repository<DonHang>()
                 .GetMany(d => d.NguoiDungID == user.ID && d.TrangThaiDonHang == 3)
                 .Select(d => d.ID).ToList();
 
-            if (orderIds.Any())
+            int totalBought = 0;
+            if (completedOrderIds.Any())
             {
-                // 2. Lấy SKU của sản phẩm này
                 var skuIds = _unitOfWork.Repository<BienTheSanPham>()
-                    .GetMany(b => b.SanPhamID == SanPhamID)
-                    .Select(b => b.ID).ToList();
-
-                // 3. Kiểm tra chéo
-                bought = _unitOfWork.Repository<ChiTietDonHang>()
-                    .GetMany(ct => orderIds.Contains(ct.DonHangID) && skuIds.Contains(ct.BienTheSanPhamID))
-                    .Any();
+                    .GetMany(s => s.SanPhamID == SanPhamID).Select(s => s.ID).ToList();
+                totalBought = _unitOfWork.Repository<ChiTietDonHang>()
+                    .GetMany(ct => completedOrderIds.Contains(ct.DonHangID) && skuIds.Contains(ct.BienTheSanPhamID))
+                    .Select(ct => ct.DonHangID).Distinct().Count();
             }
-            // ----------------------------------------------------
 
-            if (bought)
+            int totalReviewed = _unitOfWork.Repository<DanhGia>()
+                .GetMany(x => x.SanPhamID == SanPhamID && x.NguoiDungID == user.ID).Count();
+
+            if (totalReviewed >= totalBought)
             {
-                var review = new DanhGia
-                {
-                    SanPhamID = SanPhamID,
-                    NguoiDungID = user.ID,
-                    SoSao = SoSao,
-                    BinhLuan = BinhLuan,
-                    NgayDanhGia = DateTime.Now
-                };
-                _unitOfWork.Repository<DanhGia>().Add(review);
-                _unitOfWork.Save();
-                TempData["Message"] = "Đánh giá của bạn đã được gửi thành công!";
-            }
-            else
-            {
-                TempData["Error"] = "Bạn cần mua sản phẩm này (đơn hàng đã hoàn thành) để đánh giá.";
+                TempData["Error"] = "Bạn đã đánh giá cho sản phẩm này! Mua thêm để có đánh giá lượt mới.";
+                return RedirectToAction("Detail", new { id = SanPhamID });
             }
 
+            var review = new DanhGia
+            {
+                SanPhamID = SanPhamID,
+                NguoiDungID = user.ID,
+                SoSao = SoSao,
+                BinhLuan = BinhLuan,
+                NgayDanhGia = DateTime.Now
+            };
+            _unitOfWork.Repository<DanhGia>().Add(review);
+            _unitOfWork.Save();
+
+            TempData["Message"] = "Đánh giá của bạn đã được gửi thành công!";
             return RedirectToAction("Detail", new { id = SanPhamID });
         }
 
 
-        // 2. HÀM XỬ LÝ LOGIC LƯU (PRIVATE HELPER)
+        // 2. HÀM XỬ LÝ LOGIC LƯU 
         private void AddToHistory(int productId)
         {
-            // Lấy định danh người dùng
             string sessionId = GetOrSetGuestSessionId();
             int? userId = null;
             if (Session["KhachHang"] != null)
@@ -586,7 +595,6 @@ namespace DoAn_Ver2.Controllers
 
             var repo = _unitOfWork.Repository<LichSuXem>();
 
-            // Kiểm tra xem User (hoặc Guest) đã xem sản phẩm này chưa
             var existItem = repo.GetMany(x =>
                 (userId != null && x.NguoiDungID == userId && x.SanPhamID == productId) ||
                 (userId == null && x.SessionID == sessionId && x.SanPhamID == productId)
@@ -602,7 +610,7 @@ namespace DoAn_Ver2.Controllers
                 var newItem = new LichSuXem
                 {
                     NguoiDungID = userId,
-                    SessionID = sessionId, // Lưu SessionID vào DB
+                    SessionID = sessionId, 
                     SanPhamID = productId,
                     ThoiGian = DateTime.Now
                 };
@@ -610,9 +618,6 @@ namespace DoAn_Ver2.Controllers
             }
             _unitOfWork.Save();
 
-            // ==========================================
-            // VẪN GIỮ LOGIC COOKIE CŨ ĐỂ HIỂN THỊ WIDGET (Không ảnh hưởng AI)
-            // ==========================================
             if (Session["KhachHang"] == null)
             {
                 var cookie = Request.Cookies["RecentView"];
@@ -627,7 +632,7 @@ namespace DoAn_Ver2.Controllers
             }
         }
 
-        // 3. ACTION HIỂN THỊ WIDGET (Child Action)
+        // 3. ACTION HIỂN THỊ WIDGET
         [ChildActionOnly]
         public ActionResult _RecentlyViewedFloat()
         {
@@ -635,18 +640,16 @@ namespace DoAn_Ver2.Controllers
 
             if (Session["KhachHang"] != null)
             {
-                // Lấy từ DB LichSuXem
                 var user = (NguoiDung)Session["KhachHang"];
                 ids = _unitOfWork.Repository<LichSuXem>()
                         .GetMany(x => x.NguoiDungID == user.ID)
                         .OrderByDescending(x => x.ThoiGian)
                         .Select(x => x.SanPhamID)
-                        .Take(5) // Chỉ lấy 5 sản phẩm cho widget
+                        .Take(5)
                         .ToList();
             }
             else
             {
-                // Lấy từ Cookie
                 var cookie = Request.Cookies["RecentView"];
                 if (cookie != null && !string.IsNullOrEmpty(cookie.Value))
                 {
@@ -664,17 +667,11 @@ namespace DoAn_Ver2.Controllers
                 products = ids.Select(id => raw.FirstOrDefault(p => p.ID == id))
                               .Where(p => p != null)
                               .ToList();
-
-                // [MỚI] Lấy ảnh đại diện cho từng sản phẩm để hiển thị
                 foreach (var p in products)
                 {
-                    // Tìm ảnh mặc định, nếu không có thì lấy ảnh đầu tiên
                     var img = _unitOfWork.Repository<AnhSanPham>()
                                 .GetMany(x => x.SanPhamID == p.ID && x.MacDinh == true)
                                 .FirstOrDefault();
-
-                    // Lưu tạm URL ảnh vào ViewBag hoặc thuộc tính mở rộng (nếu có ViewModel)
-                    // Ở đây mình dùng cách đơn giản: Gán vào thuộc tính ảo hoặc dùng ViewBag theo ID
                     ViewData["Img_" + p.ID] = img != null ? img.URL : "https://via.placeholder.com/100";
                 }
             }
@@ -682,33 +679,25 @@ namespace DoAn_Ver2.Controllers
             return PartialView(products);
         }
 
-
-        // Trong Controllers/ProductController.cs
-
-        // 4. ACTION TRANG LỊCH SỬ XEM (FULL PAGE)
+        // 4. ACTION TRANG LỊCH SỬ XEM
         public ActionResult History(int? page)
         {
-            // --- CẤU HÌNH PHÂN TRANG ---
-            int pageSize = 8; // Số sản phẩm trên 1 trang
-            int pageNumber = (page ?? 1); // Trang mặc định là 1
-
-            // 1. LẤY TOÀN BỘ LIST ID TỪ DB HOẶC COOKIE
+            int pageSize = 8; 
+            int pageNumber = (page ?? 1); 
             List<int> allIds = new List<int>();
 
             if (Session["KhachHang"] != null)
             {
-                // Member: Lấy từ DB
                 var user = (NguoiDung)Session["KhachHang"];
                 allIds = _unitOfWork.Repository<LichSuXem>()
                         .GetMany(x => x.NguoiDungID == user.ID)
                         .OrderByDescending(x => x.ThoiGian)
                         .Select(x => x.SanPhamID)
                         .Take(50)
-                        .ToList(); // Chỉ lấy ID (int), rất nhẹ
+                        .ToList();
             }
             else
             {
-                // Guest: Lấy từ Cookie
                 var cookie = Request.Cookies["RecentView"];
                 if (cookie != null && !string.IsNullOrEmpty(cookie.Value))
                 {
@@ -719,36 +708,24 @@ namespace DoAn_Ver2.Controllers
                     catch { }
                 }
             }
-
-            // 2. TÍNH TOÁN PHÂN TRANG (PAGING LOGIC)
             int totalItems = allIds.Count;
             int totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
-
-            // Xử lý trường hợp page vượt quá giới hạn
             if (pageNumber > totalPages) pageNumber = totalPages;
             if (pageNumber < 1) pageNumber = 1;
-
-            // Cắt lấy danh sách ID của trang hiện tại (Skip & Take)
-            // Ví dụ: Trang 2 thì bỏ qua 8 cái đầu, lấy 8 cái tiếp theo
             var pagedIds = allIds.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
 
-            // 3. LẤY CHI TIẾT SẢN PHẨM & ẢNH (CHỈ LẤY CHO TRANG HIỆN TẠI)
+            // 3. LẤY CHI TIẾT SẢN PHẨM & ẢNH 
             var products = new List<SanPham>();
             var productImages = new Dictionary<int, string>();
 
             if (pagedIds.Any())
             {
-                // Lấy thông tin sản phẩm
                 var rawProducts = _unitOfWork.Repository<SanPham>()
                                     .GetMany(x => pagedIds.Contains(x.ID) && x.TrangThai == 1)
                                     .ToList();
-
-                // Sắp xếp lại đúng thứ tự trong pagedIds
                 products = pagedIds.Select(id => rawProducts.FirstOrDefault(p => p.ID == id))
                                    .Where(p => p != null)
                                    .ToList();
-
-                // Lấy ảnh đại diện (Chỉ lấy cho các sản phẩm ở trang này -> Tối ưu)
                 var repoAnh = _unitOfWork.Repository<AnhSanPham>();
                 foreach (var p in products)
                 {
@@ -757,8 +734,6 @@ namespace DoAn_Ver2.Controllers
                     productImages[p.ID] = url;
                 }
             }
-
-            // 4. TRUYỀN DỮ LIỆU SANG VIEW
             ViewBag.ProductImages = productImages;
             ViewBag.CurrentPage = pageNumber;
             ViewBag.TotalPages = totalPages;
@@ -778,10 +753,9 @@ namespace DoAn_Ver2.Controllers
             }
             else
             {
-                // Tạo ID mới cho khách vãng lai
                 string newSessionId = Guid.NewGuid().ToString();
                 HttpCookie cookie = new HttpCookie(cookieName, newSessionId);
-                cookie.Expires = DateTime.Now.AddDays(30); // Lưu 30 ngày
+                cookie.Expires = DateTime.Now.AddDays(30); 
                 Response.Cookies.Add(cookie);
                 return newSessionId;
             }

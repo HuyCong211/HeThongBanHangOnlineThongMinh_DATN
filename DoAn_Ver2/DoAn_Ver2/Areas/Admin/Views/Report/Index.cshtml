@@ -225,10 +225,9 @@
         var currentProductType = 'TOP_SOLD';
 
         $(document).ready(function () {
-            LoadRevenueChart(); // Load mặc định
+            LoadRevenueChart();
         });
 
-        // Đổi chế độ lọc
         function ChangeMode() {
             var mode = $('#selectMode').val();
             $('#area-day, #area-month, #area-year').hide().removeClass('d-flex');
@@ -238,15 +237,12 @@
             if (mode == 'YEAR') $('#area-year').show().addClass('d-flex');
         }
 
-        // LOAD DOANH THU
         function LoadRevenueChart() {
             var mode = $('#selectMode').val();
             var fDate = $('#fromDate').val();
             var tDate = $('#toDate').val();
             var month = $('#selectMonth').val();
             var year = (mode == 'MONTH') ? $('#inputYearMonth').val() : $('#inputYearOnly').val();
-
-            // Reset UI SP
             $('.btn-chart').removeClass('active');
             $('#revenueTotalSection').show();
 
@@ -257,12 +253,8 @@
                 success: function (res) {
                     var labels = res.map(x => x.Label);
                     var values = res.map(x => x.Value);
-
-                    // Tính tổng
                     var total = values.reduce((a, b) => a + b, 0);
                     var formattedTotal = total.toLocaleString('vi-VN') + ' đ';
-
-                    // Cập nhật text tiêu đề & Tổng tiền
                     var title = "Doanh thu theo ngày";
                     var totalText = "";
 
@@ -282,17 +274,14 @@
                     $('#chartTitle').text(title);
                     $('#txtTotalLabel').text(totalText);
                     $('#txtTotalValue').text(formattedTotal);
-
-                    // Vẽ biểu đồ màu xanh dương sáng (#5fabfc)
                     renderChart(labels, values, "Doanh thu", "#5fabfc", "bar");
                 }
             });
         }
 
-        // LOAD SẢN PHẨM
         function LoadProductChart(type, btn) {
             currentProductType = type;
-            $('#revenueTotalSection').hide(); // Ẩn dòng tổng tiền
+            $('#revenueTotalSection').hide();
 
             $('.btn-chart').removeClass('active');
             if (btn) $(btn).addClass('active');
@@ -319,8 +308,6 @@
                 }
             });
         }
-
-        // HÀM VẼ CHART CHUNG
         function renderChart(labels, data, labelName, color, type) {
             var ctx = document.getElementById("myChart");
             if (mainChart) mainChart.destroy();
@@ -350,7 +337,7 @@
                         }],
                         xAxes: [{
                             gridLines: { display: false },
-                            ticks: { autoSkip: false, maxRotation: 45, minRotation: 45 } // Xoay chữ ngày tháng cho đỡ dính
+                            ticks: { autoSkip: false, maxRotation: 45, minRotation: 45 }
                         }]
                     },
                     tooltips: {
@@ -360,7 +347,7 @@
                             }
                         }
                     },
-                    legend: { display: false } // Ẩn chú thích trên đầu cho gọn
+                    legend: { display: false } 
                 }
             });
         }
@@ -370,7 +357,6 @@
             var mode = $('#selectMode').val();
             var fDate = $('#fromDate').val();
             var tDate = $('#toDate').val();
-            // Cần cập nhật logic Controller Export nếu muốn chuẩn theo tháng/năm
             window.location.href = "/Admin/Report/ExportRevenue?fromDate=" + fDate + "&toDate=" + tDate;
         }
         function ExportProduct() {

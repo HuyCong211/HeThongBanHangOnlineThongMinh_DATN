@@ -13,21 +13,15 @@ namespace DoAn_Ver2.Controllers
     public class WishlistController : Controller
     {
         private UnitOfWork _unitOfWork = new UnitOfWork();
-
-        // 1. HIỂN THỊ DANH SÁCH YÊU THÍCH
         public ActionResult Index(int? page)
         {
-            // --- CẤU HÌNH ---
-            int pageSize = 8; // 8 sản phẩm/trang
+            int pageSize = 8; 
             int pageNumber = (page ?? 1);
 
             List<int> wishIds = new List<int>();
-
-            // A. LẤY LIST ID TỪ NGUỒN (DB hoặc Cookie)
             if (Session["KhachHang"] != null)
             {
                 var user = (NguoiDung)Session["KhachHang"];
-                // Lấy từ DB, sắp xếp ngày thêm mới nhất
                 wishIds = _unitOfWork.Repository<SanPhamYeuThich>()
                                      .GetMany(x => x.NguoiDungID == user.ID)
                                      .OrderByDescending(x => x.NgayThem)
@@ -41,7 +35,6 @@ namespace DoAn_Ver2.Controllers
                 {
                     try
                     {
-                        // Cookie lưu dạng chuỗi "1,2,3". Cần đảo ngược để cái mới thêm (thường add vào cuối) lên đầu
                         var list = cookie.Value.Split(',').Select(int.Parse).ToList();
                         list.Reverse();
                         wishIds = list;
@@ -49,52 +42,40 @@ namespace DoAn_Ver2.Controllers
                     catch { }
                 }
             }
-
-            // B. TÍNH TOÁN PHÂN TRANG
             int totalItems = wishIds.Count;
             int totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
-
-            // Kiểm tra pageNumber hợp lệ
             if (pageNumber < 1) pageNumber = 1;
             if (pageNumber > totalPages && totalPages > 0) pageNumber = totalPages;
-
-            // C. LẤY DỮ LIỆU TRANG HIỆN TẠI (Skip & Take)
             var pagedIds = wishIds.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
 
             var products = new List<SanPham>();
             if (pagedIds.Any())
             {
-                // Lấy thông tin sản phẩm từ DB
                 var raw = _unitOfWork.Repository<SanPham>()
                                      .GetMany(x => pagedIds.Contains(x.ID) && x.TrangThai == 1)
                                      .ToList();
 
-                // Sắp xếp lại danh sách sản phẩm theo đúng thứ tự của pagedIds
                 foreach (var id in pagedIds)
                 {
                     var p = raw.FirstOrDefault(x => x.ID == id);
                     if (p != null) products.Add(p);
                 }
-
-                // Lấy ảnh đại diện
                 foreach (var p in products)
                 {
                     var img = _unitOfWork.Repository<AnhSanPham>()
                                          .GetMany(x => x.SanPhamID == p.ID && x.MacDinh == true)
                                          .FirstOrDefault();
-                    // Lưu URL ảnh vào ViewData để View dùng
                     ViewData["Img_" + p.ID] = img != null ? img.URL : "https://via.placeholder.com/300";
                 }
             }
 
-            // D. TRUYỀN DỮ LIỆU SANG VIEW
             ViewBag.CurrentPage = pageNumber;
             ViewBag.TotalPages = totalPages;
 
             return View(products);
         }
 
-        // 2. THÊM / XÓA SẢN PHẨM (TOGGLE)
+        // 2. THÊM / XÓA SẢN PHẨM
         [HttpPost]
         public ActionResult Toggle(int productId)
         {

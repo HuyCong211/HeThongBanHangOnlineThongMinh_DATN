@@ -8,9 +8,8 @@
 
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <style>
-    /* Tùy chỉnh CSS cho Select2 đẹp hơn, khớp với Bootstrap */
     .select2-container .select2-selection--single {
-        height: 38px !important; /* Chiều cao bằng input bootstrap */
+        height: 38px !important; 
         border: 1px solid #ced4da !important;
     }
 
@@ -23,7 +22,7 @@
     }
 
     .select2-search__field {
-        outline: none !important; /* Bỏ viền xanh khi focus */
+        outline: none !important; 
     }
 </style>
 
@@ -221,14 +220,12 @@
                     <div class="voucher-list">
                         @foreach (var voucher in Model.DsVoucherKhaDung)
                         {
-                            // Tính toán logic hiển thị
                             decimal giaTriGiamThucTe = 0;
                             string textGiamGia = "";
                             string subText = "";
 
                             if (voucher.LoaiGiam == "PERCENT")
                             {
-                                // Tính tiền thực tế (để JS dùng)
                                 giaTriGiamThucTe = (Model.TongTienHang * (voucher.GiaTri ?? 0)) / 100;
                                 textGiamGia = $"Giảm {voucher.GiaTri}%";
                                 subText = $"Giảm tối đa {string.Format("{0:N0}", giaTriGiamThucTe)}đ";
@@ -239,12 +236,9 @@
                                 textGiamGia = $"Giảm {voucher.GiaTri:N0}đ";
                             }
 
-                            // Giới hạn max
                             if (giaTriGiamThucTe > Model.TongTienHang) { giaTriGiamThucTe = Model.TongTienHang; }
 
                             bool isBest = voucher == Model.DsVoucherKhaDung.First();
-
-                            // LƯU Ý: Data attribute chỉ chứa số nguyên (Integer) để tránh lỗi JS float
                             long moneyInt = (long)giaTriGiamThucTe;
 
                             <div class="voucher-item card mb-2 border-0 shadow-sm"
@@ -305,14 +299,12 @@
 
     <script>
         $(document).ready(function () {
-            // 1. Kích hoạt Select2 cho các thẻ có class .select2-search
             $('.select2-search').select2({
-                width: '100%', // Đảm bảo chiều rộng full ô
+                width: '100%',
                 placeholder: "-- Tìm kiếm --",
                 allowClear: true
             });
 
-            // 2. Logic đổ dữ liệu Tỉnh/Thành (Code cũ + Cập nhật Select2)
             const allCommunes = vietnamDataV2.communes;
             const provinceMap = new Map();
             allCommunes.forEach(item => { if (!provinceMap.has(item.provinceCode)) provinceMap.set(item.provinceCode, item.provinceName); });
@@ -322,9 +314,7 @@
                 $('#province').append(`<option value="${name}" data-code="${code}">${name}</option>`);
             });
 
-            // [QUAN TRỌNG] Bắt sự kiện change của Select2
             $('#province').on('select2:select', function (e) {
-                // Lấy data-code từ option đang chọn
                 const selectedOption = $(this).find(':selected');
                 const selectedProvinceCode = selectedOption.data('code');
 
@@ -344,26 +334,20 @@
                     $wardSelect.prop('disabled', true);
                 }
 
-                // [CẬP NHẬT GIAO DIỆN SELECT2 SAU KHI ĐỔ DỮ LIỆU MỚI]
-                // Nếu không có dòng này, danh sách xã sẽ không hiện ra trong ô tìm kiếm
                 $wardSelect.trigger('change.select2');
             });
 
-            // Xử lý khi xóa chọn tỉnh (nếu dùng allowClear)
             $('#province').on('select2:unselecting', function() {
                  $('#ward').empty().append('<option value="">-- Chọn Phường/Xã --</option>').prop('disabled', true).trigger('change');
             });
         });
 
-        // 3. Hàm điền địa chỉ từ sổ (Cập nhật Select2)
         function fillAddressFromBook() {
             var opt = $('#addressBook').find(':selected');
 
             if (opt.val() === "") {
                 $('#checkoutForm')[0].reset();
                 $('#address-selection').show(); $('#address-display').hide();
-
-                // Reset Select2 về trạng thái rỗng
                 $('#province').val('').trigger('change').prop('disabled', false);
                 $('#ward').empty().append('<option value="">-- Chọn Phường/Xã --</option>').trigger('change').prop('disabled', true);
 
@@ -380,88 +364,63 @@
             let fullText = `${opt.data('detail')}, ${opt.data('ward')}, ${opt.data('province')}`;
             $('#savedAddressText').text(fullText);
 
-            // Gán giá trị cho Select2 (để khi submit form vẫn nhận được dữ liệu)
-            // Lưu ý: Phải append option vào nếu nó chưa tồn tại (đề phòng select đang rỗng)
             var prov = opt.data('province');
             var ward = opt.data('ward');
 
-            // Set Tỉnh
             if ($('#province option[value="' + prov + '"]').length == 0) {
                 $('#province').append(new Option(prov, prov, true, true));
             }
             $('#province').val(prov).trigger('change');
 
-            // Set Xã
             if ($('#ward option[value="' + ward + '"]').length == 0) {
                 $('#ward').append(new Option(ward, ward, true, true));
             }
             $('#ward').val(ward).trigger('change');
 
-            // Bỏ disable để submit được
             $('#province').prop('disabled', false);
             $('#ward').prop('disabled', false);
         }
-        // --- 2. SCRIPT VOUCHER (ĐÃ FIX LỖI CLICK) ---
-        // --- 2. SCRIPT VOUCHER (ĐÃ FIX LỖI RESET) ---
+        // --- 2. SCRIPT VOUCHER  ---
         $(document).ready(function() {
-            // Lấy giá trị gốc từ Server (Chuyển sang Long để tránh lỗi format)
             var baseTotal = @((long)Model.TongTienHang);
             var shipFee = @((long)Model.PhiShip);
-
-            // BẮT SỰ KIỆN CLICK VÀO VOUCHER
             $(document).on('click', '.voucher-item', function() {
                 var self = $(this);
                 var code = self.data('code');
                 var discount = parseFloat(self.data('money'));
 
-                // 1. Hiệu ứng UI trong Modal
                 $('.voucher-item').removeClass('selected-voucher border-success').css('background-color', '#fff');
                 $('.check-mark').addClass('d-none');
 
                 self.addClass('selected-voucher border-success').css('background-color', '#f0fff4');
                 self.find('.check-mark').removeClass('d-none');
+                $('#selectedVoucherCode').val(code); 
+                $('#displayVoucherCode').val(code);  
+                $('#removeVoucherBlock').show();     
 
-                // 2. Cập nhật dữ liệu ra ngoài Form
-                $('#selectedVoucherCode').val(code); // Quan trọng: Gán mã để gửi về Server
-                $('#displayVoucherCode').val(code);  // Hiển thị cho user thấy
-                $('#removeVoucherBlock').show();     // Hiện nút xóa
-
-                // 3. Tính tiền hiển thị
                 $('#discountDisplay').text('-' + discount.toLocaleString('vi-VN') + 'đ');
-                $('#discountRow').show(); // Hiện dòng giảm giá
+                $('#discountRow').show(); 
 
                 var finalTotal = baseTotal + shipFee - discount;
                 if(finalTotal < 0) finalTotal = 0;
-
-                // Format tiền Việt Nam: 1.000.000đ
                 $('#totalDisplay').text(finalTotal.toLocaleString('vi-VN') + 'đ');
-
-                // 4. Đóng modal
                 setTimeout(function(){
                     $('#voucherModal').modal('hide');
                 }, 200);
             });
 
-            // BẮT SỰ KIỆN NÚT BỎ CHỌN (FIX LỖI TẠI ĐÂY)
+            // BẮT SỰ KIỆN NÚT BỎ CHỌN 
             $('#btnRemoveVoucher').click(function(e) {
-                e.preventDefault(); // Ngăn chặn hành vi mặc định của button
-
-                // 1. Xóa giá trị Input Hidden (Để Server không nhận được mã)
+                e.preventDefault();
                 $('#selectedVoucherCode').val('');
                 $('#displayVoucherCode').val('');
-
-                // 2. Ẩn nút xóa
                 $('#removeVoucherBlock').hide();
 
-                // 3. Reset UI Modal (Bỏ active các item)
                 $('.voucher-item').removeClass('selected-voucher border-success').css('background-color', '#fff');
                 $('.check-mark').addClass('d-none');
+                $('#discountRow').hide(); 
+                $('#discountDisplay').text('-0đ'); 
 
-                // 4. Reset hiển thị Tiền
-                $('#discountRow').hide(); // Ẩn dòng giảm giá đi
-                $('#discountDisplay').text('-0đ'); // Reset text về 0
-
-                // 5. Tính lại Tổng tiền (Về giá gốc)
                 var finalTotal = baseTotal + shipFee;
                 $('#totalDisplay').text(finalTotal.toLocaleString('vi-VN') + 'đ');
             });

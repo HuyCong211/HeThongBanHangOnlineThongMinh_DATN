@@ -22,13 +22,9 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
             ViewBag.PageSize = size;
 
             // 1. Lấy tất cả dữ liệu
-            var allList = _unitOfWork.Repository<DanhMuc>().GetAll(); // Trả về List<DanhMuc>
+            var allList = _unitOfWork.Repository<DanhMuc>().GetAll();
 
-            // --- ĐOẠN MỚI THÊM: TẠO DICTIONARY TRA CỨU TÊN ---
-            // Tạo một từ điển: Key là ID, Value là TenDanhMuc
-            // Dùng cái này để tra tên cha ở bên View cực nhanh
             ViewBag.TenDanhMucChaMap = allList.ToDictionary(x => x.ID, x => x.TenDanhMuc);
-            // --------------------------------------------------
 
             IEnumerable<DanhMuc> query = allList;
 
@@ -103,13 +99,12 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
                                             .Count(x => listAllSubIDs.Contains(x.DanhMucID ?? 0));
 
             ViewBag.SoLuongSanPham = soLuongSanPham;
-            // ----------------------------------------------
 
             return View(model);
         }
 
 
-        // 2. TẠO MỚI (Giao diện)
+        // 2. TẠO MỚI 
         public ActionResult Create()
         {
             ViewBag.ListDanhMuc = GetDanhMucSelectList();
@@ -235,14 +230,6 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
             return View(model);
         }
 
-        // 6. XÓA (Nên dùng Ajax hoặc Post để bảo mật, ở đây làm Get đơn giản trước)
-        //xóa nhanh
-        //public ActionResult Delete(int id)
-        //{
-        //    _unitOfWork.Repository<DanhMuc>().Delete(id);
-        //    _unitOfWork.Save();
-        //    return RedirectToAction("Index");
-        //}
 
         //XEM TRƯỚC KHI XÓA
         // 1. GET: Hiển thị trang xác nhận xóa
@@ -268,7 +255,6 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
 
 
         // --- HELPER: Hàm đệ quy lấy tất cả ID con cháu ---
-        // (Copy hàm này từ SanPhamController sang đây)
         private List<int> GetChildCategoryIDs(List<DanhMuc> allCats, int parentId)
         {
             var childIDs = new List<int>();
@@ -289,16 +275,12 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
         // --- HELPER ---
         private SelectList GetDanhMucSelectList(int? selectedValue = null, int? excludeId = null)
         {
-            // QUAN TRỌNG: Khai báo rõ ràng là IEnumerable để tránh lỗi convert
             IEnumerable<DanhMuc> query = _unitOfWork.Repository<DanhMuc>().GetAll();
 
-            // Lọc dữ liệu trong bộ nhớ (LINQ to Objects)
             if (excludeId.HasValue)
             {
                 query = query.Where(x => x.ID != excludeId.Value);
             }
-
-            // Tạo SelectList, selectedValue sẽ giúp dropdown tự chọn đúng item
             return new SelectList(query, "ID", "TenDanhMuc", selectedValue);
         }
     }

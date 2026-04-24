@@ -1,0 +1,80 @@
+﻿
+#ultimate-effect-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 9999;
+    overflow: hidden;
+}
+
+canvas {
+    display: block;
+}
+
+.falling-emoji {
+    position: absolute;
+    top: -50px;
+    user-select: none;
+    cursor: default;
+    animation: emoji-fall linear infinite, emoji-sway ease-in-out infinite alternate;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    will-change: transform, top, opacity;
+}
+
+@keyframes emoji-fall {
+    0% {
+        top: -10%;
+        opacity: 0;
+    }
+
+    20% {
+        opacity: 1;
+    }
+
+    100% {
+        top: 110%;
+        opacity: 0;
+    }
+}
+
+@keyframes emoji-sway {
+    0% {
+        transform: translateX(0) rotate(0deg);
+    }
+
+    100% {
+        transform: translateX(35px) rotate(360deg);
+    }
+}
+
+.rain-drop {
+    position: absolute;
+    width: 2px;
+    height: 25px;
+    background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(174, 194, 224, 0.8));
+    top: -50px;
+    animation: rain-fall linear infinite;
+    will-change: top, opacity;
+}
+
+@keyframes rain-fall {
+    0% {
+        top: -5%;
+        opacity: 0;
+    }
+
+    10% {
+        opacity: 1;
+    }
+
+    100% {
+        top: 105%;
+        opacity: 0.3;
+    }
+}

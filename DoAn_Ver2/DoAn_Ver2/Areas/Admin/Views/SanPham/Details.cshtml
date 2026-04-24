@@ -5,33 +5,24 @@
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 
     var culture = System.Globalization.CultureInfo.GetCultureInfo("vi-VN");
-
-    // Lấy dữ liệu từ ViewBag
     var listSKU = ViewBag.ListSKU as List<DoAn_Ver2.Models.BienTheSanPham>;
     var mauMap = ViewBag.MauMap as Dictionary<int, string>;
     var sizeMap = ViewBag.SizeMap as Dictionary<int, string>;
-
-    // XỬ LÝ GỘP BIẾN THỂ ĐỂ HIỂN THỊ GỌN
     string strMauSac = "Chưa có";
     string strKichThuoc = "Chưa có";
 
     if (listSKU != null && listSKU.Count > 0)
     {
-        // Lấy danh sách tên các màu (Distinct để không trùng)
         var listTenMau = listSKU.Select(x => x.MauSacID)
                                 .Distinct()
                                 .Where(id => mauMap != null && mauMap.ContainsKey(id))
                                 .Select(id => mauMap[id])
                                 .ToList();
-
-        // Lấy danh sách tên các size
         var listTenSize = listSKU.Select(x => x.KichThuocID)
                                  .Distinct()
                                  .Where(id => sizeMap != null && sizeMap.ContainsKey(id))
                                  .Select(id => sizeMap[id])
                                  .ToList();
-
-        // --- SỬA LỖI TẠI ĐÂY: Thêm ngoặc nhọn { } ---
         if (listTenMau.Any())
         {
             strMauSac = string.Join(" / ", listTenMau);
@@ -41,7 +32,6 @@
         {
             strKichThuoc = string.Join(" / ", listTenSize);
         }
-        // ---------------------------------------------
     }
 }
 

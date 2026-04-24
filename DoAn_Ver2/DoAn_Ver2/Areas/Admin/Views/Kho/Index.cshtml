@@ -6,15 +6,12 @@
 @{
     ViewBag.Title = "Quản lý Tồn kho";
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
-
-    // Lấy Map dữ liệu từ Controller
     var mapTenSP = ViewBag.MapTenSP as Dictionary<int, string>;
     var mapMau = ViewBag.MapMau as Dictionary<int, MauSac>;
     var mapSize = ViewBag.MapSize as Dictionary<int, string>;
 }
 
 <style>
-    /* CSS Phân trang */
     .pagination-container ul {
         list-style: none;
         padding: 0;
@@ -120,13 +117,8 @@
                         {
                             i++;
                             int stt = (pageNumber - 1) * pageSize + i;
-                            // SỬA LẠI ĐOẠN NÀY: Bỏ "?? 0" đi
                             string tenSP = (mapTenSP != null && mapTenSP.ContainsKey(item.SanPhamID)) ? mapTenSP[item.SanPhamID] : "---";
-
-                            // Vì item.MauSacID là int (không null) nên dùng trực tiếp
                             MauSac objMau = (mapMau != null && mapMau.ContainsKey(item.MauSacID)) ? mapMau[item.MauSacID] : null;
-
-                            // Tương tự với Size
                             string tenSize = (mapSize != null && mapSize.ContainsKey(item.KichThuocID)) ? mapSize[item.KichThuocID] : "-";
 
                             <tr>
@@ -194,27 +186,18 @@
                     }),
                     new PagedListRenderOptions
                     {
-                        // CẤU HÌNH HIỂN THỊ TRANG
-                        DisplayLinkToFirstPage = PagedListDisplayMode.Always, // Luôn hiện nút Đầu
-                        DisplayLinkToLastPage = PagedListDisplayMode.Always,  // Luôn hiện nút Cuối
+                        DisplayLinkToFirstPage = PagedListDisplayMode.Always, 
+                        DisplayLinkToLastPage = PagedListDisplayMode.Always,  
                         DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
                         DisplayLinkToNextPage = PagedListDisplayMode.Always,
-
-                        // Giới hạn số lượng nút trang hiển thị (Ví dụ: 1 2 3 4 5 ...)
                         MaximumPageNumbersToDisplay = 5,
 
-                        // Hiển thị dấu ... nếu vượt quá giới hạn
                         DisplayEllipsesWhenNotShowingAllPageNumbers = true,
-
-                        // Việt hóa text các nút
                         LinkToFirstPageFormat = "«",
                         LinkToPreviousPageFormat = "‹",
                         LinkToNextPageFormat = "›",
                         LinkToLastPageFormat = "»",
 
-                        // Cấu hình CSS cho Bootstrap (Nếu CSS của bạn chưa chuẩn)
-                        // LiElementClasses = new string[] { "page-item" },
-                        // UlElementClasses = new string[] { "pagination" }
                     })
                 </div>
 

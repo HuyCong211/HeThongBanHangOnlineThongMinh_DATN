@@ -9,7 +9,6 @@ namespace DoAn_Ver2.Common
 {
     public class SecurityHelper
     {
-        // Hàm mã hóa MD5 đơn giản
         public static string MD5Hash(string input)
         {
             StringBuilder hash = new StringBuilder();

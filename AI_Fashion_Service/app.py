@@ -119,6 +119,43 @@ def search():
         print(e)
         return jsonify({'success': False, 'message': str(e)})
 
+# ==========================================
+# API ĐỒNG BỘ ẢNH MỚI (CHẠY NGẦM KHI ADMIN THÊM SP)
+# ==========================================
+@app.route('/add_index', methods=['POST'])
+def add_index():
+    if 'file' not in request.files:
+        return jsonify({'success': False, 'message': 'Chưa gửi file'})
+
+    file = request.files['file']
+    image_name = request.form.get('image_name')  # Nhận tên file chính thức từ C#
+
+    if not image_name:
+        return jsonify({'success': False, 'message': 'Thiếu tên file (image_name)'})
+
+    try:
+        # 1. Lưu file vật lý vào ổ cứng để dự phòng khi Python server khởi động lại
+        if not os.path.exists(IMAGE_FOLDER):
+            os.makedirs(IMAGE_FOLDER)
+        save_path = os.path.join(IMAGE_FOLDER, image_name)
+        file.save(save_path)
+
+        # 2. Trích xuất đặc trưng AI ngay lập tức
+        feat = extract_feature(save_path, from_stream=False)
+
+        if feat is not None:
+            # 3. Đưa thẳng vào RAM (Dữ liệu Live)
+            features_db.append(feat)
+            image_names_db.append(image_name)
+            return jsonify({'success': True, 'message': f'Đã đồng bộ {image_name} vào AI'})
+        else:
+            return jsonify({'success': False, 'message': 'Lỗi trích xuất vector AI'})
+
+    except Exception as e:
+        print("LỖI ĐỒNG BỘ AI:", str(e))
+        return jsonify({'success': False, 'message': str(e)})
+
+
 
 # ==========================================
 # [THÊM MỚI] PHẦN 2: AI GỢI Ý SẢN PHẨM TƯƠNG TỰ (TEXT-BASED)

@@ -26,20 +26,14 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
             EnsureConfigExists("BannerHome", "/Content/images/banner-home.jpg", "Banner chính trang chủ");
             EnsureConfigExists("BannerLogin", "/Content/images/bg-login.jpg", "Ảnh nền trang đăng nhập");
             EnsureConfigExists("FooterInfo", "Địa chỉ: 123 ABC...", "Thông tin chân trang");
-
-            // [MỚI] Thêm 2 key cho trang Giới thiệu
             EnsureConfigExists("BannerAbout", "https://theme.hstatic.net/200000690725/1001078549/14/slide_2_img.jpg?v=235", "Banner trang giới thiệu");
             EnsureConfigExists("ImageAbout", "https://images.unsplash.com/photo-1490578474895-699cd4e2cf59", "Ảnh nội dung giới thiệu");
-
-            // [MỚI] THÊM DÒNG NÀY: Cấu hình hiệu ứng
             EnsureConfigExists("SiteEffect", "sakura", "Hiệu ứng theo mùa");
 
-            // Load lại sau khi ensure
             listConfig = _unitOfWork.Repository<CauHinhChung>().GetAll().ToList();
             return View(listConfig);
         }
 
-        // Helper: Tạo key nếu chưa có
         private void EnsureConfigExists(string key, string value, string desc)
         {
             var conf = _unitOfWork.Repository<CauHinhChung>().GetById(key);
@@ -66,7 +60,7 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
                     var conf = _unitOfWork.Repository<CauHinhChung>().GetById(item.KeyName);
                     if (conf != null)
                     {
-                        // Nếu là các trường upload ảnh thì xử lý riêng
+                        
                         if (item.KeyName == "SiteLogo")
                             conf.Value = UploadFile(SiteLogo) ?? conf.Value;
                         else if (item.KeyName == "SiteIcon")
@@ -75,15 +69,13 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
                             conf.Value = UploadFile(BannerHome) ?? conf.Value;
                         else if (item.KeyName == "BannerLogin")
                             conf.Value = UploadFile(BannerLogin) ?? conf.Value;
-
-                        // [MỚI] Xử lý 2 ảnh giới thiệu
                         else if (item.KeyName == "BannerAbout")
                             conf.Value = UploadFile(BannerAbout) ?? conf.Value;
                         else if (item.KeyName == "ImageAbout")
                             conf.Value = UploadFile(ImageAbout) ?? conf.Value;
 
                         else
-                            conf.Value = item.Value; // Các trường text (Hotline, Email...)
+                            conf.Value = item.Value; 
 
                         _unitOfWork.Repository<CauHinhChung>().Update(conf);
                     }

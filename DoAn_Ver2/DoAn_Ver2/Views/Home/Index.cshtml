@@ -10,7 +10,6 @@
     var categories = ViewBag.Categories as List<DanhMuc>;
     var bestSellers = ViewBag.BestSellers as List<SanPham>;
 
-    // [MỚI] LẤY BANNER TỪ CẤU HÌNH
     string homeBanner = "https://theme.hstatic.net/200000690725/1001078549/14/slide_1_img.jpg?v=235"; // Banner mặc định phòng hờ
     try
     {
@@ -48,7 +47,6 @@
             </h3>
         </div>
 
-        @* Sử dụng class product-slider-swipe để tận dụng JS có sẵn *@
         <div class="owl-carousel owl-theme product-slider-swipe">
             @foreach (var item in recommendedHome)
             {
@@ -101,7 +99,6 @@
     <div class="tab-content pt-4">
 
         @{
-            // --- LOGIC XỬ LÝ DỮ LIỆU ---
             var dictCatProducts = new Dictionary<int, List<SanPham>>();
             var allProductsList = new List<SanPham>();
 
@@ -145,11 +142,9 @@
         {
             if (products != null && products.Any())
             {
-                // Sử dụng class .product-slider-swipe để config JS riêng
                 <div class="owl-carousel owl-theme product-slider-swipe">
                     @foreach (var item in products)
                     {
-                        // Render từng item riêng lẻ (1 hàng)
                         @Html.Partial("_ProductBoxPartial", item, new ViewDataDictionary { { "IsSlider", true } })
                     }
                 </div>
@@ -219,29 +214,23 @@
 @section scripts {
     <script>
         $(document).ready(function () {
-            // Cấu hình Slider 1 Hàng + Bật Vuốt
             var sliderOptions = {
                 loop: false,
                 margin: 20,
                 nav: true,
                 dots: false,
-                touchDrag: true, // Bật vuốt trên màn hình cảm ứng
-                mouseDrag: true, // Bật vuốt bằng chuột (nhấn giữ và kéo)
+                touchDrag: true, 
+                mouseDrag: true, 
                 navText: ["<i class='fas fa-chevron-left'></i>", "<i class='fas fa-chevron-right'></i>"],
                 responsive: {
-                    0: { items: 2 }, // Mobile: 2 sản phẩm
-                    600: { items: 3 }, // Tablet: 3 sản phẩm
-                    1000: { items: 4 } // PC: 4 sản phẩm
+                    0: { items: 2 }, 
+                    600: { items: 3 },
+                    1000: { items: 4 }
                 }
             };
 
-            // Khởi tạo slider cho Tab mặc định
             $(".product-slider-swipe").owlCarousel(sliderOptions);
-
-            // Khởi tạo slider Top Bán Chạy
             $("#bestSellerCarousel").owlCarousel(sliderOptions);
-
-            // Xử lý khi chuyển Tab (để fix lỗi hiển thị width=0)
             $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
                 var target = $(e.target).attr("href");
                 var slider = $(target).find(".product-slider-swipe");

@@ -16,14 +16,10 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
         public ActionResult Index(string searchString, int? page)
         {
             var query = _unitOfWork.Repository<MaGiamGia>().GetAll();
-
-            // Tìm kiếm theo Mã code
             if (!string.IsNullOrEmpty(searchString))
             {
                 query = query.Where(x => x.MaCode.Contains(searchString));
             }
-
-            // Sắp xếp: Mã mới nhất lên đầu
             query = query.OrderByDescending(x => x.ID);
 
             int pageSize = 10;
@@ -36,19 +32,14 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
         //  XEM CHI TIẾT & LỊCH SỬ ÁP DỤNG MÃ (GET)
         public ActionResult Details(int id, int? page)
         {
-            // 1. Lấy thông tin mã giảm giá
             var item = _unitOfWork.Repository<MaGiamGia>().GetById(id);
             if (item == null) return HttpNotFound();
 
             int pageSize = 10;
             int pageNumber = (page ?? 1);
-
-            // 2. Truy vấn tìm các đơn hàng ĐÃ LƯU cái MaCode này
             var listOrders = _unitOfWork.Repository<DonHang>().GetAll()
                                 .Where(x => x.MaGiamGiaApDung == item.MaCode)
                                 .OrderByDescending(x => x.NgayDat);
-
-            // Truyền sang View
             ViewBag.OrderHistory = listOrders.ToPagedList(pageNumber, pageSize);
 
             return View(item);
@@ -56,7 +47,7 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
 
 
 
-        // 1. GET: Hiển thị form thêm mới (BẠN ĐANG THIẾU CÁI NÀY)
+        // 1. GET: Hiển thị form thêm mới
         public ActionResult Create()
         {
             return View();
@@ -68,15 +59,12 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
-                // Kiểm tra mã trùng
                 var exist = _unitOfWork.Repository<MaGiamGia>().GetMany(x => x.MaCode == model.MaCode).FirstOrDefault();
                 if (exist != null)
                 {
                     ModelState.AddModelError("", "Mã giảm giá này đã tồn tại!");
                     return View(model);
                 }
-
-                // Viết hoa mã code cho chuẩn
                 model.MaCode = model.MaCode.ToUpper();
 
                 _unitOfWork.Repository<MaGiamGia>().Add(model);
@@ -104,15 +92,11 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
             {
                 var item = _unitOfWork.Repository<MaGiamGia>().GetById(model.ID);
                 if (item == null) return HttpNotFound();
-
-                // Cập nhật thông tin
                 item.LoaiGiam = model.LoaiGiam;
                 item.GiaTri = model.GiaTri;
                 item.DonToiThieu = model.DonToiThieu;
                 item.SoLuong = model.SoLuong;
                 item.NgayHetHan = model.NgayHetHan;
-
-                // Không cho sửa MaCode để tránh lỗi logic các đơn hàng cũ
 
                 _unitOfWork.Repository<MaGiamGia>().Update(item);
                 _unitOfWork.Save();

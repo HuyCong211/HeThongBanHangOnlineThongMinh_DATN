@@ -9,8 +9,8 @@ namespace DoAn_Ver2.Models.ViewModel
     {
         public int SanPhamID { get; set; }
         public string TenSanPham { get; set; }
-        public string TenPhanLoai { get; set; } // Ví dụ: Màu Đen / Size L
-        public string HinhAnh { get; set; }     // Ảnh đại diện của màu đó
+        public string TenPhanLoai { get; set; } 
+        public string HinhAnh { get; set; }    
         public int SoLuong { get; set; }
         public decimal DonGia { get; set; }
         public decimal ThanhTien { get; set; }

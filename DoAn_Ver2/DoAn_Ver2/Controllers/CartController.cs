@@ -21,7 +21,7 @@ namespace DoAn_Ver2.Controllers
         public ActionResult Index()
         {
             var model = new ShoppingCartViewModel();
-            model.Items = GetCartItems(); // Lấy danh sách sản phẩm (từ DB hoặc Session)
+            model.Items = GetCartItems(); 
             Session["CartCount"] = model.Items.Sum(x => x.SoLuong);
             return View(model);
         }
@@ -34,6 +34,38 @@ namespace DoAn_Ver2.Controllers
                 var sku = _unitOfWork.Repository<BienTheSanPham>().GetById(skuId);
                 if (sku == null) return Json(new { success = false, msg = "Sản phẩm không tồn tại!" });
                 if ((sku.SoLuong ?? 0) < quantity) return Json(new { success = false, msg = "Không đủ hàng trong kho!" });
+                int currentInCart = 0;
+                if (Session["KhachHang"] != null)
+                {
+                    var user = (NguoiDung)Session["KhachHang"];
+                    var cart = _unitOfWork.Repository<GioHang>().GetMany(x => x.NguoiDungID == user.ID).FirstOrDefault();
+                    if (cart != null)
+                    {
+                        var cartItem = _unitOfWork.Repository<GioHangChiTiet>()
+                                            .GetMany(x => x.GioHangID == cart.ID && x.BienTheSanPhamID == skuId)
+                                            .FirstOrDefault();
+                        if (cartItem != null) currentInCart = cartItem.SoLuong ?? 0;
+                    }
+                }
+                else
+                {
+                    // --- GUEST: KIỂM TRA TRONG SESSION ---
+                    List<CartItemViewModel> cart = Session["Cart"] as List<CartItemViewModel>;
+                    if (cart != null)
+                    {
+                        var item = cart.FirstOrDefault(x => x.SKU_ID == skuId);
+                        if (item != null) currentInCart = item.SoLuong;
+                    }
+                }
+
+                // Kiểm tra Tồn kho với (Số lượng định thêm + Số lượng đã có)
+                if ((sku.SoLuong ?? 0) < (quantity + currentInCart))
+                {
+                    string errorMsg = currentInCart > 0
+                        ? $"Bạn đã có {currentInCart} sp này trong giỏ. Kho chỉ còn {sku.SoLuong} sp, bạn không thể thêm {quantity} sp nữa."
+                        : "Không đủ hàng trong kho!";
+                    return Json(new { success = false, msg = errorMsg });
+                }
 
                 if (Session["KhachHang"] != null)
                 {
@@ -72,7 +104,7 @@ namespace DoAn_Ver2.Controllers
                 else
                 {
                     // --- GUEST: LƯU SESSION ---
-                    // [QUAN TRỌNG] Khởi tạo list nếu Session null
+                    // Khởi tạo list nếu Session null
                     List<CartItemViewModel> cart = Session["Cart"] as List<CartItemViewModel>;
                     if (cart == null) cart = new List<CartItemViewModel>();
 
@@ -86,8 +118,6 @@ namespace DoAn_Ver2.Controllers
                         var sp = _unitOfWork.Repository<SanPham>().GetById(sku.SanPhamID);
                         var mau = _unitOfWork.Repository<MauSac>().GetById(sku.MauSacID);
                         var size = _unitOfWork.Repository<KichThuoc>().GetById(sku.KichThuocID);
-
-                        // Lấy ảnh: Ưu tiên ảnh biến thể -> ảnh chính -> placeholder
                         var anh = _unitOfWork.Repository<AnhSanPham>()
                                     .GetMany(x => x.SanPhamID == sp.ID && x.MacDinh == true).FirstOrDefault();
                         string imgUrl = anh != null ? anh.URL : "https://via.placeholder.com/100";
@@ -104,7 +134,7 @@ namespace DoAn_Ver2.Controllers
                             TonKho = sku.SoLuong ?? 0
                         });
                     }
-                    // [QUAN TRỌNG] Gán ngược lại vào Session
+                    // Gán ngược lại vào Session
                     Session["Cart"] = cart;
                 }
 
@@ -125,7 +155,6 @@ namespace DoAn_Ver2.Controllers
             if (quantity < 1) return Json(new { success = false });
 
             var sku = _unitOfWork.Repository<BienTheSanPham>().GetById(skuId);
-            // [FIX LỖI]
             if ((sku.SoLuong ?? 0) < quantity) return Json(new { success = false, msg = "Số lượng vượt quá tồn kho!" });
 
             if (Session["KhachHang"] != null)
@@ -200,7 +229,7 @@ namespace DoAn_Ver2.Controllers
             });
         }
 
-        // --- HELPER FUNCTIONS (SỬA LẠI ĐỂ CHẮC CHẮN TRẢ VỀ LIST) ---
+        // --- HELPER FUNCTIONS  ---
         private List<CartItemViewModel> GetCartItems()
         {
             var list = new List<CartItemViewModel>();
@@ -240,7 +269,6 @@ namespace DoAn_Ver2.Controllers
             }
             else
             {
-                // Lấy từ Session
                 var sessionCart = Session["Cart"] as List<CartItemViewModel>;
                 if (sessionCart != null)
                 {
@@ -258,15 +286,19 @@ namespace DoAn_Ver2.Controllers
 
 
 
-        // =========================================================================
+
+
+
+
+
+        // ===============================
         // PHẦN THANH TOÁN (CHECKOUT)
-        // =========================================================================
+        // ===============================
 
         // 1. TRANG THANH TOÁN (GET)
         [HttpGet]
         public ActionResult Checkout(string selectedIds)
         {
-            // [FIX LỖI] Giải mã URL nếu bị mã hóa (ví dụ %2C thành dấu phẩy)
             if (!string.IsNullOrEmpty(selectedIds))
             {
                 selectedIds = HttpUtility.UrlDecode(selectedIds);
@@ -276,7 +308,6 @@ namespace DoAn_Ver2.Controllers
 
             try
             {
-                // [FIX LỖI] Dùng TryParse hoặc lọc bỏ chuỗi rỗng để tránh lỗi Format
                 var ids = selectedIds.Split(',')
                                      .Where(x => !string.IsNullOrWhiteSpace(x) && int.TryParse(x, out _))
                                      .Select(int.Parse)
@@ -288,8 +319,6 @@ namespace DoAn_Ver2.Controllers
                 var checkoutItems = fullCart.Where(x => ids.Contains(x.SKU_ID)).ToList();
 
                 if (checkoutItems.Count == 0) return RedirectToAction("Index");
-
-                // Check tồn kho
                 foreach (var item in checkoutItems)
                 {
                     var sku = _unitOfWork.Repository<BienTheSanPham>().GetById(item.SKU_ID);
@@ -310,22 +339,21 @@ namespace DoAn_Ver2.Controllers
                 };
 
 
-                // --- [LOGIC VOUCHER MỚI] ---
+                // --- [LOGIC VOUCHER] ---
                 // Lấy các mã giảm giá thỏa mãn điều kiện:
                 // 1. Chưa hết hạn (NgayHetHan >= Now)
                 // 2. Còn số lượng (SoLuong > 0)
                 // 3. Đơn tối thiểu <= Tổng tiền hàng hiện tại
-                // --- [LOGIC VOUCHER ĐÃ SỬA] ---
                 var today = DateTime.Now;
                 var validVouchers = _unitOfWork.Repository<MaGiamGia>()
                     .GetMany(x => x.NgayHetHan >= today && x.SoLuong > 0 && x.DonToiThieu <= tongTienHang)
                     .ToList();
 
                 // Sắp xếp: Ưu tiên giảm nhiều tiền nhất
-                // Lưu ý: Cần tính ra số tiền giảm thực tế để so sánh
+                // tính ra số tiền giảm thực tế để so sánh
                 model.DsVoucherKhaDung = validVouchers.OrderByDescending(v =>
                 {
-                    if (v.LoaiGiam == "PERCENT") // Khớp với DB: "PERCENT"
+                    if (v.LoaiGiam == "PERCENT") 
                         return (tongTienHang * (v.GiaTri ?? 0)) / 100;
                     else
                         return v.GiaTri ?? 0;
@@ -342,7 +370,7 @@ namespace DoAn_Ver2.Controllers
                     model.Email = user.Email;
                 }
 
-                ViewBag.SelectedIds = selectedIds; // Truyền lại chuỗi ID sạch sang View
+                ViewBag.SelectedIds = selectedIds;
                 return View(model);
             }
             catch
@@ -356,7 +384,6 @@ namespace DoAn_Ver2.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Checkout(CheckoutViewModel model, string selectedIds)
         {
-            // [FIX LỖI] Tương tự như hàm GET
             if (!string.IsNullOrEmpty(selectedIds))
             {
                 selectedIds = HttpUtility.UrlDecode(selectedIds);
@@ -371,10 +398,8 @@ namespace DoAn_Ver2.Controllers
                                  .ToList();
             }
 
-            // Nếu không có ID nào hợp lệ -> lỗi
             if (!ids.Any())
             {
-                // Xử lý lỗi, ví dụ quay về giỏ hàng
                 return RedirectToAction("Index");
             }
 
@@ -396,7 +421,7 @@ namespace DoAn_Ver2.Controllers
 
                 if (appliedVoucher != null && appliedVoucher.DonToiThieu <= model.TongTienHang)
                 {
-                    // [SỬA QUAN TRỌNG]: Check đúng từ khóa "PERCENT" trong DB
+                    // Check đúng từ khóa "PERCENT" trong DB
                     if (appliedVoucher.LoaiGiam == "PERCENT")
                     {
                         // Công thức: Tổng tiền * Giá trị % / 100
@@ -421,9 +446,6 @@ namespace DoAn_Ver2.Controllers
                 {
                     var user = (NguoiDung)Session["KhachHang"];
                     model.SoDiaChi = _unitOfWork.Repository<DiaChi>().GetMany(x => x.NguoiDungID == user.ID).ToList();
-
-                    // Load lại danh sách voucher để hiển thị lại
-                    // Load lại Voucher
                     var today = DateTime.Now;
                     model.DsVoucherKhaDung = _unitOfWork.Repository<MaGiamGia>()
                         .GetMany(x => x.NgayHetHan >= today && x.SoLuong > 0 && x.DonToiThieu <= model.TongTienHang)
@@ -434,15 +456,17 @@ namespace DoAn_Ver2.Controllers
                 return View(model);
             }
 
-            // --- [CẬP NHẬT: ĐỊA CHỈ 2 CẤP] ---
-            // Tạo chuỗi địa chỉ: Chi tiết, Xã, Tỉnh (Bỏ Quận/Huyện)
             string diaChiFull = $"{model.DiaChiChiTiet}, {model.PhuongXa}, {model.TinhThanh}";
 
             if (!string.IsNullOrEmpty(model.GhiChu))
             {
                 diaChiFull += $" . (Ghi chú: {model.GhiChu})";
             }
-            // ----------------------
+
+
+
+
+
 
             // A. TẠO ĐƠN HÀNG
             var donHang = new DonHang
@@ -455,7 +479,6 @@ namespace DoAn_Ver2.Controllers
                 DiaChiGiaoHang = diaChiFull,
                 TongTien = model.TongTienHang,
                 PhiVanChuyen = model.PhiShip,
-                // [QUAN TRỌNG] Lưu giá trị giảm giá và tổng thanh toán thực tế
                 GiamGia = tienGiam,
                 TongThanhToan = (model.TongTienHang + model.PhiShip) - tienGiam,
                 MaGiamGiaApDung = appliedVoucher != null ? appliedVoucher.MaCode : null,
@@ -464,7 +487,7 @@ namespace DoAn_Ver2.Controllers
                 PhuongThucThanhToanID = model.PhuongThucThanhToan
             };
 
-            // --- CẬP NHẬT: TỰ ĐỘNG LƯU ĐỊA CHỈ MỚI ---
+            // --- TỰ ĐỘNG LƯU ĐỊA CHỈ MỚI ---
             if (Session["KhachHang"] != null)
             {
                 var user = (NguoiDung)Session["KhachHang"];
@@ -501,13 +524,11 @@ namespace DoAn_Ver2.Controllers
                             MacDinh = false // Địa chỉ tự lưu thì không set mặc định
                         };
                         _unitOfWork.Repository<DiaChi>().Add(newAddress);
-
-                        // Lưu ý: Không cần gọi Save() ở đây, vì bên dưới có lệnh Save() chung cho cả đơn hàng
                     }
                 }
                 catch
                 {
-                    // Nếu lỗi phần lưu địa chỉ thì bỏ qua, ưu tiên lưu đơn hàng thành công
+                    
                 }
             }
             // ------------------------------------------
@@ -515,12 +536,11 @@ namespace DoAn_Ver2.Controllers
             _unitOfWork.Repository<DonHang>().Add(donHang);
             _unitOfWork.Save();
 
-            // B. CẬP NHẬT SỐ LƯỢNG VOUCHER (NẾU CÓ DÙNG)
+            // B. CẬP NHẬT SỐ LƯỢNG VOUCHER 
             if (appliedVoucher != null)
             {
                 appliedVoucher.SoLuong = (appliedVoucher.SoLuong ?? 0) - 1;
                 _unitOfWork.Repository<MaGiamGia>().Update(appliedVoucher);
-                // Save ở cuối cùng chung 1 lần
             }
 
 
@@ -545,14 +565,14 @@ namespace DoAn_Ver2.Controllers
                     sku.SoLuongTamGiu = (sku.SoLuongTamGiu ?? 0) + item.SoLuong;
                     _unitOfWork.Repository<BienTheSanPham>().Update(sku);
 
-                    // b. GHI LỊCH SỬ KHO (ĐÂY LÀ ĐOẠN BẠN THIẾU)
+                    // b. GHI LỊCH SỬ KHO
                     var history = new LichSuKho
                     {
                         BienTheSanPhamID = sku.ID,
-                        SoLuongBienDong = -item.SoLuong, // Số âm thể hiện xuất kho
+                        SoLuongBienDong = -item.SoLuong, 
                         TonThucTeSauBienDong = sku.SoLuong,
-                        LoaiGiaoDich = "Khách đặt hàng", // Ghi chú rõ ràng
-                        MaThamChieu = "DH-" + donHang.MaDonHang, // Gắn mã đơn hàng để tra cứu
+                        LoaiGiaoDich = "Khách đặt hàng", 
+                        MaThamChieu = "DH-" + donHang.MaDonHang, 
                         NgayGhi = DateTime.Now
                     };
                     _unitOfWork.Repository<LichSuKho>().Add(history);
@@ -563,8 +583,14 @@ namespace DoAn_Ver2.Controllers
             // C. XÓA KHỎI GIỎ
             RemoveItemsFromCart(ids);
 
+
+
+
+
+
+
             // =========================================================
-            // [PHẦN MỚI] KÍCH HOẠT AI: CẬP NHẬT GỢI Ý SAU KHI MUA HÀNG
+            //  KÍCH HOẠT AI: CẬP NHẬT GỢI Ý SAU KHI MUA HÀNG
             // =========================================================
             if (Session["KhachHang"] != null)
             {
@@ -575,9 +601,6 @@ namespace DoAn_Ver2.Controllers
                     var aiService = new DoAn_Ver2.Services.RecommendationService();
                     // Tính lại gợi ý cho người dùng này
                     aiService.CalculateUserRecommendations(user.ID, null);
-
-                    // (Tùy chọn) Tính lại "Mua cùng" cho các sản phẩm vừa mua
-                    // foreach(var item in model.CartItems) aiService.UpdateBoughtTogether(item.SKU_ID);
                 });
             }
             
@@ -590,15 +613,11 @@ namespace DoAn_Ver2.Controllers
                 string url = GetVnPayUrl(donHang.MaDonHang, (long)donHang.TongThanhToan);
                 return Redirect(url);
             }
-
-            // [SỬA LẠI CHỖ NÀY]: Gọi Task.Run để gửi mail ngầm (Async)
-            // Thay vì gọi SendOrderEmail(donHang) như cũ
             Task.Run(() => SendOrderEmailAsync(donHang.ID));
             return RedirectToAction("OrderSuccess");
         }
 
-        // --- HÀM GỬI MAIL MỚI (CHẠY NGẦM) ---
-        // Nội dung HTML bên trong vẫn giữ nguyên 100% như bạn yêu cầu
+        // --- HÀM GỬI MAIL(CHẠY NGẦM) ---
         private void SendOrderEmailAsync(int donHangId)
         {
             try
@@ -611,7 +630,6 @@ namespace DoAn_Ver2.Controllers
 
                     var chiTietDH = uow.Repository<ChiTietDonHang>().GetMany(x => x.DonHangID == donHangId).ToList();
 
-                    // --- BẮT ĐẦU PHẦN COPY Y NGUYÊN TỪ CODE CŨ ---
                     string listProductHtml = "";
                     foreach (var item in chiTietDH)
                     {
@@ -643,9 +661,9 @@ namespace DoAn_Ver2.Controllers
                     string adminEmail = fromEmail;
                     string baseUrl = "https://localhost:44338";
 
-                    // -----------------------------------------------------------
-                    // A. GỬI CHO KHÁCH HÀNG (ĐÃ BỎ CỘT ẢNH)
-                    // -----------------------------------------------------------
+                    // ----------------------
+                    // A. GỬI CHO KHÁCH HÀNG 
+                    // ----------------------
 
                     if (!string.IsNullOrEmpty(dh.EmailNguoiNhan))
                     {
@@ -717,9 +735,9 @@ namespace DoAn_Ver2.Controllers
 
                         SendMailSMTPS(mailKhach, host, port, fromEmail, password);
                     }
-                    // -----------------------------------------------------------
-                    // B. GỬI CHO ADMIN (ĐÃ BỎ CỘT ẢNH & FIX CÚ PHÁP)
-                    // -----------------------------------------------------------
+                    // -----------------
+                    // B. GỬI CHO ADMIN 
+                    // -----------------
                     var mailAdmin = new MailMessage();
                     mailAdmin.From = new MailAddress(fromEmail, fromName);
                     mailAdmin.To.Add(new MailAddress(adminEmail));
@@ -761,7 +779,6 @@ namespace DoAn_Ver2.Controllers
                     </div>";
 
                     SendMailSMTPS(mailAdmin, host, port, fromEmail, password);
-                    // --- KẾT THÚC PHẦN COPY ---
                 }
             }
             catch (Exception ex)
@@ -804,7 +821,7 @@ namespace DoAn_Ver2.Controllers
                 var vnpayData = Request.QueryString;
                 VnPayLibrary vnpay = new VnPayLibrary();
 
-                // 1. Duyệt dữ liệu để kiểm tra chữ ký (Giữ nguyên)
+                // 1. Duyệt dữ liệu để kiểm tra chữ ký 
                 foreach (string s in vnpayData)
                 {
                     if (!string.IsNullOrEmpty(s) && s.StartsWith("vnp_"))
@@ -814,36 +831,28 @@ namespace DoAn_Ver2.Controllers
                 }
 
                 // 2. Lấy các thông số từ VNPay trả về
-                // [QUAN TRỌNG] Đây là mã tham chiếu (VD: "ORD123" hoặc "ORD123_456789")
                 string vnp_TxnRef = vnpay.GetResponseData("vnp_TxnRef");
 
                 long vnp_Amount = Convert.ToInt64(vnpay.GetResponseData("vnp_Amount")) / 100;
                 string vnp_ResponseCode = vnpay.GetResponseData("vnp_ResponseCode");
                 string vnp_TransactionStatus = vnpay.GetResponseData("vnp_TransactionStatus");
                 string vnp_SecureHash = Request.QueryString["vnp_SecureHash"];
-
-                // 3. Kiểm tra chữ ký bảo mật
                 bool checkSignature = vnpay.ValidateSignature(vnp_SecureHash, vnp_HashSecret);
 
                 if (checkSignature)
                 {
                     // =================================================================
-                    // [SỬA ĐỔI BẮT ĐẦU]: Xử lý tách chuỗi để lấy mã đơn hàng gốc
+                    // Xử lý tách chuỗi để lấy mã đơn hàng gốc
                     // =================================================================
 
-                    string orderCode = vnp_TxnRef; // Mặc định gán bằng mã trả về
+                    string orderCode = vnp_TxnRef; 
 
                     // Nếu mã chứa dấu gạch dưới "_" (tức là đơn thanh toán lại có kèm timestamp)
                     if (!string.IsNullOrEmpty(orderCode) && orderCode.Contains("_"))
                     {
-                        // Cắt chuỗi, chỉ lấy phần đầu tiên (Mã đơn hàng gốc)
-                        // Ví dụ: "ORD250212001_638433..." -> Lấy "ORD250212001"
                         orderCode = orderCode.Split('_')[0];
                     }
 
-                    // =================================================================
-                    // [SỬA ĐỔI KẾT THÚC]
-                    // =================================================================
 
                     // 4. Tìm đơn hàng trong Database bằng mã gốc (orderCode)
                     var donHang = _unitOfWork.Repository<DonHang>()
@@ -868,13 +877,12 @@ namespace DoAn_Ver2.Controllers
                                 // Gửi mail xác nhận
                                 Task.Run(() => SendOrderEmailAsync(donHang.ID));
                             }
-                            ViewBag.TitleStatus = "THANH TOÁN THÀNH CÔNG!"; // Tiêu đề H2
+                            ViewBag.TitleStatus = "THANH TOÁN THÀNH CÔNG!"; 
                             ViewBag.Msg = "Giao dịch VNPay của bạn đã hoàn tất. Cảm ơn bạn đã mua hàng tại Men Store. Hệ thống đã ghi nhận đơn hàng và sẽ liên hệ sớm nhất để giao hàng cho bạn.";
                             return View("OrderSuccess");
                         }
                         else
                         {
-                            // Thanh toán lỗi -> Không làm gì cả, đơn hàng vẫn ở trạng thái chờ
                             ViewBag.Msg = "Thanh toán lỗi hoặc bị hủy. Bạn có thể thử lại trong phần lịch sử đơn hàng.";
                             return View("OrderFail");
                         }
@@ -896,7 +904,7 @@ namespace DoAn_Ver2.Controllers
 
       
 
-        // Helper thực hiện gửi SMTP (Tách ra để tái sử dụng)
+        // Helper thực hiện gửi SMTP 
         private void SendMailSMTPS(MailMessage message, string host, int port, string email, string pass)
         {
             using (var client = new SmtpClient(host, port))

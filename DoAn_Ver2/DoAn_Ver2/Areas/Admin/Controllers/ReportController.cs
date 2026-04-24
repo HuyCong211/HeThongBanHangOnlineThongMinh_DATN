@@ -22,29 +22,26 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
             var allOrders = _unitOfWork.Repository<DonHang>().GetAll();
 
             ViewBag.TotalOrders = allOrders.Count();
-            ViewBag.SuccessOrders = allOrders.Count(x => x.TrangThaiDonHang == 3); // Hoàn thành
-            ViewBag.PendingOrders = allOrders.Count(x => x.TrangThaiDonHang == 0 || x.TrangThaiDonHang == 1); // Chờ/Đã xác nhận
-            ViewBag.CancelOrders = allOrders.Count(x => x.TrangThaiDonHang == 4); // Hủy
+            ViewBag.SuccessOrders = allOrders.Count(x => x.TrangThaiDonHang == 3); 
+            ViewBag.PendingOrders = allOrders.Count(x => x.TrangThaiDonHang == 0 || x.TrangThaiDonHang == 1); 
+            ViewBag.CancelOrders = allOrders.Count(x => x.TrangThaiDonHang == 4); 
 
             return View();
         }
-        // 2. JSON: BIỂU ĐỒ DOANH THU (CẬP NHẬT)
+        // 2. JSON: BIỂU ĐỒ DOANH THU 
         [HttpGet]
-        // [HttpGet] GetRevenueChart
         public JsonResult GetRevenueChart(string mode, string fromDate, string toDate, int? month, int? year)
         {
-            var dbData = _unitOfWork.Repository<DonHang>().GetAll().Where(x => x.TrangThaiDonHang == 3); // Đơn thành công
+            var dbData = _unitOfWork.Repository<DonHang>().GetAll().Where(x => x.TrangThaiDonHang == 3); 
 
             // --- MODE: THEO THÁNG (Xem từng ngày trong tháng) ---
             if (mode == "MONTH" && month.HasValue && year.HasValue)
             {
-                // 1. Lấy dữ liệu từ DB
                 var data = dbData.Where(x => x.NgayDat.Value.Month == month && x.NgayDat.Value.Year == year)
                     .GroupBy(x => x.NgayDat.Value.Day)
                     .Select(g => new { Day = g.Key, Rev = g.Sum(x => x.TongThanhToan) ?? 0 })
                     .ToList();
 
-                // 2. Tạo danh sách đầy đủ các ngày trong tháng (Lấp đầy ngày trống)
                 int daysInMonth = DateTime.DaysInMonth(year.Value, month.Value);
                 var fullList = new List<object>();
 
@@ -53,7 +50,7 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
                     var record = data.FirstOrDefault(x => x.Day == d);
                     fullList.Add(new
                     {
-                        Label = "Ngày " + d + "/" + month, // Nhãn: "Ngày 1/12"
+                        Label = "Ngày " + d + "/" + month, 
                         Value = record != null ? record.Rev : 0
                     });
                 }
@@ -74,7 +71,7 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
                     var record = data.FirstOrDefault(x => x.Month == m);
                     fullList.Add(new
                     {
-                        Label = "Tháng " + m + "/" + year, // Nhãn: "Tháng 1/2025"
+                        Label = "Tháng " + m + "/" + year, 
                         Value = record != null ? record.Rev : 0
                     });
                 }
@@ -94,7 +91,6 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
                      .Select(g => new { Date = g.Key, Rev = g.Sum(x => x.TongThanhToan) ?? 0 })
                      .ToList();
 
-                // Lấp đầy các ngày không có đơn
                 var fullList = new List<object>();
                 for (var day = dtFrom.Date; day <= dtTo.Date; day = day.AddDays(1))
                 {
@@ -118,7 +114,7 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
             if (type == "TOP_SOLD")
             {
                 // Top bán chạy (theo số lượng)
-                // [CẬP NHẬT]: Ưu tiên sản phẩm bán gần đây nhất nếu số lượng bằng nhau
+                // Ưu tiên sản phẩm bán gần đây nhất nếu số lượng bằng nhau
                 data = _unitOfWork.Repository<ChiTietDonHang>().GetAll()
                     .Where(x => x.DonHang.TrangThaiDonHang == 3)
                     .GroupBy(x => x.BienTheSanPham.SanPham.TenSanPham)
@@ -126,13 +122,13 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
                     {
                         Label = g.Key,
                         Value = g.Sum(x => x.SoLuong),
-                        LastSoldDate = g.Max(x => x.DonHang.NgayDat) // Lấy ngày bán gần nhất
+                        LastSoldDate = g.Max(x => x.DonHang.NgayDat) 
                     })
                     // Sắp xếp: Số lượng giảm dần -> Ngày bán giảm dần (Mới nhất lên trước)
                     .OrderByDescending(x => x.Value)
                     .ThenByDescending(x => x.LastSoldDate)
                     .Take(10)
-                    .Select(x => new { x.Label, x.Value }) // Chỉ lấy lại Label và Value để trả về JSON cho gọn
+                    .Select(x => new { x.Label, x.Value }) 
                     .ToList();
             }
             else if (type == "TOP_VIEW")
@@ -144,7 +140,6 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
             }
             else if (type == "NO_SALE")
             {
-                // [SỬA LOGIC]: Sản phẩm có lượt xem cao nhưng CHƯA BÁN ĐƯỢC cái nào
 
                 // 1. Lấy danh sách ID sản phẩm đã bán được (trong đơn hoàn thành)
                 var soldProductIds = _unitOfWork.Repository<ChiTietDonHang>().GetAll()
@@ -156,7 +151,7 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
                 // 2. Lấy sản phẩm KHÔNG nằm trong danh sách đã bán -> Sắp xếp theo Lượt Xem giảm dần
                 data = _unitOfWork.Repository<SanPham>().GetAll()
                     .Where(x => !soldProductIds.Contains(x.ID))
-                    .OrderByDescending(x => x.LuotXem) // Quan trọng: Xem nhiều mà ko mua
+                    .OrderByDescending(x => x.LuotXem) 
                     .Take(10)
                     .Select(x => new { Label = x.TenSanPham, Value = x.LuotXem ?? 0 })
                     .ToList();
@@ -173,7 +168,7 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
-        // 4. XUẤT EXCEL (DOANH THU) - ĐÃ FIX LỖI FONT
+        // 4. XUẤT EXCEL 
         public void ExportRevenue(string fromDate, string toDate)
         {
             DateTime dtFrom = DateTime.Today.AddDays(-30);
@@ -201,15 +196,11 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
             Response.Buffer = true;
             Response.AddHeader("content-disposition", "attachment; filename=BaoCaoDoanhThu.xls");
             Response.ContentType = "application/ms-excel";
-
-            // [QUAN TRỌNG] Fix lỗi font tiếng Việt
             Response.ContentEncoding = System.Text.Encoding.Unicode;
             Response.BinaryWrite(System.Text.Encoding.Unicode.GetPreamble());
 
             StringWriter sw = new StringWriter();
             HtmlTextWriter htw = new HtmlTextWriter(sw);
-
-            // Thêm thẻ meta utf-8 vào đầu file HTML để chắc chắn
             sw.Write("<meta http-equiv='content-type' content='text/html; charset=utf-8' />");
 
             grid.RenderControl(htw);
@@ -217,7 +208,7 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
             Response.End();
         }
 
-        // 5. XUẤT EXCEL (SẢN PHẨM) - ĐÃ FIX LỖI FONT
+        // 5. XUẤT EXCEL (SẢN PHẨM) 
         public void ExportProduct(string type)
         {
             object data = null;
@@ -232,13 +223,11 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
                         TenSanPham = g.Key,
                         SoLuongBan = g.Sum(x => x.SoLuong),
                         DoanhThu = g.Sum(x => x.ThanhTien),
-                        LastSoldDate = g.Max(x => x.DonHang.NgayDat) // Lấy ngày bán gần nhất để sort
+                        LastSoldDate = g.Max(x => x.DonHang.NgayDat) 
                     })
-                    // Sắp xếp: Số lượng giảm dần -> Ngày bán giảm dần
                     .OrderByDescending(x => x.SoLuongBan)
                     .ThenByDescending(x => x.LastSoldDate)
                     .Take(50)
-                    // Select lại để loại bỏ cột LastSoldDate khỏi file Excel (nếu không muốn hiện)
                     .Select(x => new { x.TenSanPham, x.SoLuongBan, x.DoanhThu })
                     .ToList();
             }
@@ -260,7 +249,7 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
                     .Select(x => new { TenSanPham = x.TenSanPham, LuotXem = x.LuotXem, TinhTrang = "Chưa bán được" })
                     .Take(50).ToList();
             }
-            else // TOP_CANCEL
+            else 
             {
                 data = _unitOfWork.Repository<ChiTietDonHang>().GetAll()
                     .Where(x => x.DonHang.TrangThaiDonHang == 4)
@@ -277,8 +266,6 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
             Response.Buffer = true;
             Response.AddHeader("content-disposition", "attachment; filename=BaoCaoSanPham_" + type + ".xls");
             Response.ContentType = "application/ms-excel";
-
-            // [QUAN TRỌNG] Fix lỗi font tiếng Việt
             Response.ContentEncoding = System.Text.Encoding.Unicode;
             Response.BinaryWrite(System.Text.Encoding.Unicode.GetPreamble());
 

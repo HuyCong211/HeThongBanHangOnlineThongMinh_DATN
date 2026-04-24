@@ -70,16 +70,11 @@
 
 <script>
     function previewImage(input) {
-        // Kiểm tra xem người dùng đã chọn file chưa
         if (input.files && input.files[0]) {
             var reader = new FileReader();
-
-            // Khi đọc file xong thì gán vào src của thẻ img
             reader.onload = function (e) {
                 document.getElementById('imgPreview').src = e.target.result;
             }
-
-            // Bắt đầu đọc file dưới dạng URL
             reader.readAsDataURL(input.files[0]);
         }
     }

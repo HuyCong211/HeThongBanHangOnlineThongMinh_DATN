@@ -49,7 +49,7 @@ namespace DoAn_Ver2.Controllers
                 var user = new NguoiDung
                 {
                     TenDangNhap = model.TenDangNhap,
-                    MatKhau = SecurityHelper.MD5Hash(model.MatKhau), // Hash mật khẩu
+                    MatKhau = SecurityHelper.MD5Hash(model.MatKhau), 
                     HoTen = model.HoTen,
                     Email = model.Email,
                     SDT = model.SDT,
@@ -96,14 +96,8 @@ namespace DoAn_Ver2.Controllers
                         ModelState.AddModelError("", "Tài khoản của bạn đang bị khóa.");
                         return View(model);
                     }
-
-                    // Lưu Session Khách Hàng
                     Session["KhachHang"] = user;
-
-                    // 2. [FIX LỖI] ĐỒNG BỘ GIỎ HÀNG TỪ SESSION VÀO DB
                     MergeCart(user.ID);
-
-                    // 3. [FIX LỖI] CẬP NHẬT SỐ LƯỢNG HIỂN THỊ
                     UpdateCartCountSession(user.ID);
 
                     return RedirectToAction("Index", "Home");
@@ -120,7 +114,7 @@ namespace DoAn_Ver2.Controllers
         public ActionResult Logout()
         {
             Session["KhachHang"] = null;
-            Session["Cart"] = null; // Xóa giỏ hàng tạm nếu muốn
+            Session["Cart"] = null; 
             Session["CartCount"] = null;
             return RedirectToAction("Login");
         }
@@ -147,7 +141,7 @@ namespace DoAn_Ver2.Controllers
                     string token = Guid.NewGuid().ToString();
                     user.ResetToken = token;
 
-                    // --- [QUAN TRỌNG] SET HẠN 10 PHÚT ---
+                    // --- SET HẠN 10 PHÚT ---
                     user.ResetTokenExpiry = DateTime.Now.AddMinutes(10);
                     // ------------------------------------
 
@@ -178,10 +172,10 @@ namespace DoAn_Ver2.Controllers
             if (user == null)
             {
                 ViewBag.Error = "Đường dẫn không hợp lệ.";
-                return View("Error"); // Bạn cần có View Error.cshtml
+                return View("Error"); 
             }
 
-            // --- [QUAN TRỌNG] KIỂM TRA HẾT HẠN ---
+            // ---KIỂM TRA HẾT HẠN ---
             if (user.ResetTokenExpiry < DateTime.Now)
             {
                 ViewBag.Error = "Đường dẫn đã hết hạn (quá 10 phút). Vui lòng yêu cầu lại.";
@@ -202,7 +196,7 @@ namespace DoAn_Ver2.Controllers
 
                 if (user != null)
                 {
-                    // --- [QUAN TRỌNG] KIỂM TRA LẠI LẦN NỮA ---
+                    // --- KIỂM TRA LẠI LẦN NỮA ---
                     if (user.ResetTokenExpiry < DateTime.Now)
                     {
                         ModelState.AddModelError("", "Phiên làm việc đã hết hạn. Vui lòng thực hiện lại yêu cầu quên mật khẩu.");
@@ -230,7 +224,7 @@ namespace DoAn_Ver2.Controllers
             return View(model);
         }
 
-        // Helper gửi mail (Giống bên CartController)
+        // Helper gửi mail 
         private void SendEmail(string toEmail, string subject, string body)
         {
             try
@@ -257,7 +251,7 @@ namespace DoAn_Ver2.Controllers
             }
             catch (Exception ex)
             {
-                // Log lỗi nếu cần 
+                 
             }
         }
 
@@ -301,7 +295,6 @@ namespace DoAn_Ver2.Controllers
                 }
                 _unitOfWork.Save();
 
-                // Sau khi gộp xong, xóa Session Cart để tránh trùng lặp
                 Session["Cart"] = null;
             }
         }

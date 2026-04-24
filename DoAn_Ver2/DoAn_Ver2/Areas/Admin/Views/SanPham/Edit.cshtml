@@ -105,11 +105,10 @@
                     <div class="card border-left-warning shadow">
                         <div class="card-body py-3">
                             <h6 class="m-0 font-weight-bold text-warning text-uppercase mb-2">
-                                <i class="fas fa-tags"></i> Tag dịp sử dụng (Hỗ trợ AI tư vấn)
+                                <i class="fas fa-tags"></i> Tag dịp sử dụng
                             </h6>
                             @{
                                 var allTags = ViewBag.AllTags as List<string> ?? new List<string>();
-                                // Tag hiện tại của sản phẩm (có thể null nếu chưa có)
                                 var currentTags = (Model.Tags ?? "")
                                     .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                                     .Select(t => t.Trim()).ToList();
@@ -130,7 +129,7 @@
                             <input type="hidden" name="Tags" id="hdnTags"
                                    value="@Model.Tags" />
                             <small class="text-muted mt-1 d-block">
-                                Chọn 1 hoặc nhiều tag — AI dùng để tư vấn đúng dịp hơn.
+                                Chọn 1 hoặc nhiều tag sử dụng.
                             </small>
                         </div>
                     </div>

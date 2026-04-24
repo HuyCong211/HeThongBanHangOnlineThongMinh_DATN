@@ -24,6 +24,6 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
             base.Dispose(disposing);
         }
 
-        // Có thể thêm thông báo (Toastr) tại đây sau này
+        
     }
 }

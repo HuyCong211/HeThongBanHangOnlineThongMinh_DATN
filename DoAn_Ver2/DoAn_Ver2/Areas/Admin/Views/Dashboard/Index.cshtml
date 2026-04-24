@@ -8,7 +8,7 @@
 }
 
 <style>
-    /* Card Styles */
+   
     .dash-card {
         color: #fff;
         border-radius: 10px;
@@ -31,7 +31,7 @@
     .bg-gradient-green {
         background: linear-gradient(45deg, #28a745, #85d66b);
     }
-    /* Giống mẫu */
+   
     .bg-gradient-orange {
         background: linear-gradient(45deg, #FFC312, #EE5A24);
     }
@@ -39,7 +39,7 @@
     .bg-gradient-red {
         background: linear-gradient(45deg, #EA2027, #EE5A24);
     }
-    /* Giống mẫu */
+    
 
     .dash-card-body {
         padding: 20px;
@@ -85,7 +85,7 @@
             text-decoration: none;
         }
 
-    /* Welcome Banner */
+    
     .welcome-banner {
         background: #fff;
         border-left: 5px solid #4e73df;
@@ -98,11 +98,6 @@
         justify-content: space-between;
     }
 
-
-
-    /* ========================================= */
-    /* CUSTOM CSS CHO KHỐI AI DASHBOARD          */
-    /* ========================================= */
     .insight-card {
         border-radius: 12px;
         transition: all 0.3s ease;
@@ -282,10 +277,10 @@
                                 {
                                     foreach (var item in Model)
                                     {
-                                        // Link chi tiết để dùng chung
+                                        
                                         var linkDetail = Url.Action("Details", "DonHang", new { id = item.ID });
 
-                                        // Thêm onclick để bấm vào dòng là chuyển trang luôn
+                                        
                                         <tr style="cursor: pointer;" onclick="location.href='@linkDetail'">
 
                                             <td>
@@ -370,9 +365,6 @@
         </div>
     </div>
 
-     @*========================================= 
-     CUSTOM CSS CHO KHỐI AI DASHBOARD          
-     =========================================*@ 
 
 <div class="row mt-4">
 

@@ -132,7 +132,6 @@ namespace DoAn_Ver2.Payment
             return hash.ToString();
         }
 
-        // [SỬA LẠI HÀM NÀY] Không cần tham số đầu vào, tự lấy từ HttpContext
         public static string GetIpAddress()
         {
             string ipAddress;

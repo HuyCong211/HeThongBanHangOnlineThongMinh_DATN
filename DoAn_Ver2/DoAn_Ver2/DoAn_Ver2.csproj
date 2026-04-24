@@ -244,6 +244,7 @@
     <Content Include="Content\data\vietnam-regions.js" />
     <Content Include="Content\main.css" />
     <Content Include="Content\PagedList.css" />
+    <Content Include="Content\StyleHieuUng.css" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
@@ -281,6 +282,7 @@
     <Content Include="Areas\Admin\Views\DonHang\Index.cshtml" />
     <Content Include="Areas\Admin\Views\DonHang\Details.cshtml" />
     <Content Include="Areas\Admin\Views\DanhMuc\Details.cshtml" />
+    <Content Include="Scripts\HieuUng.js" />
     <Content Include="wwwroot\images\LOGO.png" />
     <Content Include="Areas\Admin\Views\Marketing\Index.cshtml" />
     <Content Include="Areas\Admin\Views\Marketing\Create.cshtml" />

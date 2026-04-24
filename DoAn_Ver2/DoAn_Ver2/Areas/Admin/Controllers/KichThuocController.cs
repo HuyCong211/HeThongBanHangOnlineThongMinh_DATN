@@ -13,27 +13,16 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
         // GET: Admin/KichThuoc
         public ActionResult Index(string searchString, int? page)
         {
-            // 1. Cấu hình phân trang
             int pageSize = 10;
             int pageNumber = (page ?? 1);
-
-            // 2. Truy vấn dữ liệu
             var query = _unitOfWork.Repository<KichThuoc>().GetAll().AsQueryable();
-
-            // 3. Tìm kiếm
             if (!string.IsNullOrEmpty(searchString))
             {
                 string key = searchString.Trim().ToLower();
                 query = query.Where(x => x.TenSize.ToLower().Contains(key));
             }
-
-            // 4. Sắp xếp
             query = query.OrderByDescending(x => x.ID);
-
-            // 5. Lưu từ khóa để giữ lại ở View
             ViewBag.CurrentFilter = searchString;
-
-            // 6. Trả về PagedList
             return View(query.ToPagedList(pageNumber, pageSize));
         }
 

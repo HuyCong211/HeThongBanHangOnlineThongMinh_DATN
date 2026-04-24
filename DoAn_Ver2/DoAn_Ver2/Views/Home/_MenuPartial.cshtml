@@ -7,17 +7,17 @@
 
     @if (Model != null)
     {
-        // Lấy các danh mục Cha (là những dòng có DanhMucChaID bằng null)
+
         var danhMucCha = Model.Where(x => x.DanhMucChaID == null).ToList();
 
         foreach (var parentItem in danhMucCha)
         {
-            // Tìm danh mục Con của Cha hiện tại
+
             var childItems = Model.Where(x => x.DanhMucChaID == parentItem.ID).ToList();
 
             if (childItems.Count > 0)
             {
-                // CÓ CON -> HIỆN DROPDOWN
+
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="@Url.Action("ProductByCategory", "Product", new { id = parentItem.ID })"
                        id="menu_@parentItem.ID" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -41,7 +41,7 @@
             }
             else
             {
-                // KHÔNG CÓ CON -> HIỆN LINK THƯỜNG
+
                 <li class="nav-item">
                     <a class="nav-link" href="@Url.Action("ProductByCategory", "Product", new { id = parentItem.ID })">
                         @parentItem.TenDanhMuc.ToUpper()

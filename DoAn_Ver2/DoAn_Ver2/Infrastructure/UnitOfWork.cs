@@ -13,7 +13,6 @@ namespace DoAn_Ver2.Infrastructure
         // Khai báo các Repository cụ thể ở đây nếu cần mở rộng sau này
         private Repository<SanPham> _sanPhamRepository;
         private Repository<DanhMuc> _danhMucRepository;
-        // ... bạn có thể thêm các bảng khác khi cần dùng đến
 
         // Generic Repository getter (Dùng cái này cho nhanh với các bảng đơn giản)
         public Repository<T> Repository<T>() where T : class
@@ -21,7 +20,6 @@ namespace DoAn_Ver2.Infrastructure
             return new Repository<T>(_context);
         }
 
-        // Ví dụ: Repository cụ thể cho Sản Phẩm (nếu muốn tái sử dụng biến _sanPhamRepository)
         public Repository<SanPham> SanPhamRepository
         {
             get

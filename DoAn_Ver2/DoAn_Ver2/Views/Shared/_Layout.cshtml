@@ -6,28 +6,23 @@
     string siteLogo = "/Content/images/logo-default.png";
     string hotline = "1900 xxxx";
     string email = "contact@menstore.com";
-    string address = "298 Minh Khai, Cầu Diễn, Hà Nội"; // Địa chỉ mặc định
+    string address = "298 Minh Khai, Cầu Diễn, Hà Nội"; 
     string currentEffect = "none";
     try
     {
-        // Khởi tạo UnitOfWork để truy vấn DB ngay tại View
         // 2. LẤY CẤU HÌNH TỪ DB
         using (var uow = new UnitOfWork())
         {
             var repo = uow.Repository<CauHinhChung>();
 
-            // Lấy Logo
             var confLogo = repo.GetById("SiteLogo");
             if (confLogo != null && !string.IsNullOrEmpty(confLogo.Value)) { siteLogo = confLogo.Value; }
 
-            // Lấy Hotline
             var confHotline = repo.GetById("Hotline");
             if (confHotline != null && !string.IsNullOrEmpty(confHotline.Value)) { hotline = confHotline.Value; }
 
-            // Lấy Email
             var confEmail = repo.GetById("Email");
             if (confEmail != null && !string.IsNullOrEmpty(confEmail.Value)) { email = confEmail.Value; }
-            // [MỚI] Lấy Địa chỉ (Dùng key FooterInfo hoặc StoreAddress tùy database của bạn)
             var confAddress = repo.GetById("FooterInfo");
             if (confAddress != null && !string.IsNullOrEmpty(confAddress.Value)) { address = confAddress.Value; }
 
@@ -35,7 +30,7 @@
             if (effConfig != null) { currentEffect = effConfig.Value; }
         }
     }
-    catch { /* Bỏ qua lỗi nếu DB chưa sẵn sàng */ }
+    catch {  }
 }
 
 
@@ -170,16 +165,10 @@
     <script>
         document.getElementById('imgSearchInput').addEventListener('change', function () {
             if (this.files && this.files[0]) {
-                // Thay vì dùng Ajax, ta submit form trực tiếp để chuyển trang luôn
-                // Nhưng vì Form mặc định là GET (Search Text), ta cần đổi sang POST và đổi Action
-
                 var form = document.getElementById('searchForm');
 
-                // Tạo một FormData giả lập để gửi file
                 var formData = new FormData();
                 formData.append("imageFile", this.files[0]);
-
-                // Hiển thị loading (tùy chọn)
                 alert("Đang phân tích hình ảnh, vui lòng chờ...");
 
                 // Gửi AJAX POST sang Action SearchByImage
@@ -190,8 +179,6 @@
                     contentType: false,
                     processData: false,
                     success: function (response) {
-                        // Vì Action trả về View (HTML), ta thay thế nội dung trang hiện tại
-                        // Hoặc đơn giản nhất là render lại trang
                         document.open();
                         document.write(response);
                         document.close();
@@ -207,19 +194,15 @@
         // 1. Hàm hiển thị thông báo (Toast)
         function showToast(message, type) {
             var container = $('#toast-container');
-
-            // Icon tương ứng
             var iconClass = type === 'success' ? 'fa-check-circle' : 'fa-trash-alt';
 
             var toastHTML = ` <div class="custom-toast ${type}">
-                                                        <i class="fas ${iconClass}"></i>
-                                                        <span>${message}</span>
-                                                        </div>`;
+                                                            <i class="fas ${iconClass}"></i>
+                                                            <span>${message}</span>
+                                                            </div>`;
 
             var toast = $(toastHTML);
             container.append(toast);
-
-            // Hiện ra (delay nhỏ để CSS transition bắt được)
             setTimeout(function () {
                 toast.addClass('show');
             }, 100);
@@ -234,30 +217,26 @@
             }, 3000);
         }
 
-        // 2. Hàm Toggle Wishlist (Dùng chung cho cả trang)
+        // 2. Hàm Toggle Wishlist
         function toggleWishlist(id, btn, isRemoveMode = false) {
-            // Hiệu ứng click ngay lập tức cho mượt
             var icon = $(btn).find('i');
 
             $.post('/Wishlist/Toggle', { productId: id }, function (res) {
                 if (res.success) {
-                    // Cập nhật số lượng trên Header
                     $('#wishlistCountHeader').text(res.count);
 
                     if (isRemoveMode) {
-                        // Nếu đang ở trang Wishlist -> Xóa box sản phẩm
                         $('#wish-item-' + id).fadeOut(300, function () {
                             $(this).remove();
                             if ($('.col-6').length === 0) location.reload();
                         });
                         showToast('Đã xóa khỏi danh sách yêu thích', 'danger');
                     } else {
-                        // Nếu đang ở trang Home/Product -> Đổi icon tim
                         if (res.isAdded) {
-                            icon.removeClass('far').addClass('fas text-danger'); // Tim đặc đỏ
+                            icon.removeClass('far').addClass('fas text-danger');
                             showToast('Đã thêm vào sản phẩm yêu thích', 'success');
                         } else {
-                            icon.removeClass('fas text-danger').addClass('far'); // Tim rỗng
+                            icon.removeClass('fas text-danger').addClass('far');
                             showToast('Đã xóa khỏi danh sách yêu thích', 'danger');
                         }
                     }
@@ -334,13 +313,12 @@
                         $('#chatbot-messages').append('<div style="align-self: flex-start; background-color: #e5e5ea; color: #000; padding: 10px 15px; border-radius: 15px; max-width: 80%; font-size: 14px;">' + formattedReply + '</div>');
                     }
                 });
-                // Cuộn xuống dòng tin nhắn mới nhất
                 $('#chatbot-messages').scrollTop($('#chatbot-messages')[0].scrollHeight);
             }
 
-            // =========================================================================
+            // ===================
             // XỬ LÝ GỬI TIN NHẮN
-            // =========================================================================
+            // ===================
             function sendMessage() {
                 var msg = $('#chatbot-input').val().trim();
                 if (msg === "") return;
@@ -393,287 +371,9 @@
     @*================================================
         HIỆU ỨNG RƠI (Hoa, Tuyết, Điểm) + MƯA + PHÁO HOA
         ================================================*@
-
-
-
-    <style>
-        /* 1. CẤU HÌNH CHUNG */
-        #ultimate-effect-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            pointer-events: none;
-            z-index: 9999;
-            overflow: hidden;
-            /* Nền tối nhẹ để pháo hoa nổi bật hơn nếu muốn (tuỳ chọn) */
-            /* background: rgba(0,0,0,0.1); */
-        }
-        /* Canvas phải full màn hình */
-        canvas {
-            display: block;
-        }
-
-        /* CSS CHO EMOJI & MƯA (GIỮ NGUYÊN ĐỂ PHÒNG KHI ADMIN ĐỔI LẠI) */
-        .falling-emoji {
-            position: absolute;
-            top: -50px;
-            user-select: none;
-            cursor: default;
-            animation: emoji-fall linear infinite, emoji-sway ease-in-out infinite alternate;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            line-height: 1;
-            will-change: transform, top, opacity;
-        }
-
-        @@keyframes emoji-fall {
-            0% {
-                top: -10%;
-                opacity: 0;
-            }
-
-            20% {
-                opacity: 1;
-            }
-
-            100% {
-                top: 110%;
-                opacity: 0;
-            }
-        }
-
-        @@keyframes emoji-sway {
-            0% {
-                transform: translateX(0) rotate(0deg);
-            }
-
-            100% {
-                transform: translateX(35px) rotate(360deg);
-            }
-        }
-
-        .rain-drop {
-            position: absolute;
-            width: 2px;
-            height: 25px;
-            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(174, 194, 224, 0.8));
-            top: -50px;
-            animation: rain-fall linear infinite;
-            will-change: top, opacity;
-        }
-
-        @@keyframes rain-fall {
-            0% {
-                top: -5%;
-                opacity: 0;
-            }
-
-            10% {
-                opacity: 1;
-            }
-
-            100% {
-                top: 105%;
-                opacity: 0.3;
-            }
-        }
-    </style>
-
+    <link href="~/Content/StyleHieuUng.css" rel="stylesheet" />
     <div id="ultimate-effect-container"></div>
-
-    <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const container = document.getElementById('ultimate-effect-container');
-        const activeMode = '@currentEffect';
-
-        if (activeMode === 'none' || !activeMode) return;
-
-        // CẤU HÌNH CÁC CHẾ ĐỘ CŨ
-        const modesConfig = {
-            emojiBase: { quantity: 80, minSize: 15, maxSize: 25, minSpeed: 7, maxSpeed: 15 },
-            sakura: { icons: ['🌸', '🌺'], useBase: 'emojiBase' },
-            autumn: { icons: ['🍁', '🍂'], useBase: 'emojiBase' },
-            snow: { icons: ['❄️', '❅', '❆'], useBase: 'emojiBase', styleOverride: { color: 'white', textShadow: '0 0 5px rgba(255,255,255,0.8)' } },
-            grades: { icons: ['A', 'B+', 'A', 'B+'], useBase: 'emojiBase', isGrades: true, styleOverride: { color: '#e74a3b', fontWeight: '900', fontFamily: 'Arial, sans-serif' } },
-            rain: { quantity: 60, minSpeed: 0.8, maxSpeed: 1.5 }
-        };
-
-        // --- BỘ ĐIỀU KHIỂN CHÍNH ---
-        function initEffect() {
-            container.innerHTML = '';
-            // Nếu chọn pháo hoa -> Chạy chế độ Canvas đặc biệt
-            if (activeMode === 'fireworks') {
-                initCanvasFireworksHighEnd();
-            }
-            // Các chế độ cũ (dùng thẻ div)
-            else if (modesConfig[activeMode]?.useBase === 'emojiBase') { initFallingEmojis(activeMode); }
-            else if (activeMode === 'rain') { initRain(); }
-        }
-
-        // ==================================================================================
-        //  CANVAS FIREWORKS HIGH-END ENGINE (CỖ MÁY PHÁO HOA CAO CẤP)
-        // ==================================================================================
-        function initCanvasFireworksHighEnd() {
-            const canvas = document.createElement('canvas');
-            container.appendChild(canvas);
-            const ctx = canvas.getContext('2d');
-            let cw = window.innerWidth;
-            let ch = window.innerHeight;
-            canvas.width = cw; canvas.height = ch;
-
-            window.addEventListener('resize', () => { cw = window.innerWidth; ch = window.innerHeight; canvas.width = cw; canvas.height = ch; });
-
-            const particles = []; // Chứa các hạt pháo đang nổ
-            let lastLaunchTime = 0;
-
-            // === CẤU HÌNH PHÁO HOA TẠI ĐÂY ===
-            const FW_CONFIG = {
-                frequency: 1200,       // Bao lâu bắn 1 quả (ms) - Tăng lên để nổ thưa hơn, sang hơn
-                particleCount: 180,    // Số hạt mỗi quả (Nhiều hạt = dày đặc)
-                explodePower: 15,      // Lực nổ bung ra (Tán rộng)
-                friction: 0.96,        // Ma sát không khí (Càng gần 1 càng bay xa, càng nhỏ càng nhanh dừng lại -> tạo hiệu ứng chậm)
-                gravity: 0.08,         // Trọng lực kéo hạt rơi xuống
-                trailLength: 0.15,     // Độ dài đuôi (0.1 = dài, 0.5 = ngắn, 1 = không đuôi) - Kỹ thuật làm mờ màn hình
-                colors: ['#ff0040', '#00ffff', '#ffff00', '#ff8000', '#00ff80', '#ffffff', '#da00ff'] // Bảng màu sang trọng
-            };
-
-            function random(min, max) { return Math.random() * (max - min) + min; }
-
-            // --- LỚP ĐỐI TƯỢNG HẠT PHÁO (PARTICLE) ---
-            class Particle {
-                constructor(x, y, hue) {
-                    this.x = x; this.y = y;
-                    // Tạo lịch sử toạ độ để vẽ đuôi
-                    this.coordinates = [];
-                    this.coordinateCount = 6; // Số đốt đuôi
-                    while (this.coordinateCount--) { this.coordinates.push([this.x, this.y]); }
-
-                    // Vật lý vụ nổ
-                    this.angle = random(0, Math.PI * 2); // Góc ngẫu nhiên 360 độ
-                    this.speed = random(1, FW_CONFIG.explodePower); // Tốc độ bay
-
-                    // Tính toán vận tốc theo trục X, Y
-                    this.vx = Math.cos(this.angle) * this.speed;
-                    this.vy = Math.sin(this.angle) * this.speed;
-
-                    // Màu sắc và độ sáng
-                    this.hue = hue;
-                    this.brightness = random(60, 90); // Độ sáng (lấp lánh)
-                    this.alpha = 1; // Độ trong suốt bắt đầu
-                    this.decay = random(0.008, 0.015); // Tốc độ mờ dần (Càng nhỏ càng lâu tắt -> nổ chậm)
-                }
-
-                update(index) {
-                    // Xoá đốt đuôi cũ nhất, thêm toạ độ hiện tại vào đầu
-                    this.coordinates.pop();
-                    this.coordinates.unshift([this.x, this.y]);
-
-                    // Áp dụng vật lý
-                    this.vx *= FW_CONFIG.friction; // Chậm dần do ma sát
-                    this.vy *= FW_CONFIG.friction;
-                    this.vy += FW_CONFIG.gravity; // Rơi xuống do trọng lực
-                    this.x += this.vx;
-                    this.y += this.vy;
-
-                    // Mờ dần
-                    this.alpha -= this.decay;
-                    // Nếu mờ hết thì xoá khỏi mảng
-                    if (this.alpha <= 0) { particles.splice(index, 1); }
-                }
-
-                draw() {
-                    ctx.beginPath();
-                    // Vẽ đường nối từ đốt đuôi cuối cùng đến vị trí hiện tại
-                    ctx.moveTo(this.coordinates[this.coordinates.length - 1][0], this.coordinates[this.coordinates.length - 1][1]);
-                    ctx.lineTo(this.x, this.y);
-                    // Màu HSL: Hue, Saturation, Lightness, Alpha
-                    ctx.strokeStyle = `hsla(${this.hue}, 100%, ${this.brightness}%, ${this.alpha})`;
-                    ctx.lineWidth = 2; // Độ dày đuôi
-                    ctx.lineCap = 'round'; // Đầu cọ tròn
-                    ctx.stroke();
-                }
-            }
-
-            // --- HÀM TẠO VỤ NỔ ---
-            function explode(x, y) {
-                let count = FW_CONFIG.particleCount;
-                // Chọn màu chủ đạo cho quả pháo này
-                const baseColorHex = FW_CONFIG.colors[Math.floor(random(0, FW_CONFIG.colors.length))];
-                // Chuyển đổi màu hex sang HSL hue (ước lượng để tạo dải màu tương đồng)
-                let baseHue = 0;
-                if (baseColorHex === '#ff0040') baseHue = 345;
-                else if (baseColorHex === '#00ffff') baseHue = 180;
-                else if (baseColorHex === '#ffff00') baseHue = 60;
-                else if (baseColorHex === '#da00ff') baseHue = 280;
-                else baseHue = random(0, 360);
-
-                while (count--) {
-                    // Tạo các hạt với màu sắc biến thiên nhẹ quanh màu chủ đạo cho tự nhiên
-                    particles.push(new Particle(x, y, random(baseHue - 20, baseHue + 20)));
-                }
-            }
-
-            // --- VÒNG LẶP HOẠT HÌNH CHÍNH (GAME LOOP) ---
-            function animate(currentTime) {
-                requestAnimationFrame(animate);
-
-                // KỸ THUẬT TẠO ĐUÔI: Thay vì xoá trắng màn hình, ta phủ lên một lớp màu đen bán trong suốt.
-                // Điều này làm cho frame cũ mờ đi từ từ, tạo ra hiệu ứng vệt sáng kéo dài.
-                ctx.globalCompositeOperation = 'destination-out';
-                ctx.fillStyle = `rgba(0, 0, 0, ${FW_CONFIG.trailLength})`;
-                ctx.fillRect(0, 0, cw, ch);
-
-                // KỸ THUẬT PHÁT SÁNG: 'lighter' làm cho các pixel chồng lên nhau sáng rực lên.
-                ctx.globalCompositeOperation = 'lighter';
-
-                // Cập nhật và vẽ tất cả các hạt
-                let i = particles.length;
-                while (i--) {
-                    particles[i].draw();
-                    particles[i].update(i);
-                }
-
-                // Tự động bắn pháo theo thời gian
-                if (currentTime - lastLaunchTime > FW_CONFIG.frequency) {
-                    // Nổ ở vị trí ngẫu nhiên trong vùng an toàn của màn hình (tránh sát mép)
-                    explode(random(cw * 0.1, cw * 0.9), random(ch * 0.1, ch * 0.8));
-                    lastLaunchTime = currentTime;
-                }
-            }
-
-            // Bắt đầu vòng lặp
-            animate();
-        }
-
-
-        // --- CÁC HÀM CŨ (GIỮ LẠI ĐỂ KHÔNG LỖI KHI CHỌN HIỆU ỨNG KHÁC) ---
-        function initFallingEmojis(modeKey) {
-            const config = { ...modesConfig.emojiBase, ...modesConfig[modeKey] }; const iconList = config.icons;
-            for (let i = 0; i < config.quantity; i++) {
-                const item = document.createElement('div'); item.classList.add('falling-emoji');
-                item.textContent = iconList[Math.floor(Math.random() * iconList.length)];
-                if (config.styleOverride) Object.assign(item.style, config.styleOverride);
-                item.style.left = Math.random() * 100 + 'vw'; item.style.fontSize = Math.random() * (config.maxSize - config.minSize) + config.minSize + 'px';
-                item.style.opacity = (Math.random() * 0.4 + 0.6).toFixed(2); item.style.animationDuration = Math.random() * (config.maxSpeed - config.minSpeed) + config.minSpeed + 's';
-                container.appendChild(item);
-            }
-        }
-        function initRain() {
-            const config = modesConfig.rain;
-            for (let i = 0; i < config.quantity; i++) {
-                const drop = document.createElement('div'); drop.classList.add('rain-drop');
-                drop.style.left = Math.random() * 100 + 'vw'; drop.style.height = (Math.random() * 10 + 20) + 'px';
-                drop.style.animationDuration = Math.random() * (config.maxSpeed - config.minSpeed) + config.minSpeed + 's';
-                container.appendChild(drop);
-            }
-        }
-
-        initEffect();
-    });
-    </script>
+    <script src="~/Scripts/HieuUng.js"></script>
 
     @RenderSection("scripts", required: false)
 

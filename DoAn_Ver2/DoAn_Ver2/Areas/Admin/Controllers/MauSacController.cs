@@ -13,34 +13,21 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
         // GET: Admin/MauSac
         public ActionResult Index(string searchString, int? page)
         {
-            // 1. Cấu hình phân trang
-            int pageSize = 10; // Số dòng trên 1 trang
+            int pageSize = 10; 
             int pageNumber = (page ?? 1);
-
-            // 2. Lấy dữ liệu (Chưa thực thi SQL ngay)
             var query = _unitOfWork.Repository<MauSac>().GetAll().AsQueryable();
-
-            // 3. Xử lý Tìm kiếm (Theo Tên màu hoặc Mã Hex)
             if (!string.IsNullOrEmpty(searchString))
             {
-                // Xóa khoảng trắng thừa và chuyển về chữ thường
                 string key = searchString.Trim().ToLower();
 
                 query = query.Where(x => x.TenMau.ToLower().Contains(key) ||
                                          x.MaHex.ToLower().Contains(key));
             }
-
-            // 4. Sắp xếp (Mới nhất lên đầu)
             query = query.OrderByDescending(x => x.ID);
-
-            // 5. Lưu lại từ khóa tìm kiếm vào ViewBag để giữ trạng thái ở View
             ViewBag.CurrentFilter = searchString;
-
-            // 6. Trả về model dạng PagedList
             return View(query.ToPagedList(pageNumber, pageSize));
         }
 
-        // Tạo mới (POST luôn cho nhanh, dùng Modal hoặc trang riêng tùy ý, ở đây làm trang riêng cho chuẩn)
         public ActionResult Create()
         {
             return View();
@@ -87,14 +74,12 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
 
         public ActionResult Delete(int id)
         {
-            // Kiểm tra nghiệp vụ: Màu đang dùng trong Biến thể sản phẩm thì KHÔNG ĐƯỢC XÓA
             bool isUsed = _unitOfWork.Repository<BienTheSanPham>().GetMany(x => x.MauSacID == id).Any();
 
             if (isUsed)
             {
-                // Dùng TempData để truyền thông báo lỗi sang trang Index
                 TempData["Message"] = "Không thể xóa màu này vì đang có sản phẩm sử dụng.";
-                TempData["MessageType"] = "danger"; // Màu đỏ
+                TempData["MessageType"] = "danger"; 
                 return RedirectToAction("Index");
             }
 
@@ -102,7 +87,7 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
             _unitOfWork.Save();
 
             TempData["Message"] = "Đã xóa màu thành công.";
-            TempData["MessageType"] = "success"; // Màu xanh
+            TempData["MessageType"] = "success"; 
             return RedirectToAction("Index");
         }
     }

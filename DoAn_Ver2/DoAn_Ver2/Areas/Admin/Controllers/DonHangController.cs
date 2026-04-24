@@ -1,13 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Mvc;
-using DoAn_Ver2.Models;
+﻿using DoAn_Ver2.Models;
+using Newtonsoft.Json.Linq;
 using PagedList;
-using System.Net;        // [MỚI] Để gửi mail
-using System.Net.Mail;   // [MỚI] Để gửi mail
+using System;
+using System.Collections.Generic;
 using System.Configuration;
+using System.Linq;
+using System.Net;        
+using System.Net.Mail;   
+using System.Web;
+using System.Web.Helpers;
+using System.Web.Mvc;
+using static Dapper.SqlMapper;
 
 
 namespace DoAn_Ver2.Areas.Admin.Controllers
@@ -68,7 +71,7 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
             return View(query.ToPagedList(pageNumber, pageSize));
         }
 
-        // 2. CHI TIẾT ĐƠN HÀNG (HÓA ĐƠN)
+        // 2. CHI TIẾT ĐƠN HÀNG
         public ActionResult Details(int id)
         {
             var donHang = _unitOfWork.Repository<DonHang>().GetById(id);
@@ -79,7 +82,7 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
             ViewBag.ChiTiet = chiTiet;
 
             // Lấy thông tin SKU và Sản phẩm để hiển thị tên
-            // (Thực tế nên dùng ViewModel hoặc Include, ở đây query thủ công cho đơn giản với repo pattern hiện tại)
+            
             var listSKU = _unitOfWork.Repository<BienTheSanPham>().GetAll().ToList();
             var listSP = _unitOfWork.Repository<SanPham>().GetAll().ToList();
             var listMau = _unitOfWork.Repository<MauSac>().GetAll().ToList();
@@ -133,20 +136,20 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
                         var sku = _unitOfWork.Repository<BienTheSanPham>().GetById(item.BienTheSanPhamID);
                         if (sku != null)
                         {
-                            sku.SoLuong = (sku.SoLuong ?? 0) + item.SoLuong; // Cộng lại kho thực
+                            sku.SoLuong = (sku.SoLuong ?? 0) + item.SoLuong; 
 
-                            if (trangThaiCu == 0) // Nếu chưa duyệt thì trừ luôn kho tạm giữ
+                            if (trangThaiCu == 0) 
                             {
                                 sku.SoLuongTamGiu = (sku.SoLuongTamGiu ?? 0) - item.SoLuong;
                                 if (sku.SoLuongTamGiu < 0) sku.SoLuongTamGiu = 0;
                             }
                             _unitOfWork.Repository<BienTheSanPham>().Update(sku);
 
-                            // 3. GHI LỊCH SỬ KHO (GHI NHẬN HÀNG HOÀN VỀ)
+                            // 3. GHI LỊCH SỬ KHO 
                             var ls = new LichSuKho()
                             {
                                 BienTheSanPhamID = sku.ID,
-                                SoLuongBienDong = item.SoLuong, // Số dương thể hiện nhập lại
+                                SoLuongBienDong = item.SoLuong, 
                                 TonThucTeSauBienDong = sku.SoLuong,
                                 LoaiGiaoDich = "Admin hủy đơn",
                                 MaThamChieu = "HUY-DH-" + donHang.MaDonHang,
@@ -159,7 +162,7 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
                     // B. Gửi Email thông báo hủy
                     SendCancellationEmail(donHang, lyDo);
 
-                    // C. (Tùy chọn) Lưu lý do hủy vào ghi chú đơn hàng để Admin sau này nhớ
+                    
                     if (!string.IsNullOrEmpty(lyDo))
                     {
                         donHang.DiaChiGiaoHang += $" . (Lý do hủy: {lyDo})";
@@ -184,7 +187,7 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
         {
             try
             {
-                // Chỉ gửi nếu có email
+               
                 if (string.IsNullOrEmpty(dh.EmailNguoiNhan)) return;
 
                 string host = ConfigurationManager.AppSettings["EmailHost"];
@@ -223,7 +226,7 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
             }
             catch (Exception ex)
             {
-                // Chỉ ghi log, không throw lỗi để tránh crash luồng UpdateStatus chính
+                
                 System.Diagnostics.Debug.WriteLine("Lỗi gửi mail hủy: " + ex.Message);
             }
         }
@@ -239,17 +242,17 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
             // 1. Lấy chi tiết đơn hàng
             ViewBag.ChiTiet = _unitOfWork.Repository<ChiTietDonHang>().GetMany(x => x.DonHangID == id).ToList();
 
-            // 2. LẤY THÔNG TIN NGƯỜI BÁN (Lấy đúng Session["UserAdmin"] theo code AuthController của bạn)
+            // 2. LẤY THÔNG TIN NGƯỜI BÁN
             if (Session["UserAdmin"] != null)
             {
                 var currentUser = Session["UserAdmin"] as NguoiDung;
-                ViewBag.SellerName = currentUser.HoTen ?? currentUser.TenDangNhap; // Nếu chưa có Họ tên thì lấy Tên đăng nhập
+                ViewBag.SellerName = currentUser.HoTen ?? currentUser.TenDangNhap; 
                 ViewBag.SellerPhone = string.IsNullOrEmpty(currentUser.SDT) ? "Không có" : currentUser.SDT;
                 ViewBag.SellerEmail = string.IsNullOrEmpty(currentUser.Email) ? "Không có" : currentUser.Email;
             }
             else
             {
-                // Phòng trường hợp session hết hạn nhưng vẫn mở tab hóa đơn
+                
                 ViewBag.SellerName = "Nhân viên Men Store";
                 ViewBag.SellerPhone = "---";
                 ViewBag.SellerEmail = "---";
@@ -261,7 +264,7 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
             ViewBag.ListMau = _unitOfWork.Repository<MauSac>().GetAll().ToList();
             ViewBag.ListSize = _unitOfWork.Repository<KichThuoc>().GetAll().ToList();
 
-            // 4. THÔNG TIN CỬA HÀNG (Lấy từ Cấu hình chung)
+            // 4. THÔNG TIN CỬA HÀNG
             var configs = _unitOfWork.Repository<CauHinhChung>().GetAll().ToList();
             ViewBag.Logo = configs.FirstOrDefault(x => x.KeyName == "SiteLogo")?.Value ?? "/Content/images/logo.png";
             ViewBag.Hotline = configs.FirstOrDefault(x => x.KeyName == "Hotline")?.Value ?? "1900 xxxx";
@@ -312,3 +315,41 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
 
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

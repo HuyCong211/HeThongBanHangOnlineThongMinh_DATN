@@ -15,14 +15,12 @@ namespace DoAn_Ver2.Controllers
     public class ProfileController : Controller
     {
         private UnitOfWork _unitOfWork = new UnitOfWork();
-
-        // Middleware kiểm tra đăng nhập
         private NguoiDung GetCurrentUser()
         {
             return Session["KhachHang"] as NguoiDung;
         }
 
-        // 1. TRANG TỔNG QUAN & THÔNG TIN (Dashboard)
+        // 1. TRANG TỔNG QUAN & THÔNG TIN 
         public ActionResult Index()
         {
             var userSession = GetCurrentUser();
@@ -55,8 +53,6 @@ namespace DoAn_Ver2.Controllers
                 user.HoTen = model.HoTen;
                 user.SDT = model.SDT;
                 user.Email = model.Email;
-
-                // Xử lý Avatar
                 if (uploadAvt != null && uploadAvt.ContentLength > 0)
                 {
                     string _FileName = Path.GetFileName(uploadAvt.FileName);
@@ -70,8 +66,6 @@ namespace DoAn_Ver2.Controllers
 
                 _unitOfWork.Repository<NguoiDung>().Update(user);
                 _unitOfWork.Save();
-
-                // Cập nhật lại Session
                 Session["KhachHang"] = user;
                 TempData["Success"] = "Cập nhật thông tin thành công!";
             }
@@ -161,6 +155,77 @@ namespace DoAn_Ver2.Controllers
             return Json(new { success = false, msg = "Dữ liệu không hợp lệ" });
         }
 
+
+        //  Hàm lấy dữ liệu 1 địa chỉ để fill lên Form Sửa
+        [HttpGet]
+        public ActionResult GetAddress(int id)
+        {
+            var user = GetCurrentUser();
+            if (user == null) return Json(new { success = false, msg = "Vui lòng đăng nhập" }, JsonRequestBehavior.AllowGet);
+
+            var dc = _unitOfWork.Repository<DiaChi>().GetById(id);
+            if (dc != null && dc.NguoiDungID == user.ID)
+            {
+                return Json(new
+                {
+                    success = true,
+                    data = new
+                    {
+                        ID = dc.ID,
+                        TenNguoiNhan = dc.TenNguoiNhan,
+                        SDT = dc.SDT_NguoiNhan,
+                        TinhThanh = dc.Tinh_ThanhPho,
+                        PhuongXa = dc.PhuongXa,
+                        DiaChiChiTiet = dc.DiaChiChiTiet,
+                        MacDinh = dc.MacDinh
+                    }
+                }, JsonRequestBehavior.AllowGet);
+            }
+            return Json(new { success = false, msg = "Không tìm thấy địa chỉ" }, JsonRequestBehavior.AllowGet);
+        }
+
+        // Hàm Cập nhật địa chỉ
+        [HttpPost]
+        public ActionResult UpdateAddress(int id, UserAddressViewModel model)
+        {
+            var user = GetCurrentUser();
+            if (user == null) return Json(new { success = false, msg = "Vui lòng đăng nhập" });
+
+            if (ModelState.IsValid)
+            {
+                var dc = _unitOfWork.Repository<DiaChi>().GetById(id);
+                if (dc == null || dc.NguoiDungID != user.ID)
+                    return Json(new { success = false, msg = "Không tìm thấy địa chỉ" });
+
+                dc.TenNguoiNhan = model.TenNguoiNhan;
+                dc.SDT_NguoiNhan = model.SDT;
+                dc.Tinh_ThanhPho = model.TinhThanh;
+                dc.PhuongXa = model.PhuongXa;
+                dc.DiaChiChiTiet = model.DiaChiChiTiet;
+
+                // Xử lý logic nếu set địa chỉ này làm mặc định
+                if (model.MacDinh)
+                {
+                    var oldDefaults = _unitOfWork.Repository<DiaChi>().GetMany(x => x.NguoiDungID == user.ID && x.MacDinh == true && x.ID != id);
+                    foreach (var item in oldDefaults)
+                    {
+                        item.MacDinh = false;
+                        _unitOfWork.Repository<DiaChi>().Update(item);
+                    }
+                    dc.MacDinh = true;
+                }
+                else
+                {
+                    dc.MacDinh = false;
+                }
+
+                _unitOfWork.Repository<DiaChi>().Update(dc);
+                _unitOfWork.Save();
+                return Json(new { success = true });
+            }
+            return Json(new { success = false, msg = "Dữ liệu không hợp lệ" });
+        }
+
         [HttpPost]
         public ActionResult DeleteAddress(int id)
         {
@@ -168,11 +233,16 @@ namespace DoAn_Ver2.Controllers
             var dc = _unitOfWork.Repository<DiaChi>().GetById(id);
             if (dc != null && dc.NguoiDungID == user.ID)
             {
+                if (dc.MacDinh == true)
+                {
+                    return Json(new { success = false, msg = "Không thể xóa địa chỉ đang được đặt làm mặc định!" });
+                }
+
                 _unitOfWork.Repository<DiaChi>().Delete(dc);
                 _unitOfWork.Save();
                 return Json(new { success = true });
             }
-            return Json(new { success = false });
+            return Json(new { success = false, msg = "Không tìm thấy địa chỉ này!" });
         }
 
         // 4. LỊCH SỬ ĐƠN HÀNG
@@ -197,11 +267,8 @@ namespace DoAn_Ver2.Controllers
             var donHang = _unitOfWork.Repository<DonHang>().GetById(id);
             if (donHang == null || donHang.NguoiDungID != user.ID) return HttpNotFound();
 
-            // Lấy chi tiết kèm thông tin sản phẩm (Join tay hoặc Include nếu cấu hình)
-            // Ở đây mình lấy thủ công để đảm bảo chạy
             var chiTiet = _unitOfWork.Repository<ChiTietDonHang>().GetMany(x => x.DonHangID == id).ToList();
 
-            // ViewBag để truyền danh sách chi tiết sang View
             ViewBag.ChiTiet = chiTiet;
 
             return View(donHang);

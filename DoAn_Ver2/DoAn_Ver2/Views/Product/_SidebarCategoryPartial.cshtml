@@ -10,7 +10,6 @@
     {
         foreach (var item in Model)
         {
-            // Kiểm tra active (tô đậm) nếu đang xem danh mục này
             string activeClass = (Request.QueryString["id"] == item.ID.ToString()) ? "font-weight-bold text-primary bg-light" : "text-dark";
 
             <a href="@Url.Action("ProductByCategory", "Product", new { id = item.ID })"

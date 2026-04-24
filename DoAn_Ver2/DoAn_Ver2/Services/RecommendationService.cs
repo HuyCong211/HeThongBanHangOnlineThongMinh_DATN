@@ -16,9 +16,6 @@ namespace DoAn_Ver2.Services
         // ---------------------------------------------------------
         // 1. TÍNH TOÁN GỢI Ý CHO NGƯỜI DÙNG (HIỂN THỊ TRANG CHỦ)
         // ---------------------------------------------------------
-        /// <summary>
-        /// Hàm tính toán Gợi ý cho riêng người dùng (User-Based) - Đã hỗ trợ cả Khách vãng lai
-        /// </summary>
         public void CalculateUserRecommendations(int? userId, string sessionId)
         {
             try
@@ -164,8 +161,6 @@ namespace DoAn_Ver2.Services
                                 }
                             }
                         }
-
-                        // Lưu cả 2 thay đổi xuống Database 1 lần
                         _unitOfWork.Save();
                     }
                 }

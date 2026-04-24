@@ -40,8 +40,6 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
         {
             var item = _unitOfWork.Repository<TinTuc>().GetById(id);
             if (item == null) return HttpNotFound();
-
-            // Lấy tên người đăng để hiển thị
             var author = _unitOfWork.Repository<NguoiDung>().GetById(item.NguoiDungID ?? 0);
             ViewBag.AuthorName = author != null ? (author.HoTen ?? author.TenDangNhap) : "Không xác định";
 
@@ -76,13 +74,9 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
                     uploadBtn.SaveAs(_path);
                     model.HinhAnh = "/Content/images/news/" + _FileName;
                 }
-
-                // [SỬA LẠI] Dùng MyTools để tạo Slug
                 model.Slug = MyTools.GenerateSlug(model.TieuDe);
 
                 model.NgayDang = DateTime.Now;
-
-                // Lấy ID người đang đăng nhập (Admin)
                 if (Session["UserAdmin"] != null)
                 {
                     var adminUser = (NguoiDung)Session["UserAdmin"];
@@ -120,8 +114,6 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
                 item.TomTat = model.TomTat;
                 item.NoiDung = model.NoiDung;
                 item.TrangThai = model.TrangThai;
-
-                // [SỬA LẠI] Cập nhật Slug bằng MyTools
                 item.Slug = MyTools.GenerateSlug(model.TieuDe);
 
                 if (uploadBtn != null && uploadBtn.ContentLength > 0)

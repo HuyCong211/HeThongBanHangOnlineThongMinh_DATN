@@ -24,7 +24,7 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
                 query = query.Where(x => x.TenPhuongThuc.Contains(searchString) || x.MaCode.Contains(searchString));
             }
 
-            query = query.OrderBy(x => x.ID); // Sắp xếp theo ID
+            query = query.OrderBy(x => x.ID);
 
             int pageSize = 10;
             int pageNumber = (page ?? 1);
@@ -39,15 +39,14 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
             return View();
         }
 
-        // 2. TẠO MỚI (POST) - Có xử lý ảnh
+        // 2. TẠO MỚI (POST) 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [ValidateInput(false)] // Cho phép nhập HTML ở mô tả
+        [ValidateInput(false)] 
         public ActionResult Create(PhuongThucThanhToan model, HttpPostedFileBase uploadBtn)
         {
             if (ModelState.IsValid)
             {
-                // Kiểm tra trùng mã Code
                 var exist = _unitOfWork.Repository<PhuongThucThanhToan>().GetMany(x => x.MaCode == model.MaCode).FirstOrDefault();
                 if (exist != null)
                 {
@@ -55,13 +54,11 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
                     return View(model);
                 }
 
-                // Xử lý Upload Ảnh
                 if (uploadBtn != null && uploadBtn.ContentLength > 0)
                 {
                     string _FileName = Path.GetFileName(uploadBtn.FileName);
                     string _path = Path.Combine(Server.MapPath("~/Content/images/payment/"), _FileName);
 
-                    // Tạo thư mục nếu chưa có
                     if (!Directory.Exists(Server.MapPath("~/Content/images/payment/")))
                     {
                         Directory.CreateDirectory(Server.MapPath("~/Content/images/payment/"));
@@ -71,7 +68,7 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
                     model.HinhAnh = "/Content/images/payment/" + _FileName;
                 }
 
-                model.MaCode = model.MaCode.ToUpper().Trim(); // Chuẩn hóa mã code
+                model.MaCode = model.MaCode.ToUpper().Trim(); 
 
                 _unitOfWork.Repository<PhuongThucThanhToan>().Add(model);
                 _unitOfWork.Save();
@@ -99,23 +96,14 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
             {
                 var item = _unitOfWork.Repository<PhuongThucThanhToan>().GetById(model.ID);
                 if (item == null) return HttpNotFound();
-
-                // Cập nhật thông tin
                 item.TenPhuongThuc = model.TenPhuongThuc;
                 item.MoTa = model.MoTa;
                 item.TrangThai = model.TrangThai;
-                // Mã Code thường hạn chế sửa nếu đã phát sinh đơn hàng, nhưng ở đây cho sửa nếu cần thiết
                 item.MaCode = model.MaCode.ToUpper().Trim();
-
-                // Xử lý ảnh mới nếu có upload
                 if (uploadBtn != null && uploadBtn.ContentLength > 0)
                 {
                     string _FileName = Path.GetFileName(uploadBtn.FileName);
-
-                    // [FIX LỖI] Tạo đường dẫn thư mục vật lý
                     string folderPath = Server.MapPath("~/Content/images/payment/");
-
-                    // Kiểm tra và tạo thư mục nếu chưa có
                     if (!Directory.Exists(folderPath))
                     {
                         Directory.CreateDirectory(folderPath);
@@ -143,8 +131,6 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
             {
                 var item = _unitOfWork.Repository<PhuongThucThanhToan>().GetById(id);
                 if (item == null) return Json(new { success = false, message = "Không tìm thấy dữ liệu" });
-
-                // Kiểm tra ràng buộc: Nếu đã có đơn hàng sử dụng phương thức này thì KHÔNG ĐƯỢC XÓA
                 var checkOrder = _unitOfWork.Repository<DonHang>().GetMany(x => x.PhuongThucThanhToanID == id).FirstOrDefault();
                 if (checkOrder != null)
                 {

@@ -31,31 +31,31 @@ namespace DoAn_Ver2.Areas.Admin.Attributes
             {
                 string currentController = filterContext.ActionDescriptor.ControllerDescriptor.ControllerName;
 
-                // Danh sách các Controller nhân viên ĐƯỢC PHÉP vào (Dựa trên yêu cầu của bạn)
-                // Lưu ý: Tên Controller phải khớp với tên file class (bỏ chữ Controller)
+                // Danh sách các Controller nhân viên ĐƯỢC PHÉP vào
                 var allowedControllers = new List<string>()
                 {
                     "Dashboard",
-                    "DanhMuc", // Danh mục
-                    "SanPham",  // Sản phẩm
-                    "MauSac",    // Màu sắc (Nếu bạn đặt tên Controller là ColorController)
-                    "KichThuoc",     // Kích thước
-                    "Kho",// Kho
-                    "DonHang",    // Đơn hàng
-                    "News",     // Tin tức
-                    "Profile"   // Trang cá nhân
+                    "DanhMuc", 
+                    "SanPham",  
+                    "MauSac",    
+                    "KichThuoc",     
+                    "Kho",
+                    "DonHang",    
+                    "News",     
+                    "Profile",
+                    "Review"
                 };
 
-                // Nếu controller hiện tại KHÔNG nằm trong danh sách cho phép -> Đá về Dashboard hoặc trang báo lỗi
+                
                 if (!allowedControllers.Contains(currentController))
                 {
                     filterContext.Result = new RedirectToRouteResult(new RouteValueDictionary(new { controller = "Dashboard", action = "Index", area = "Admin" }));
-                    // Hoặc bạn có thể tạo trang "AccessDenied" riêng
+                    
                 }
             }
             else
             {
-                // Nếu là Customer (Khách hàng) mà cố tình vào Admin -> Đá ra Login
+                
                 filterContext.Result = new RedirectToRouteResult(new RouteValueDictionary(new { controller = "Auth", action = "Login", area = "Admin" }));
             }
         }

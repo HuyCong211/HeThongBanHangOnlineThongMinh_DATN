@@ -11,7 +11,6 @@
 }
 
 <style>
-    /* CSS Phân trang */
     .pagination-container ul {
         list-style: none;
         padding: 0;
@@ -43,14 +42,13 @@
         border-color: #007bff;
     }
 
-    /* CSS Cắt tên sản phẩm dài (Giới hạn 2 dòng) */
     .product-name-limit {
         display: -webkit-box;
-        -webkit-line-clamp: 3; /* Số dòng muốn hiển thị */
+        -webkit-line-clamp: 3;
         -webkit-box-orient: vertical;
         overflow: hidden;
         text-overflow: ellipsis;
-        max-width: 300px; /* Giới hạn chiều rộng nếu cần */
+        max-width: 300px; 
     }
 </style>
 
@@ -109,7 +107,6 @@
                 <tbody>
                     @if (Model.Any())
                     {
-                        // Khai báo biến đếm
                         int i = 0;
                         int pageSize = ViewBag.PageSize;
                         int pageNumber = Model.PageNumber;
@@ -196,27 +193,16 @@
                     }),
                     new PagedListRenderOptions
                     {
-                        // CẤU HÌNH HIỂN THỊ TRANG
-                        DisplayLinkToFirstPage = PagedListDisplayMode.Always, // Luôn hiện nút Đầu
-                        DisplayLinkToLastPage = PagedListDisplayMode.Always,  // Luôn hiện nút Cuối
+                        DisplayLinkToFirstPage = PagedListDisplayMode.Always, 
+                        DisplayLinkToLastPage = PagedListDisplayMode.Always,  
                         DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
                         DisplayLinkToNextPage = PagedListDisplayMode.Always,
-
-                        // Giới hạn số lượng nút trang hiển thị (Ví dụ: 1 2 3 4 5 ...)
                         MaximumPageNumbersToDisplay = 5,
-
-                        // Hiển thị dấu ... nếu vượt quá giới hạn
                         DisplayEllipsesWhenNotShowingAllPageNumbers = true,
-
-                        // Việt hóa text các nút
                         LinkToFirstPageFormat = "« Đầu",
                         LinkToPreviousPageFormat = "‹ Trước",
                         LinkToNextPageFormat = "Sau ›",
                         LinkToLastPageFormat = "Cuối »",
-
-                        // Cấu hình CSS cho Bootstrap (Nếu CSS của bạn chưa chuẩn)
-                        // LiElementClasses = new string[] { "page-item" },
-                        // UlElementClasses = new string[] { "pagination" }
                     })
                 </div>
 

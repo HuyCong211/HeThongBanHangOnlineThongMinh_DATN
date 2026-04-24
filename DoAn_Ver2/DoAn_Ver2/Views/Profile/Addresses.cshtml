@@ -13,7 +13,7 @@
             <div class="card shadow-sm border-0 mb-4">
                 <div class="card-header bg-white d-flex justify-content-between align-items-center">
                     <span class="font-weight-bold">ĐỊA CHỈ CỦA TÔI</span>
-                    <button class="btn btn-sm btn-success" data-toggle="modal" data-target="#modalAddAddress">
+                    <button class="btn btn-sm btn-success" onclick="openAddModal()">
                         <i class="fas fa-plus"></i> Thêm địa chỉ mới
                     </button>
                 </div>
@@ -34,6 +34,7 @@
                                     <p class="mb-0 text-muted small">@item.DiaChiChiTiet, @item.PhuongXa, @item.Tinh_ThanhPho</p>
                                 </div>
                                 <div>
+                                    <button class="btn btn-sm btn-outline-primary mr-1" onclick="editAddress(@item.ID)">Sửa</button>
                                     <button class="btn btn-sm btn-outline-danger" onclick="deleteAddress(@item.ID)">Xóa</button>
                                 </div>
                             </div>
@@ -49,19 +50,21 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Thêm địa chỉ mới</h5>
+                <h5 class="modal-title" id="modalTitle">Thêm địa chỉ mới</h5>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
                 <form id="frmAddAddress">
+                    <input type="hidden" id="addressId" name="ID" value="" />
+
                     <div class="row">
                         <div class="col-md-6 form-group">
                             <label>Tên người nhận</label>
-                            <input type="text" name="TenNguoiNhan" class="form-control" required>
+                            <input type="text" name="TenNguoiNhan" id="TenNguoiNhan" class="form-control" required>
                         </div>
                         <div class="col-md-6 form-group">
                             <label>Số điện thoại</label>
-                            <input type="text" name="SDT" class="form-control" required>
+                            <input type="text" name="SDT" id="SDT" class="form-control" required>
                         </div>
                     </div>
                     <div class="row">
@@ -80,10 +83,11 @@
                     </div>
                     <div class="form-group">
                         <label>Địa chỉ chi tiết</label>
-                        <input type="text" name="DiaChiChiTiet" class="form-control" placeholder="Số nhà, đường..." required>
+                        <input type="text" name="DiaChiChiTiet" id="DiaChiChiTiet" class="form-control" placeholder="Số nhà, đường..." required>
                     </div>
                     <div class="form-check">
                         <input type="checkbox" class="form-check-input" name="MacDinh" id="chkDefault" value="true">
+                        <input type="hidden" name="MacDinh" value="false">
                         <label class="form-check-label" for="chkDefault">Đặt làm địa chỉ mặc định</label>
                     </div>
                 </form>
@@ -100,9 +104,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
     <script src="~/Content/data/vietnam-regions.js"></script>
     <script>
-        // 1. LOAD API 2 CẤP (Copy y hệt từ Checkout qua)
+        const allCommunes = vietnamDataV2.communes;
+
         $(document).ready(function () {
-            const allCommunes = vietnamDataV2.communes;
             const provinceMap = new Map();
 
             allCommunes.forEach(item => {
@@ -134,11 +138,53 @@
             });
         });
 
-        // 2. LƯU ĐỊA CHỈ (AJAX)
+        $('#chkDefault').change(function () {
+            if ($(this).is(':checked')) {
+                $(this).val('true');
+            } else {
+                $(this).val('false');
+            }
+        });
+
+        function openAddModal() {
+            $('#frmAddAddress')[0].reset();
+            $('#addressId').val('');
+            $('#ward').empty().append('<option value="">-- Chọn Xã --</option>').prop('disabled', true);
+            $('#modalTitle').text('Thêm địa chỉ mới');
+            $('#modalAddAddress').modal('show');
+        }
+
+        function editAddress(id) {
+            $.get('/Profile/GetAddress/' + id, function (res) {
+                if (res.success) {
+                    const data = res.data;
+                    $('#addressId').val(data.ID);
+                    $('#TenNguoiNhan').val(data.TenNguoiNhan);
+                    $('#SDT').val(data.SDT);
+                    $('#DiaChiChiTiet').val(data.DiaChiChiTiet);
+                    $('#chkDefault').prop('checked', data.MacDinh).val(data.MacDinh ? 'true' : 'false');
+
+                    $('#province').val(data.TinhThanh).trigger('change');
+
+                    setTimeout(() => {
+                        $('#ward').val(data.PhuongXa);
+                    }, 100);
+
+                    $('#modalTitle').text('Cập nhật địa chỉ');
+                    $('#modalAddAddress').modal('show');
+                } else {
+                    alert(res.msg);
+                }
+            });
+        }
         function saveAddress() {
             var data = $('#frmAddAddress').serialize();
-            $.post('/Profile/AddAddress', data, function(res) {
-                if(res.success) {
+            var id = $('#addressId').val();
+
+            var url = id ? '/Profile/UpdateAddress/' + id : '/Profile/AddAddress';
+
+            $.post(url, data, function (res) {
+                if (res.success) {
                     location.reload();
                 } else {
                     alert(res.msg || "Lỗi khi lưu địa chỉ");
@@ -146,12 +192,14 @@
             });
         }
 
-        // 3. XÓA ĐỊA CHỈ
         function deleteAddress(id) {
-            if(confirm("Bạn chắc chắn muốn xóa địa chỉ này?")) {
-                $.post('/Profile/DeleteAddress', {id: id}, function(res) {
-                    if(res.success) location.reload();
-                    else alert("Lỗi khi xóa");
+            if (confirm("Bạn chắc chắn muốn xóa địa chỉ này?")) {
+                $.post('/Profile/DeleteAddress', { id: id }, function (res) {
+                    if (res.success) {
+                        location.reload();
+                    } else {
+                        alert(res.msg);
+                    }
                 });
             }
         }

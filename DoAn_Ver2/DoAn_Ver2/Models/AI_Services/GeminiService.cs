@@ -23,7 +23,7 @@ namespace DoAn_Ver2.Models.AI_Services
             {
                 client.Timeout = TimeSpan.FromSeconds(60);
 
-                string url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={_apiKey}";
+                string url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={_apiKey}";
 
                 string systemInstruction =
                     "Bạn là chuyên gia tư vấn thời trang nam. Bạn đang trò chuyện liên tục với khách hàng.\n\n" +
@@ -38,6 +38,7 @@ namespace DoAn_Ver2.Models.AI_Services
                     "3. Tư duy về Size: Nếu cân nặng và chiều cao lệch size, hãy thông minh chọn size lớn hơn và giải thích cặn kẽ cho khách.\n\n" +
                     "--- 🎨 QUY TẮC TRÌNH BÀY GIAO DIỆN (BẮT BUỘC TUÂN THỦ) ---\n" +
                     "Mỗi khi liệt kê sản phẩm, PHẢI trình bày theo đúng cấu trúc HTML dưới đây:\n" +
+                    "<b>Mã sản phẩm: [ID]</b>\n" +
                     "🏷️ <b>[Tên Sản Phẩm]</b>\n" +
                     "💰 Giá: <b>[Giá VNĐ]</b>\n" +
                     "📝 [Tóm tắt 1 câu mô tả ngắn gọn, hấp dẫn]\n" +

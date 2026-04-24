@@ -4,8 +4,6 @@
 @{
     ViewBag.Title = "Lịch sử xem hàng";
     Layout = "~/Views/Shared/_Layout.cshtml";
-
-    // Lấy dữ liệu từ Controller
     var images = ViewBag.ProductImages as Dictionary<int, string>;
     int currentPage = ViewBag.CurrentPage;
     int totalPages = ViewBag.TotalPages;
@@ -160,7 +158,6 @@
         transform: scale(1.05);
     }
 
-    /* CSS Phân trang */
     .page-link:focus {
         box-shadow: none;
     }

@@ -3,92 +3,180 @@
   "WorkspaceRootPath": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|d:\\doantotnghiep\\hethongbanhangonlinethongminh_datn\\doan_ver2\\doan_ver2\\controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|d:\\doantotnghiep\\hethongbanhangonlinethongminh_datn\\doan_ver2\\doan_ver2\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|d:\\doantotnghiep\\hethongbanhangonlinethongminh_datn\\doan_ver2\\doan_ver2\\views\\profile\\addresses.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\views\\profile\\addresses.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|d:\\doantotnghiep\\hethongbanhangonlinethongminh_datn\\doan_ver2\\doan_ver2\\views\\product\\productbycategory.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\views\\product\\productbycategory.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|d:\\doantotnghiep\\hethongbanhangonlinethongminh_datn\\doan_ver2\\doan_ver2\\views\\product\\history.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\views\\product\\history.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|d:\\doantotnghiep\\hethongbanhangonlinethongminh_datn\\doan_ver2\\doan_ver2\\views\\product\\detail.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\views\\product\\detail.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|d:\\doantotnghiep\\hethongbanhangonlinethongminh_datn\\doan_ver2\\doan_ver2\\views\\product\\_sidebarcategorypartial.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\views\\product\\_sidebarcategorypartial.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|d:\\doantotnghiep\\hethongbanhangonlinethongminh_datn\\doan_ver2\\doan_ver2\\views\\product\\_recentlyviewedfloat.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\views\\product\\_recentlyviewedfloat.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|d:\\doantotnghiep\\hethongbanhangonlinethongminh_datn\\doan_ver2\\doan_ver2\\views\\order\\tracking.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\views\\order\\tracking.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|d:\\doantotnghiep\\hethongbanhangonlinethongminh_datn\\doan_ver2\\doan_ver2\\views\\order\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\views\\order\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|d:\\doantotnghiep\\hethongbanhangonlinethongminh_datn\\doan_ver2\\doan_ver2\\views\\order\\_orderdetailpartial.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\views\\order\\_orderdetailpartial.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|d:\\doantotnghiep\\hethongbanhangonlinethongminh_datn\\doan_ver2\\doan_ver2\\views\\news\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\views\\news\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\doan_ver2\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|d:\\doantotnghiep\\hethongbanhangonlinethongminh_datn\\doan_ver2\\doan_ver2\\views\\home\\contact.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\views\\home\\contact.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\doan_ver2\\controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\doan_ver2\\models\\ai_services\\sanphamaimodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\models\\ai_services\\sanphamaimodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\doan_ver2\\views\\cart\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\views\\cart\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\doan_ver2\\models\\ai_services\\geminiservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\models\\ai_services\\geminiservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\doan_ver2\\views\\cart\\checkout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\views\\cart\\checkout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\doan_ver2\\areas\\admin\\controllers\\donhangcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\areas\\admin\\controllers\\donhangcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\doan_ver2\\areas\\admin\\views\\donhang\\printinvoice.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\areas\\admin\\views\\donhang\\printinvoice.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\doan_ver2\\areas\\admin\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\areas\\admin\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\doan_ver2\\areas\\admin\\views\\donhang\\details.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\areas\\admin\\views\\donhang\\details.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\doan_ver2\\areas\\admin\\views\\marketing\\details.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\areas\\admin\\views\\marketing\\details.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\doan_ver2\\areas\\admin\\controllers\\marketingcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\areas\\admin\\controllers\\marketingcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\doan_ver2\\controllers\\cartcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\controllers\\cartcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\doan_ver2\\models\\donhang.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\models\\donhang.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\doan_ver2\\areas\\admin\\views\\marketing\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\areas\\admin\\views\\marketing\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\doan_ver2\\areas\\admin\\controllers\\sanphamcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\areas\\admin\\controllers\\sanphamcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\doan_ver2\\areas\\admin\\views\\sanpham\\create.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\areas\\admin\\views\\sanpham\\create.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\doan_ver2\\areas\\admin\\views\\sanpham\\edit.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\areas\\admin\\views\\sanpham\\edit.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\doan_ver2\\areas\\admin\\views\\sanpham\\delete.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\areas\\admin\\views\\sanpham\\delete.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\doan_ver2\\areas\\admin\\views\\sanpham\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\areas\\admin\\views\\sanpham\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\doan_ver2\\models\\sanpham.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\models\\sanpham.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\doan_ver2\\views\\home\\_menupartial.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\views\\home\\_menupartial.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\doan_ver2\\services\\recommendationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\services\\recommendationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\doan_ver2\\areas\\admin\\controllers\\dashboardcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\areas\\admin\\controllers\\dashboardcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\doan_ver2\\payment\\vnpaylibrary.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\payment\\vnpaylibrary.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\doan_ver2\\areas\\admin\\views\\dashboard\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\areas\\admin\\views\\dashboard\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\doan_ver2\\models\\viewmodel\\orderdetailviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\models\\viewmodel\\orderdetailviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\doan_ver2\\infrastructure\\unitofwork.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\infrastructure\\unitofwork.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\doan_ver2\\controllers\\wishlistcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\controllers\\wishlistcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\doan_ver2\\controllers\\profilecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\controllers\\profilecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\doan_ver2\\controllers\\productcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\controllers\\productcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\doan_ver2\\controllers\\ordercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\controllers\\ordercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\doan_ver2\\controllers\\newscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\controllers\\newscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\doan_ver2\\controllers\\cartcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\controllers\\cartcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\doan_ver2\\controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\doan_ver2\\common\\securityhelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\common\\securityhelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\doan_ver2\\common\\mailhelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\common\\mailhelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\doan_ver2\\common\\confighelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\common\\confighelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\doan_ver2\\areas\\admin\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\areas\\admin\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\doan_ver2\\areas\\admin\\views\\sanpham\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\areas\\admin\\views\\sanpham\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\doan_ver2\\areas\\admin\\views\\sanpham\\edit.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\areas\\admin\\views\\sanpham\\edit.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\doan_ver2\\areas\\admin\\views\\sanpham\\details.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\areas\\admin\\views\\sanpham\\details.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\doan_ver2\\areas\\admin\\views\\sanpham\\create.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\areas\\admin\\views\\sanpham\\create.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\doan_ver2\\areas\\admin\\views\\review\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\areas\\admin\\views\\review\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\doan_ver2\\areas\\admin\\views\\report\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\areas\\admin\\views\\report\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\doan_ver2\\areas\\admin\\views\\profile\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\areas\\admin\\views\\profile\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\doan_ver2\\areas\\admin\\views\\payment\\edit.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\areas\\admin\\views\\payment\\edit.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\doan_ver2\\areas\\admin\\views\\payment\\create.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\areas\\admin\\views\\payment\\create.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\doan_ver2\\areas\\admin\\views\\kho\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\areas\\admin\\views\\kho\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\doan_ver2\\areas\\admin\\views\\donhang\\printinvoice.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\areas\\admin\\views\\donhang\\printinvoice.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\doan_ver2\\areas\\admin\\views\\donhang\\details.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{82DF5352-A2FF-4DE7-9C95-2344B230F2F1}|DoAn_Ver2\\DoAn_Ver2.csproj|solutionrelative:doan_ver2\\areas\\admin\\views\\donhang\\details.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     }
   ],
   "DocumentGroupContainers": [
@@ -98,8 +186,151 @@
       "DocumentGroups": [
         {
           "DockedHeight": 398,
-          "SelectedChildIndex": 8,
+          "SelectedChildIndex": 0,
           "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "_Layout.cshtml",
+              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Views\\Shared\\_Layout.cshtml",
+              "RelativeDocumentMoniker": "DoAn_Ver2\\Views\\Shared\\_Layout.cshtml",
+              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Views\\Shared\\_Layout.cshtml",
+              "RelativeToolTip": "DoAn_Ver2\\Views\\Shared\\_Layout.cshtml",
+              "ViewState": "AgIAAGsBAAAAAAAAAAAAAHcBAAAwAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-24T09:13:00.307Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Addresses.cshtml",
+              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Views\\Profile\\Addresses.cshtml",
+              "RelativeDocumentMoniker": "DoAn_Ver2\\Views\\Profile\\Addresses.cshtml",
+              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Views\\Profile\\Addresses.cshtml",
+              "RelativeToolTip": "DoAn_Ver2\\Views\\Profile\\Addresses.cshtml",
+              "ViewState": "AgIAALcAAAAAAAAAAAAAAMcAAAAcAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-24T09:12:11.276Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "ProductByCategory.cshtml",
+              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Views\\Product\\ProductByCategory.cshtml",
+              "RelativeDocumentMoniker": "DoAn_Ver2\\Views\\Product\\ProductByCategory.cshtml",
+              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Views\\Product\\ProductByCategory.cshtml",
+              "RelativeToolTip": "DoAn_Ver2\\Views\\Product\\ProductByCategory.cshtml",
+              "ViewState": "AgIAAB0BAAAAAAAAAAAAAH4AAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-24T09:11:33.654Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "History.cshtml",
+              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Views\\Product\\History.cshtml",
+              "RelativeDocumentMoniker": "DoAn_Ver2\\Views\\Product\\History.cshtml",
+              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Views\\Product\\History.cshtml",
+              "RelativeToolTip": "DoAn_Ver2\\Views\\Product\\History.cshtml",
+              "ViewState": "AgIAAJkAAAAAAAAAAAAAAJ8AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-24T09:11:18.969Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Detail.cshtml",
+              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Views\\Product\\Detail.cshtml",
+              "RelativeDocumentMoniker": "DoAn_Ver2\\Views\\Product\\Detail.cshtml",
+              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Views\\Product\\Detail.cshtml",
+              "RelativeToolTip": "DoAn_Ver2\\Views\\Product\\Detail.cshtml",
+              "ViewState": "AgIAANQBAAAAAAAAAAAAACMAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-24T09:10:37.06Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "_SidebarCategoryPartial.cshtml",
+              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Views\\Product\\_SidebarCategoryPartial.cshtml",
+              "RelativeDocumentMoniker": "DoAn_Ver2\\Views\\Product\\_SidebarCategoryPartial.cshtml",
+              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Views\\Product\\_SidebarCategoryPartial.cshtml",
+              "RelativeToolTip": "DoAn_Ver2\\Views\\Product\\_SidebarCategoryPartial.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-24T09:10:29.647Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "_RecentlyViewedFloat.cshtml",
+              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Views\\Product\\_RecentlyViewedFloat.cshtml",
+              "RelativeDocumentMoniker": "DoAn_Ver2\\Views\\Product\\_RecentlyViewedFloat.cshtml",
+              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Views\\Product\\_RecentlyViewedFloat.cshtml",
+              "RelativeToolTip": "DoAn_Ver2\\Views\\Product\\_RecentlyViewedFloat.cshtml",
+              "ViewState": "AgIAAL0AAAAAAAAAAAAAADUAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-24T09:10:01.838Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "Tracking.cshtml",
+              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Views\\Order\\Tracking.cshtml",
+              "RelativeDocumentMoniker": "DoAn_Ver2\\Views\\Order\\Tracking.cshtml",
+              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Views\\Order\\Tracking.cshtml",
+              "RelativeToolTip": "DoAn_Ver2\\Views\\Order\\Tracking.cshtml",
+              "ViewState": "AgIAAC0AAAAAAAAAAAAAAAMAAAAtAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-24T09:09:34.097Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Views\\Order\\Index.cshtml",
+              "RelativeDocumentMoniker": "DoAn_Ver2\\Views\\Order\\Index.cshtml",
+              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Views\\Order\\Index.cshtml",
+              "RelativeToolTip": "DoAn_Ver2\\Views\\Order\\Index.cshtml",
+              "ViewState": "AgIAAJYAAAAAAAAAAAAAAJcAAAAiAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-24T09:09:09.169Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "_OrderDetailPartial.cshtml",
+              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Views\\Order\\_OrderDetailPartial.cshtml",
+              "RelativeDocumentMoniker": "DoAn_Ver2\\Views\\Order\\_OrderDetailPartial.cshtml",
+              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Views\\Order\\_OrderDetailPartial.cshtml",
+              "RelativeToolTip": "DoAn_Ver2\\Views\\Order\\_OrderDetailPartial.cshtml",
+              "ViewState": "AgIAAE4AAAAAAAAAAAAAAAIAAABgAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-24T09:08:32.478Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Views\\News\\Index.cshtml",
+              "RelativeDocumentMoniker": "DoAn_Ver2\\Views\\News\\Index.cshtml",
+              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Views\\News\\Index.cshtml",
+              "RelativeToolTip": "DoAn_Ver2\\Views\\News\\Index.cshtml",
+              "ViewState": "AgIAAFwAAAAAAAAAAAAAAEAAAABDAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-24T09:08:20.048Z",
+              "EditorCaption": ""
+            },
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
@@ -110,268 +341,401 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "SanPhamAIModel.cs",
-              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Models\\AI_Services\\SanPhamAIModel.cs",
-              "RelativeDocumentMoniker": "DoAn_Ver2\\Models\\AI_Services\\SanPhamAIModel.cs",
-              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Models\\AI_Services\\SanPhamAIModel.cs",
-              "RelativeToolTip": "DoAn_Ver2\\Models\\AI_Services\\SanPhamAIModel.cs",
-              "ViewState": "AgIAABIAAAAAAAAAAAAowDMAAAA2AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-18T09:42:35.244Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "DonHangController.cs",
-              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Controllers\\DonHangController.cs",
-              "RelativeDocumentMoniker": "DoAn_Ver2\\Areas\\Admin\\Controllers\\DonHangController.cs",
-              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Controllers\\DonHangController.cs",
-              "RelativeToolTip": "DoAn_Ver2\\Areas\\Admin\\Controllers\\DonHangController.cs",
-              "ViewState": "AgIAAL8AAAAAAAAAAAAAwBIBAAAJAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-10T06:15:49.617Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "MarketingController.cs",
-              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Controllers\\MarketingController.cs",
-              "RelativeDocumentMoniker": "DoAn_Ver2\\Areas\\Admin\\Controllers\\MarketingController.cs",
-              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Controllers\\MarketingController.cs",
-              "RelativeToolTip": "DoAn_Ver2\\Areas\\Admin\\Controllers\\MarketingController.cs",
-              "ViewState": "AgIAABMAAAAAAAAAAAAQwCwAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-10T06:00:57.266Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "Details.cshtml",
-              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Views\\Marketing\\Details.cshtml",
-              "RelativeDocumentMoniker": "DoAn_Ver2\\Areas\\Admin\\Views\\Marketing\\Details.cshtml",
-              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Views\\Marketing\\Details.cshtml",
-              "RelativeToolTip": "DoAn_Ver2\\Areas\\Admin\\Views\\Marketing\\Details.cshtml",
-              "ViewState": "AgIAACwAAAAAAAAAAADwv0cAAAAKAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2026-04-10T06:09:58.656Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 10,
-              "Title": "DonHang.cs",
-              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Models\\DonHang.cs",
-              "RelativeDocumentMoniker": "DoAn_Ver2\\Models\\DonHang.cs",
-              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Models\\DonHang.cs",
-              "RelativeToolTip": "DoAn_Ver2\\Models\\DonHang.cs",
-              "ViewState": "AgIAAB8AAAAAAAAAAAAwwCcAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-10T06:08:54.133Z"
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 11,
               "Title": "Index.cshtml",
-              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Views\\Marketing\\Index.cshtml",
-              "RelativeDocumentMoniker": "DoAn_Ver2\\Areas\\Admin\\Views\\Marketing\\Index.cshtml",
-              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Views\\Marketing\\Index.cshtml",
-              "RelativeToolTip": "DoAn_Ver2\\Areas\\Admin\\Views\\Marketing\\Index.cshtml",
-              "ViewState": "AgIAACoAAAAAAAAAAAAAAEsAAAAoAAAAAAAAAA==",
+              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Views\\Home\\Index.cshtml",
+              "RelativeDocumentMoniker": "DoAn_Ver2\\Views\\Home\\Index.cshtml",
+              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Views\\Home\\Index.cshtml",
+              "RelativeToolTip": "DoAn_Ver2\\Views\\Home\\Index.cshtml",
+              "ViewState": "AgIAABsAAAAAAAAAAAAAAOgAAABAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2026-04-10T06:11:02.875Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "HomeController.cs",
-              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Controllers\\HomeController.cs",
-              "RelativeDocumentMoniker": "DoAn_Ver2\\Controllers\\HomeController.cs",
-              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Controllers\\HomeController.cs",
-              "RelativeToolTip": "DoAn_Ver2\\Controllers\\HomeController.cs",
-              "ViewState": "AgIAAFkBAAAAAAAAAAAswHUBAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-05T05:25:30.295Z",
+              "WhenOpened": "2026-04-24T08:57:50.272Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
-              "Title": "CartController.cs",
-              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Controllers\\CartController.cs",
-              "RelativeDocumentMoniker": "DoAn_Ver2\\Controllers\\CartController.cs",
-              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Controllers\\CartController.cs",
-              "RelativeToolTip": "DoAn_Ver2\\Controllers\\CartController.cs",
-              "ViewState": "AgIAAK0BAAAAAAAAAAAAAMwBAABYAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-05T05:31:23.651Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "GeminiService.cs",
-              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Models\\AI_Services\\GeminiService.cs",
-              "RelativeDocumentMoniker": "DoAn_Ver2\\Models\\AI_Services\\GeminiService.cs",
-              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Models\\AI_Services\\GeminiService.cs",
-              "RelativeToolTip": "DoAn_Ver2\\Models\\AI_Services\\GeminiService.cs",
-              "ViewState": "AgIAACkAAAAAAAAAAAAuwIwAAAAJAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-17T12:07:01.943Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "Details.cshtml",
-              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Views\\DonHang\\Details.cshtml",
-              "RelativeDocumentMoniker": "DoAn_Ver2\\Areas\\Admin\\Views\\DonHang\\Details.cshtml",
-              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Views\\DonHang\\Details.cshtml",
-              "RelativeToolTip": "DoAn_Ver2\\Areas\\Admin\\Views\\DonHang\\Details.cshtml",
-              "ViewState": "AgIAAMgAAAAAAAAAAADwv8MAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2026-04-10T08:02:30.501Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "PrintInvoice.cshtml",
-              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Views\\DonHang\\PrintInvoice.cshtml",
-              "RelativeDocumentMoniker": "DoAn_Ver2\\Areas\\Admin\\Views\\DonHang\\PrintInvoice.cshtml",
-              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Views\\DonHang\\PrintInvoice.cshtml",
-              "RelativeToolTip": "DoAn_Ver2\\Areas\\Admin\\Views\\DonHang\\PrintInvoice.cshtml",
-              "ViewState": "AgIAAIEAAAAAAAAAAAAAAI8AAABZAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2026-04-10T08:23:15.059Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "AuthController.cs",
-              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Controllers\\AuthController.cs",
-              "RelativeDocumentMoniker": "DoAn_Ver2\\Areas\\Admin\\Controllers\\AuthController.cs",
-              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Controllers\\AuthController.cs",
-              "RelativeToolTip": "DoAn_Ver2\\Areas\\Admin\\Controllers\\AuthController.cs",
-              "ViewState": "AgIAAI8AAAAAAAAAAAAAwLUAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-10T08:35:54.113Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 15,
-              "Title": "Delete.cshtml",
-              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Views\\SanPham\\Delete.cshtml",
-              "RelativeDocumentMoniker": "DoAn_Ver2\\Areas\\Admin\\Views\\SanPham\\Delete.cshtml",
-              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Views\\SanPham\\Delete.cshtml",
-              "RelativeToolTip": "DoAn_Ver2\\Areas\\Admin\\Views\\SanPham\\Delete.cshtml",
-              "ViewState": "AgIAACoAAAAAAAAAAAAAAEoAAAAwAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2026-04-10T05:04:55.132Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 14,
-              "Title": "Edit.cshtml",
-              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Views\\SanPham\\Edit.cshtml",
-              "RelativeDocumentMoniker": "DoAn_Ver2\\Areas\\Admin\\Views\\SanPham\\Edit.cshtml",
-              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Views\\SanPham\\Edit.cshtml",
-              "RelativeToolTip": "DoAn_Ver2\\Areas\\Admin\\Views\\SanPham\\Edit.cshtml",
-              "ViewState": "AgIAAKEAAAAAAAAAAAAYwMIAAAA0AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2026-04-10T04:44:53.452Z"
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 12,
-              "Title": "SanPhamController.cs",
-              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Controllers\\SanPhamController.cs",
-              "RelativeDocumentMoniker": "DoAn_Ver2\\Areas\\Admin\\Controllers\\SanPhamController.cs",
-              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Controllers\\SanPhamController.cs",
-              "RelativeToolTip": "DoAn_Ver2\\Areas\\Admin\\Controllers\\SanPhamController.cs",
-              "ViewState": "AgIAAE0CAAAAAAAAAAAiwNACAAAJAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-10T04:38:23.582Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 13,
-              "Title": "Create.cshtml",
-              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Views\\SanPham\\Create.cshtml",
-              "RelativeDocumentMoniker": "DoAn_Ver2\\Areas\\Admin\\Views\\SanPham\\Create.cshtml",
-              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Views\\SanPham\\Create.cshtml",
-              "RelativeToolTip": "DoAn_Ver2\\Areas\\Admin\\Views\\SanPham\\Create.cshtml",
-              "ViewState": "AgIAACMBAAAAAAAAAAAYwDgBAAA0AAAAAAAAAA==",
+              "Title": "Contact.cshtml",
+              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Views\\Home\\Contact.cshtml",
+              "RelativeDocumentMoniker": "DoAn_Ver2\\Views\\Home\\Contact.cshtml",
+              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Views\\Home\\Contact.cshtml",
+              "RelativeToolTip": "DoAn_Ver2\\Views\\Home\\Contact.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAG8AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2026-04-10T04:41:23.689Z"
+              "WhenOpened": "2026-04-24T08:51:33.067Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 16,
-              "Title": "Index.cshtml",
-              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Views\\SanPham\\Index.cshtml",
-              "RelativeDocumentMoniker": "DoAn_Ver2\\Areas\\Admin\\Views\\SanPham\\Index.cshtml",
-              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Views\\SanPham\\Index.cshtml",
-              "RelativeToolTip": "DoAn_Ver2\\Areas\\Admin\\Views\\SanPham\\Index.cshtml",
-              "ViewState": "AgIAAMAAAAAAAAAAAAAqwMYAAAAyAAAAAAAAAA==",
+              "Title": "_MenuPartial.cshtml",
+              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Views\\Home\\_MenuPartial.cshtml",
+              "RelativeDocumentMoniker": "DoAn_Ver2\\Views\\Home\\_MenuPartial.cshtml",
+              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Views\\Home\\_MenuPartial.cshtml",
+              "RelativeToolTip": "DoAn_Ver2\\Views\\Home\\_MenuPartial.cshtml",
+              "ViewState": "AgIAAAwAAAAAAAAAAAAAACsAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2026-04-10T04:57:38.909Z"
+              "WhenOpened": "2026-04-24T08:51:10.505Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Views\\Cart\\Index.cshtml",
+              "RelativeDocumentMoniker": "DoAn_Ver2\\Views\\Cart\\Index.cshtml",
+              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Views\\Cart\\Index.cshtml",
+              "RelativeToolTip": "DoAn_Ver2\\Views\\Cart\\Index.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABcBAAAHAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-24T08:50:01.221Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "Checkout.cshtml",
+              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Views\\Cart\\Checkout.cshtml",
+              "RelativeDocumentMoniker": "DoAn_Ver2\\Views\\Cart\\Checkout.cshtml",
+              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Views\\Cart\\Checkout.cshtml",
+              "RelativeToolTip": "DoAn_Ver2\\Views\\Cart\\Checkout.cshtml",
+              "ViewState": "AgIAAJ4BAAAAAAAAAAAAAKYBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-24T08:47:51.944Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 17,
-              "Title": "SanPham.cs",
-              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Models\\SanPham.cs",
-              "RelativeDocumentMoniker": "DoAn_Ver2\\Models\\SanPham.cs",
-              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Models\\SanPham.cs",
-              "RelativeToolTip": "DoAn_Ver2\\Models\\SanPham.cs",
-              "ViewState": "AgIAACgAAAAAAAAAAAAwwDkAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-10T04:37:21.049Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 18,
               "Title": "RecommendationService.cs",
               "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Services\\RecommendationService.cs",
               "RelativeDocumentMoniker": "DoAn_Ver2\\Services\\RecommendationService.cs",
               "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Services\\RecommendationService.cs",
               "RelativeToolTip": "DoAn_Ver2\\Services\\RecommendationService.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAK8AAAANAAAAAAAAAA==",
+              "ViewState": "AgIAAJwAAAAAAAAAAAAYwKIAAAAZAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-05T05:52:18.793Z"
+              "WhenOpened": "2026-04-24T08:47:06.712Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "VnPayLibrary.cs",
+              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Payment\\VnPayLibrary.cs",
+              "RelativeDocumentMoniker": "DoAn_Ver2\\Payment\\VnPayLibrary.cs",
+              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Payment\\VnPayLibrary.cs",
+              "RelativeToolTip": "DoAn_Ver2\\Payment\\VnPayLibrary.cs",
+              "ViewState": "AgIAAHoAAAAAAAAAAAAUwIUAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-24T08:46:52.814Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "HomeController.cs",
+              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Controllers\\HomeController.cs",
+              "RelativeDocumentMoniker": "DoAn_Ver2\\Controllers\\HomeController.cs",
+              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Controllers\\HomeController.cs",
+              "RelativeToolTip": "DoAn_Ver2\\Controllers\\HomeController.cs",
+              "ViewState": "AgIAADcCAAAAAAAAAAAwwEACAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-24T07:48:22.559Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 19,
-              "Title": "DashboardController.cs",
-              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Controllers\\DashboardController.cs",
-              "RelativeDocumentMoniker": "DoAn_Ver2\\Areas\\Admin\\Controllers\\DashboardController.cs",
-              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Controllers\\DashboardController.cs",
-              "RelativeToolTip": "DoAn_Ver2\\Areas\\Admin\\Controllers\\DashboardController.cs",
-              "ViewState": "AgIAAD4AAAAAAAAAAAAQwE0AAAAAAAAAAAAAAA==",
+              "Title": "OrderDetailViewModel.cs",
+              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Models\\ViewModel\\OrderDetailViewModel.cs",
+              "RelativeDocumentMoniker": "DoAn_Ver2\\Models\\ViewModel\\OrderDetailViewModel.cs",
+              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Models\\ViewModel\\OrderDetailViewModel.cs",
+              "RelativeToolTip": "DoAn_Ver2\\Models\\ViewModel\\OrderDetailViewModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAvAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-05T06:13:54.022Z"
+              "WhenOpened": "2026-04-24T08:46:33.347Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 20,
-              "Title": "Index.cshtml",
-              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Views\\Dashboard\\Index.cshtml",
-              "RelativeDocumentMoniker": "DoAn_Ver2\\Areas\\Admin\\Views\\Dashboard\\Index.cshtml",
-              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Views\\Dashboard\\Index.cshtml",
-              "RelativeToolTip": "DoAn_Ver2\\Areas\\Admin\\Views\\Dashboard\\Index.cshtml",
-              "ViewState": "AgIAAKYBAAAAAAAAAAAYwNEBAABLAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2026-03-05T06:14:07.997Z"
+              "Title": "UnitOfWork.cs",
+              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Infrastructure\\UnitOfWork.cs",
+              "RelativeDocumentMoniker": "DoAn_Ver2\\Infrastructure\\UnitOfWork.cs",
+              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Infrastructure\\UnitOfWork.cs",
+              "RelativeToolTip": "DoAn_Ver2\\Infrastructure\\UnitOfWork.cs",
+              "ViewState": "AgIAACgAAAAAAAAAAAAkwA4AAAA3AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-24T08:45:53.051Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 21,
+              "Title": "WishlistController.cs",
+              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Controllers\\WishlistController.cs",
+              "RelativeDocumentMoniker": "DoAn_Ver2\\Controllers\\WishlistController.cs",
+              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Controllers\\WishlistController.cs",
+              "RelativeToolTip": "DoAn_Ver2\\Controllers\\WishlistController.cs",
+              "ViewState": "AgIAAIoAAAAAAAAAAAAYwFgAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-24T08:44:42.893Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 22,
+              "Title": "ProfileController.cs",
+              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Controllers\\ProfileController.cs",
+              "RelativeDocumentMoniker": "DoAn_Ver2\\Controllers\\ProfileController.cs",
+              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Controllers\\ProfileController.cs",
+              "RelativeToolTip": "DoAn_Ver2\\Controllers\\ProfileController.cs",
+              "ViewState": "AgIAAPgAAAAAAAAAAAAUwAwBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-24T08:42:28.766Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 23,
               "Title": "ProductController.cs",
               "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Controllers\\ProductController.cs",
               "RelativeDocumentMoniker": "DoAn_Ver2\\Controllers\\ProductController.cs",
               "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Controllers\\ProductController.cs",
               "RelativeToolTip": "DoAn_Ver2\\Controllers\\ProductController.cs",
-              "ViewState": "AgIAAMoBAAAAAAAAAAAkwNoBAACEAAAAAAAAAA==",
+              "ViewState": "AgIAAOQCAAAAAAAAAAAuwPUCAAA7AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-05T03:48:03.14Z"
+              "WhenOpened": "2026-04-24T08:32:49.234Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 24,
+              "Title": "OrderController.cs",
+              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Controllers\\OrderController.cs",
+              "RelativeDocumentMoniker": "DoAn_Ver2\\Controllers\\OrderController.cs",
+              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Controllers\\OrderController.cs",
+              "RelativeToolTip": "DoAn_Ver2\\Controllers\\OrderController.cs",
+              "ViewState": "AgIAAHsBAAAAAAAAAADwv4wBAAAPAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-24T07:56:02.68Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 25,
+              "Title": "NewsController.cs",
+              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Controllers\\NewsController.cs",
+              "RelativeDocumentMoniker": "DoAn_Ver2\\Controllers\\NewsController.cs",
+              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Controllers\\NewsController.cs",
+              "RelativeToolTip": "DoAn_Ver2\\Controllers\\NewsController.cs",
+              "ViewState": "AgIAACEAAAAAAAAAAAAYwDQAAAAtAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-24T07:55:10.503Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 26,
+              "Title": "CartController.cs",
+              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Controllers\\CartController.cs",
+              "RelativeDocumentMoniker": "DoAn_Ver2\\Controllers\\CartController.cs",
+              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Controllers\\CartController.cs",
+              "RelativeToolTip": "DoAn_Ver2\\Controllers\\CartController.cs",
+              "ViewState": "AgIAAJYDAAAAAAAAAAA+wIoDAAAlAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-24T07:40:44.408Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 27,
+              "Title": "AccountController.cs",
+              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Controllers\\AccountController.cs",
+              "RelativeDocumentMoniker": "DoAn_Ver2\\Controllers\\AccountController.cs",
+              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Controllers\\AccountController.cs",
+              "RelativeToolTip": "DoAn_Ver2\\Controllers\\AccountController.cs",
+              "ViewState": "AgIAACoBAAAAAAAAAAAcwCgBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-24T07:38:28.53Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 28,
+              "Title": "SecurityHelper.cs",
+              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Common\\SecurityHelper.cs",
+              "RelativeDocumentMoniker": "DoAn_Ver2\\Common\\SecurityHelper.cs",
+              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Common\\SecurityHelper.cs",
+              "RelativeToolTip": "DoAn_Ver2\\Common\\SecurityHelper.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-24T07:38:13.156Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 29,
+              "Title": "MailHelper.cs",
+              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Common\\MailHelper.cs",
+              "RelativeDocumentMoniker": "DoAn_Ver2\\Common\\MailHelper.cs",
+              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Common\\MailHelper.cs",
+              "RelativeToolTip": "DoAn_Ver2\\Common\\MailHelper.cs",
+              "ViewState": "AgIAABYAAAAAAAAAAAAQwCsAAAAaAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-24T07:37:45.467Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 30,
+              "Title": "ConfigHelper.cs",
+              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Common\\ConfigHelper.cs",
+              "RelativeDocumentMoniker": "DoAn_Ver2\\Common\\ConfigHelper.cs",
+              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Common\\ConfigHelper.cs",
+              "RelativeToolTip": "DoAn_Ver2\\Common\\ConfigHelper.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAwAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-24T07:37:37.243Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 31,
+              "Title": "_Layout.cshtml",
+              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Views\\Shared\\_Layout.cshtml",
+              "RelativeDocumentMoniker": "DoAn_Ver2\\Areas\\Admin\\Views\\Shared\\_Layout.cshtml",
+              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Views\\Shared\\_Layout.cshtml",
+              "RelativeToolTip": "DoAn_Ver2\\Areas\\Admin\\Views\\Shared\\_Layout.cshtml",
+              "ViewState": "AgIAALYBAAAAAAAAAAAAAM4BAAAHAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-24T07:34:33.723Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 32,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Views\\SanPham\\Index.cshtml",
+              "RelativeDocumentMoniker": "DoAn_Ver2\\Areas\\Admin\\Views\\SanPham\\Index.cshtml",
+              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Views\\SanPham\\Index.cshtml",
+              "RelativeToolTip": "DoAn_Ver2\\Areas\\Admin\\Views\\SanPham\\Index.cshtml",
+              "ViewState": "AgIAAM8AAAAAAAAAAAAAAMwAAAA4AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-24T07:33:52.629Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 33,
+              "Title": "Edit.cshtml",
+              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Views\\SanPham\\Edit.cshtml",
+              "RelativeDocumentMoniker": "DoAn_Ver2\\Areas\\Admin\\Views\\SanPham\\Edit.cshtml",
+              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Views\\SanPham\\Edit.cshtml",
+              "RelativeToolTip": "DoAn_Ver2\\Areas\\Admin\\Views\\SanPham\\Edit.cshtml",
+              "ViewState": "AgIAABoBAAAAAAAAAAAAAIMAAAA9AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-24T07:32:36.394Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 34,
+              "Title": "Details.cshtml",
+              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Views\\SanPham\\Details.cshtml",
+              "RelativeDocumentMoniker": "DoAn_Ver2\\Areas\\Admin\\Views\\SanPham\\Details.cshtml",
+              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Views\\SanPham\\Details.cshtml",
+              "RelativeToolTip": "DoAn_Ver2\\Areas\\Admin\\Views\\SanPham\\Details.cshtml",
+              "ViewState": "AgIAAL0AAAAAAAAAAAAAACEAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-24T07:32:12.917Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 35,
+              "Title": "Create.cshtml",
+              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Views\\SanPham\\Create.cshtml",
+              "RelativeDocumentMoniker": "DoAn_Ver2\\Areas\\Admin\\Views\\SanPham\\Create.cshtml",
+              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Views\\SanPham\\Create.cshtml",
+              "RelativeToolTip": "DoAn_Ver2\\Areas\\Admin\\Views\\SanPham\\Create.cshtml",
+              "ViewState": "AgIAABEBAAAAAAAAAAAAACwBAAA9AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-24T07:30:45.933Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 36,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Views\\Review\\Index.cshtml",
+              "RelativeDocumentMoniker": "DoAn_Ver2\\Areas\\Admin\\Views\\Review\\Index.cshtml",
+              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Views\\Review\\Index.cshtml",
+              "RelativeToolTip": "DoAn_Ver2\\Areas\\Admin\\Views\\Review\\Index.cshtml",
+              "ViewState": "AgIAAKgAAAAAAAAAAAAAALsAAAAcAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-24T07:30:12.653Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 37,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Views\\Report\\Index.cshtml",
+              "RelativeDocumentMoniker": "DoAn_Ver2\\Areas\\Admin\\Views\\Report\\Index.cshtml",
+              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Views\\Report\\Index.cshtml",
+              "RelativeToolTip": "DoAn_Ver2\\Areas\\Admin\\Views\\Report\\Index.cshtml",
+              "ViewState": "AgIAAFkBAAAAAAAAAAAAAGYBAAArAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-24T07:29:03.877Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 38,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Views\\Profile\\Index.cshtml",
+              "RelativeDocumentMoniker": "DoAn_Ver2\\Areas\\Admin\\Views\\Profile\\Index.cshtml",
+              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Views\\Profile\\Index.cshtml",
+              "RelativeToolTip": "DoAn_Ver2\\Areas\\Admin\\Views\\Profile\\Index.cshtml",
+              "ViewState": "AgIAAIQAAAAAAAAAAAAAAI0AAAAMAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-24T07:28:54.449Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 39,
+              "Title": "Edit.cshtml",
+              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Views\\Payment\\Edit.cshtml",
+              "RelativeDocumentMoniker": "DoAn_Ver2\\Areas\\Admin\\Views\\Payment\\Edit.cshtml",
+              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Views\\Payment\\Edit.cshtml",
+              "RelativeToolTip": "DoAn_Ver2\\Areas\\Admin\\Views\\Payment\\Edit.cshtml",
+              "ViewState": "AgIAADMAAAAAAAAAAAAAAEsAAAAqAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-24T07:28:33.486Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 40,
+              "Title": "Create.cshtml",
+              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Views\\Payment\\Create.cshtml",
+              "RelativeDocumentMoniker": "DoAn_Ver2\\Areas\\Admin\\Views\\Payment\\Create.cshtml",
+              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Views\\Payment\\Create.cshtml",
+              "RelativeToolTip": "DoAn_Ver2\\Areas\\Admin\\Views\\Payment\\Create.cshtml",
+              "ViewState": "AgIAAEIAAAAAAAAAAAAAAEwAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-24T07:28:18.871Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 41,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Views\\Kho\\Index.cshtml",
+              "RelativeDocumentMoniker": "DoAn_Ver2\\Areas\\Admin\\Views\\Kho\\Index.cshtml",
+              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Views\\Kho\\Index.cshtml",
+              "RelativeToolTip": "DoAn_Ver2\\Areas\\Admin\\Views\\Kho\\Index.cshtml",
+              "ViewState": "AgIAAL0AAAAAAAAAAAAAAMcAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-24T07:26:40.129Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 42,
+              "Title": "PrintInvoice.cshtml",
+              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Views\\DonHang\\PrintInvoice.cshtml",
+              "RelativeDocumentMoniker": "DoAn_Ver2\\Areas\\Admin\\Views\\DonHang\\PrintInvoice.cshtml",
+              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Views\\DonHang\\PrintInvoice.cshtml",
+              "RelativeToolTip": "DoAn_Ver2\\Areas\\Admin\\Views\\DonHang\\PrintInvoice.cshtml",
+              "ViewState": "AgIAAOYAAAAAAAAAAAAAAAMAAAATAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-24T07:26:27.617Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 43,
+              "Title": "Details.cshtml",
+              "DocumentMoniker": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Views\\DonHang\\Details.cshtml",
+              "RelativeDocumentMoniker": "DoAn_Ver2\\Areas\\Admin\\Views\\DonHang\\Details.cshtml",
+              "ToolTip": "D:\\DoAnTotNghiep\\HeThongBanHangOnlineThongMinh_DATN\\DoAn_Ver2\\DoAn_Ver2\\Areas\\Admin\\Views\\DonHang\\Details.cshtml",
+              "RelativeToolTip": "DoAn_Ver2\\Areas\\Admin\\Views\\DonHang\\Details.cshtml",
+              "ViewState": "AgIAAPAAAAAAAAAAAAAAAFcAAAAhAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-24T07:26:11.531Z"
             }
           ]
         },

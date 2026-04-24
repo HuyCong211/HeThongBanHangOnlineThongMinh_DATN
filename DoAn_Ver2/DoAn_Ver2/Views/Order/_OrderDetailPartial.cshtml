@@ -1,7 +1,7 @@
 ﻿@model DoAn_Ver2.Models.DonHang
 @{
-    // Ép kiểu về ViewModel mới
     var details = ViewBag.OrderDetails as List<DoAn_Ver2.Models.ViewModel.OrderDetailDisplayVM>;
+    var exhaustedIds = ViewBag.ExhaustedReviewProductIds as List<int> ?? new List<int>();
 }
 
 <div class="table-responsive">
@@ -37,12 +37,21 @@
                         <td class="text-center" style="vertical-align: middle;">
                             @if (d.CanReview)
                             {
-                                // [NÚT ĐÁNH GIÁ]
-                                // Link sang trang chi tiết, tự động cuộn xuống phần #review
-                                <a href="@Url.Action("Detail", "Product", new { id = d.SanPhamID })#review"
-                                   class="btn btn-sm btn-warning font-weight-bold text-white shadow-sm">
-                                    <i class="fas fa-star mr-1"></i> Đánh giá
-                                </a>
+                                if (exhaustedIds.Contains(d.SanPhamID))
+                                {
+                                    <a href="@Url.Action("Detail", "Product", new { id = d.SanPhamID })#review"
+                                       class="btn btn-sm btn-outline-info font-weight-bold text-nowrap"
+                                       title="Bạn đã dùng hết lượt đánh giá cho sản phẩm này">
+                                        <i class="fas fa-eye mr-1"></i> Xem đánh giá
+                                    </a>
+                                }
+                                else
+                                {
+                                    <a href="@Url.Action("Detail", "Product", new { id = d.SanPhamID })#review"
+                                       class="btn btn-sm btn-warning font-weight-bold text-white shadow-sm text-nowrap">
+                                        <i class="fas fa-star mr-1"></i> Đánh giá
+                                    </a>
+                                }
                             }
                             else
                             {

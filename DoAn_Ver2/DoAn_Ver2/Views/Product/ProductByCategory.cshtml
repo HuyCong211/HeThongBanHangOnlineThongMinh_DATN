@@ -2,7 +2,6 @@
 @model DoAn_Ver2.Models.ViewModel.ProductListViewModel
 
 @{
-    // Sửa lỗi ở đây: Dùng tên đầy đủ DoAn_Ver2.Models.DanhMuc để tránh lỗi CS0246
     var currentCat = ViewBag.CurrentCategory as DoAn_Ver2.Models.DanhMuc;
 
     string pageTitle = currentCat != null ? currentCat.TenDanhMuc : "Sản phẩm";
@@ -67,7 +66,6 @@
                             {
                                 foreach (var c in Model.Colors)
                                 {
-                                    // Kiểm tra xem màu này có đang được chọn không
                                     bool isActive = Model.SelectedColors != null && Model.SelectedColors.Contains(c.ID);
 
                                     <label class="color-filter-item @(isActive ? "active" : "")" style="background-color: @c.MaHex" title="@c.TenMau">
@@ -107,7 +105,6 @@
             </div>
 
             <div class="col-lg-9">
-                @* --- BẮT ĐẦU ĐOẠN CODE HIỂN THỊ ẢNH TÌM KIẾM --- *@
                 @if (ViewBag.SearchImage != null)
                 {
                     <div class="card mb-4 shadow-sm border-0">
@@ -128,7 +125,6 @@
                         <i class="fas fa-info-circle mr-2"></i> @Html.Raw(ViewBag.Keyword)
                     </div>
                 }
-                @* --- KẾT THÚC ĐOẠN CODE --- *@
                 <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom bg-white p-2 rounded shadow-sm">
                     <div class="text-muted small">
                         Tìm thấy <strong>@Model.Products.Count()</strong> sản phẩm

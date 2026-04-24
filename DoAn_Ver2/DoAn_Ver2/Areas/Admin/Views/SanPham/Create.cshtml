@@ -2,8 +2,6 @@
 @{
     ViewBag.Title = "Thêm mới Sản phẩm";
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
-
-    // Lấy lại danh sách biến thể nếu submit lỗi
     var oldBienThes = ViewBag.OldBienThes as List<DoAn_Ver2.Models.BienTheSanPham>;
     var oldImageIndexes = ViewBag.OldImageIndexes as List<int?>;
     var oldKichThuocIDs = ViewBag.OldKichThuocIDs as List<string>;
@@ -11,7 +9,6 @@
 
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <style>
-    /* CSS cũ giữ nguyên */
     .img-box {
         position: relative;
         display: inline-block;
@@ -72,8 +69,6 @@
     .select2-container--default .select2-selection--single .select2-selection__arrow {
         height: 36px !important;
     }
-
-    /* Style cho dòng bị trùng */
     .tr-duplicate {
         background-color: #ffe6e6;
     }
@@ -293,7 +288,7 @@
                     <div class="card border-left-warning shadow">
                         <div class="card-body py-3">
                             <h6 class="m-0 font-weight-bold text-warning text-uppercase mb-2">
-                                <i class="fas fa-tags"></i> Tag dịp sử dụng (Hỗ trợ AI tư vấn)
+                                <i class="fas fa-tags"></i> Tag dịp sử dụng
                             </h6>
                             <select id="ddlTags" class="form-control" multiple="multiple">
                                 @foreach (var tag in ViewBag.AllTags as List<string>)
@@ -303,7 +298,7 @@
                             </select>
                             <input type="hidden" name="Tags" id="hdnTags" />
                             <small class="text-muted mt-1 d-block">
-                                Chọn 1 hoặc nhiều tag — AI dùng để tư vấn đúng dịp hơn.
+                                Chọn 1 hoặc nhiều tag sử dụng.
                             </small>
                         </div>
                     </div>
@@ -382,17 +377,6 @@
                 placeholder: "Chọn size...",
                 allowClear: true
             });
-            //// ===== TAG =====
-            //$('#ddlTags').select2({
-            //    placeholder: "Chọn tag dịp sử dụng...",
-            //    allowClear: true,
-            //    width: '100%'
-            //});
-
-            //$('form').on('submit', function () {
-            //    var vals = $('#ddlTags').val();
-            //    $('#hdnTags').val(vals ? vals.join(',') : '');
-            //});
         }
 
         function UpdateKichThuocIDs(selectElement) {
@@ -504,8 +488,6 @@
         });
 
         CKEDITOR.replace('MoTa');
-
-        // BIẾN LƯU VỊ TRÍ DÒNG ĐANG THAO TÁC ĐỂ AUTO SELECT
         var currentRowBtn = null;
 
         // --- XỬ LÝ MODAL MÀU ---

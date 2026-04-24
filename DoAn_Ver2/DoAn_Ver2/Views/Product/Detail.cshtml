@@ -17,15 +17,23 @@
 
     var reviews = ViewBag.Reviews as List<DanhGia>;
 
-    // Xử lý null an toàn
     double avgStar = ViewBag.AvgStar ?? 0;
     int reviewCount = ViewBag.ReviewCount ?? 0;
-    bool canReview = ViewBag.CanReview ?? false; // Biến kiểm tra quyền đánh giá
+    bool canReview = ViewBag.CanReview ?? false; 
+    int remainingReviews = ViewBag.RemainingReviews ?? 0;
 
-    var jsonSKU = JsonConvert.SerializeObject(listSKU.Select(x => new { x.ID, x.MauSacID, x.KichThuocID, x.SoLuong, x.SKU }));
+    var cartQtyDict = ViewBag.CartQtyDict as Dictionary<int, int> ?? new Dictionary<int, int>();
+
+    var jsonSKU = JsonConvert.SerializeObject(listSKU.Select(x => new
+    {
+        x.ID,
+        x.MauSacID,
+        x.KichThuocID,
+        SoLuong = (x.SoLuong ?? 0) - (cartQtyDict.ContainsKey(x.ID) ? cartQtyDict[x.ID] : 0),
+        x.SKU
+    }));
     var jsonAnh = JsonConvert.SerializeObject(listAnh.Select(x => new { x.URL, x.MauSacID, x.MacDinh }));
 
-    // Lấy tên danh mục để hiện Breadcrumb (nếu chưa có trong ViewBag)
     string cateName = "Sản phẩm";
     int cateId = 0;
     if (Model.DanhMucID.HasValue)
@@ -189,18 +197,32 @@
                                     }
                                 </div>
                                 <p class="text-muted">(@reviewCount đánh giá)</p>
-
+                                
                                 @if (canReview)
                                 {
                                     <button class="btn btn-primary mt-3" onclick="$('#writeReviewForm').slideToggle()">
                                         <i class="fas fa-pen"></i> Viết đánh giá
                                     </button>
+                                    <p class="text-muted small mt-2">
+                                        <i class="fas fa-info-circle"></i> Bạn còn <strong class="text-danger">@remainingReviews</strong> lượt đánh giá cho sản phẩm này.
+                                    </p>
                                 }
                                 else
                                 {
-                                    <div class="alert alert-secondary mt-3 small">
-                                        <i class="fas fa-info-circle"></i> Bạn cần mua sản phẩm này để viết đánh giá.
-                                    </div>
+                                    bool userHasReview = reviews != null && Session["KhachHang"] != null && reviews.Any(x => x.NguoiDungID == ((NguoiDung)Session["KhachHang"]).ID);
+
+                                    if (userHasReview)
+                                    {
+                                        <div class="alert alert-success mt-3 small">
+                                            <i class="fas fa-check-circle"></i> Bạn đã đánh giá. Hãy mua thêm để có lượt mới nhé!
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="alert alert-secondary mt-3 small">
+                                            <i class="fas fa-info-circle"></i> Bạn cần mua và hoàn thành đơn hàng để có quyền viết đánh giá.
+                                        </div>
+                                    }
                                 }
                             </div>
 

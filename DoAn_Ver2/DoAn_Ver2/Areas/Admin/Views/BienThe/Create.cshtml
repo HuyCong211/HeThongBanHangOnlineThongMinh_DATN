@@ -15,7 +15,7 @@
     }
 
         .photo-select-item.selected {
-            border-color: #007bff; /* Màu xanh khi được chọn */
+            border-color: #007bff; 
             background-color: #e9f7fe;
         }
 
@@ -43,7 +43,6 @@
             display: block;
         }
 
-    /* CSS Tùy chỉnh để Select2 khớp với giao diện Bootstrap */
     .select2-container .select2-selection--single {
         height: 38px !important;
         border: 1px solid #ced4da;
@@ -147,13 +146,6 @@
                                 @Html.EditorFor(model => model.SoLuong, new { htmlAttributes = new { @class = "form-control", type = "number", min = "0", Value = "0" } })
                             </div>
                         </div>
-                        @*<div class="col-md-4">
-                                <div class="form-group">
-                                    <label>Mã SKU (Tự sinh nếu trống)</label>
-                                    @Html.EditorFor(model => model.SKU, new { htmlAttributes = new { @class = "form-control", placeholder = "VD: SP-DO-XL" } })
-                                    @Html.ValidationMessageFor(model => model.SKU, "", new { @class = "text-danger" })
-                                </div>
-                            </div>*@
                     </div>
                 </div>
             </div>
@@ -179,7 +171,7 @@
             $('.select2-search').select2({
                 placeholder: "Chọn danh mục...",
                 allowClear: true,
-                width: '100%' // Đảm bảo rộng full ô
+                width: '100%' 
             });
         });
 

@@ -13,8 +13,6 @@ namespace DoAn_Ver2.Common
         public static void SendMail(string toEmail, string subject, string content)
         {
             var fromEmailAddress = ConfigurationManager.AppSettings["FromEmailAddress"];
-            // Hoặc lấy trực tiếp từ section mailSettings nếu cấu hình chuẩn
-            // Ở đây tôi viết code lấy từ mailSettings cho tiện:
 
             var smtpSection = (System.Net.Configuration.SmtpSection)ConfigurationManager.GetSection("system.net/mailSettings/smtp");
             string fromEmail = smtpSection.From;
@@ -43,7 +41,7 @@ namespace DoAn_Ver2.Common
             }
             catch (Exception ex)
             {
-                throw ex; // Xử lý lỗi hoặc log lại
+                throw ex; 
             }
         }
     }

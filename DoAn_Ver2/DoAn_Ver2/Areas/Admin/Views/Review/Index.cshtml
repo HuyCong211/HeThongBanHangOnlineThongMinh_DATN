@@ -64,7 +64,7 @@
                                 </td>
                                 <td class="text-center align-middle">
                                     @{
-                                        bool isShow = item.TrangThai ?? true; // Mặc định là hiện
+                                        bool isShow = item.TrangThai ?? true; 
                                     }
                                     @if (isShow)
                                     {
@@ -186,7 +186,6 @@
                         replyBox.removeClass('d-none');
                         replyText.text(content);
                     } else {
-                        // Trường hợp box đã hiện (update lại reply cũ) -> reload cho chắc hoặc update DOM phức tạp hơn
                         location.reload();
                     }
                 } else {

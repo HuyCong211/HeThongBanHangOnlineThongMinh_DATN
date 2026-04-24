@@ -39,15 +39,14 @@
                                 var mau = sku != null ? listMau.FirstOrDefault(x => x.ID == sku.MauSacID) : null;
                                 var size = sku != null ? listSize.FirstOrDefault(x => x.ID == sku.KichThuocID) : null;
 
-                                // --- [LOGIC MỚI: TÌM ẢNH THEO MÀU] ---
+                                
                                 AnhSanPham anh = null;
                                 if (sku != null)
                                 {
-                                    // 1. Cố gắng tìm ảnh trùng với Mã màu của SKU này
-                                    // (Lưu ý: Bảng AnhSanPham cần có cột MauSacID)
+                                    
                                     anh = listAnh.FirstOrDefault(a => a.SanPhamID == sku.SanPhamID && a.MauSacID == sku.MauSacID);
 
-                                    // 2. Nếu không tìm thấy ảnh màu riêng, thì mới lấy ảnh đại diện (MacDinh)
+                                    
                                     if (anh == null)
                                     {
                                         anh = listAnh.FirstOrDefault(a => a.SanPhamID == sku.SanPhamID && a.MacDinh == true);
@@ -55,7 +54,7 @@
                                 }
 
                                 string imgUrl = anh != null ? anh.URL : "https://via.placeholder.com/60";
-                                // -------------------------------------
+                            
 
                                 <tr>
                                     <td>
@@ -87,7 +86,6 @@
                                 <td colspan="3" class="text-right font-weight-bold">Phí vận chuyển:</td>
                                 <td class="text-right">@(Model.PhiVanChuyen.HasValue ? Model.PhiVanChuyen.Value.ToString("N0") : "0")</td>
                             </tr>
-                            @* --- [MỚI] HIỂN THỊ VOUCHER GIẢM GIÁ --- *@
                             @if (Model.GiamGia.HasValue && Model.GiamGia.Value > 0)
                             {
                                 <tr class="text-success">
@@ -97,7 +95,7 @@
                                     <td class="text-right font-weight-bold">-@(Model.GiamGia.Value.ToString("N0"))</td>
                                 </tr>
                             }
-                            @* ---------------------------------------- *@
+                           
                             <tr class="text-danger" style="font-size: 1.1em;">
                                 <td colspan="3" class="text-right font-weight-bold">TỔNG THANH TOÁN:</td>
                                 <td class="text-right font-weight-bold">@(Model.TongThanhToan.HasValue ? Model.TongThanhToan.Value.ToString("N0") : "0")</td>
@@ -202,12 +200,12 @@
             var statusText = $("#ddlTrangThai option:selected").text();
             var reason = "";
 
-            // Nếu chọn HỦY ĐƠN (Giả sử value = 4 là Hủy)
+            
             if (status == 4) {
                 reason = prompt("Vui lòng nhập lý do hủy đơn hàng (Bắt buộc):");
 
-                // Nếu bấm Cancel hoặc để trống
-                if (reason === null) return; // Thoát nếu bấm Cancel
+                
+                if (reason === null) return; 
                 if (reason.trim() === "") {
                     alert("Bạn phải nhập lý do hủy đơn để gửi email cho khách hàng!");
                     return;
@@ -215,13 +213,13 @@
             }
 
             if (confirm('Bạn có chắc chắn muốn chuyển trạng thái đơn hàng sang: "' + statusText + '"?')) {
-                // Hiển thị loading (Optional)
+                
                 $('button').prop('disabled', true).text('Đang xử lý...');
 
                 $.ajax({
                     url: '/Admin/DonHang/UpdateStatus',
                     type: 'POST',
-                    // Truyền thêm lyDo vào data
+                    
                     data: { id: id, trangThai: status, lyDo: reason },
                     success: function (res) {
                         if (res.success) {

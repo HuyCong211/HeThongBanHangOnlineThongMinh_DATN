@@ -163,7 +163,7 @@
 @section scripts {
     <script>
         $(document).ready(function () {
-            calculateTotal(); // Chạy ngay khi load trang
+            calculateTotal(); 
 
             $('#checkAll').change(function () {
                 var isChecked = $(this).is(':checked');
@@ -184,7 +184,6 @@
             var htmlList = '';
 
             $('.check-item:checked').each(function () {
-                // Lấy giá trị từ attribute data mới nhất
                 var price = parseFloat($(this).attr('data-price')) || 0;
                 var name = $(this).attr('data-name');
                 var qty = $(this).attr('data-qty');
@@ -192,17 +191,13 @@
                 total += price;
                 count++;
 
-                // Render danh sách tên sản phẩm bên cột phải
                 htmlList += `<li class="mb-1 d-flex justify-content-between">
                         <span class="text-truncate" style="max-width: 180px;" title="${name}">${name}</span>
                         <span class="font-weight-bold">x${qty}</span>
                      </li>`;
             });
-
-            // Format tiền tệ VNĐ
             var formatted = total.toLocaleString('vi-VN') + 'đ';
 
-            // Hiển thị ra giao diện
             $('#subTotal').text(formatted);
             $('#finalTotal').text(formatted);
             $('#countSelected').text(count);
@@ -214,10 +209,8 @@
             var currentQty = parseInt(input.val());
             var newQty = currentQty + change;
 
-            // Validate số lượng tối thiểu
             if (newQty < 1) return;
 
-            // Khóa input để tránh click liên tục
             input.prop('disabled', true);
 
             $.ajax({
@@ -228,26 +221,18 @@
                     input.prop('disabled', false);
 
                     if (res.success) {
-                        // 1. Cập nhật số lượng trong ô input
                         input.val(newQty);
 
-                        // 2. Cập nhật thành tiền hiển thị ở cột bên phải
                         $('#total-' + skuId).text(res.itemTotal);
-
-                        // 3. [QUAN TRỌNG] Cập nhật lại data attribute cho checkbox để tính toán đúng
-                        // Parse giá tiền từ chuỗi "500.000đ" -> 500000
-                        // Logic: Xóa hết dấu chấm và chữ 'đ', sau đó parse float
                         var rawPrice = parseFloat(res.itemTotal.replace(/\./g, '').replace(/[^\d]/g, ''));
 
                         var checkbox = $('#chk-' + skuId);
-                        checkbox.attr('data-price', rawPrice); // Cập nhật giá mới (tổng tiền của dòng đó)
-                        checkbox.attr('data-qty', newQty);     // Cập nhật số lượng mới
+                        checkbox.attr('data-price', rawPrice); 
+                        checkbox.attr('data-qty', newQty);     
 
-                        // 4. Gọi hàm tính tổng lại ngay lập tức
                         calculateTotal();
                     } else {
                         alert(res.msg || 'Có lỗi xảy ra!');
-                        // Reset lại số lượng cũ nếu lỗi
                         input.val(currentQty);
                     }
                 },
@@ -257,8 +242,6 @@
                 }
             });
         }
-
-        // ... (Các hàm khác giữ nguyên) ...
         function removeItem(skuId) {
             if (!confirm('Bạn có chắc muốn xóa sản phẩm này khỏi giỏ hàng?')) return;
             $.ajax({
@@ -295,7 +278,6 @@
 }
 
 <style>
-    /* ... (CSS cũ giữ nguyên) ... */
     .selected-products::-webkit-scrollbar {
         width: 4px;
     }

@@ -1,8 +1,7 @@
 ﻿@model DoAn_Ver2.Models.ViewModel.LienHeViewModel
-
 @{
-    ViewBag.Title = "Liên hệ";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+        ViewBag.Title = "Liên hệ";
+        Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <div class="bg-light py-4 border-bottom mb-5">
@@ -111,11 +110,9 @@
                 var btn = $('#btnSubmit');
                 var originalText = btn.html();
 
-                // Hiệu ứng loading
                 btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-2"></i> Đang gửi...');
 
                 $.ajax({
-                    // [QUAN TRỌNG] Sửa "Contact" thành "Home" vì Action nằm trong HomeController
                     url: '@Url.Action("SubmitContact", "Home")',
                     type: 'POST',
                     data: $(this).serialize(),
@@ -128,7 +125,6 @@
                         }
                     },
                     error: function(xhr, status, error) {
-                        // In lỗi chi tiết ra console để debug nếu cần
                         console.error(xhr.responseText);
                         alert('Đã có lỗi xảy ra khi kết nối server.');
                     },

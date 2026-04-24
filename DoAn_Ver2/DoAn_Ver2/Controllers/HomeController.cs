@@ -20,12 +20,10 @@ namespace DoAn_Ver2.Controllers
 {
     public class HomeController : Controller
     {
-        // Khởi tạo UnitOfWork (Copy logic từ Admin sang dùng chung)
         private UnitOfWork _unitOfWork = new UnitOfWork();
         public ActionResult Index()
         {
             // 1. CHỈ LẤY DANH MỤC GỐC (DanhMucChaID == null)
-            // Take(3) hoặc Take(6) tùy bạn muốn hiện bao nhiêu ô
             ViewBag.Categories = _unitOfWork.Repository<DanhMuc>()
                                     .GetMany(x => x.DanhMucChaID == null)
                                     .OrderBy(x => x.ID)
@@ -38,20 +36,9 @@ namespace DoAn_Ver2.Controllers
                             .Take(8)
                             .ToList();
 
-            // 3. Lấy sản phẩm BÁN CHẠY
-            // 3. SẢN PHẨM BÁN CHẠY (CODE TỐI ƯU & FIX LỖI)
+            // 3. SẢN PHẨM BÁN CHẠY 
             try
             {
-                // [TỐI ƯU HÓA] Thực hiện Group By và Sum ngay dưới Database
-                // Không dùng .ToList() sớm để tránh tải dư thừa dữ liệu về RAM
-
-                // Bước 1: Truy vấn vào bảng ChiTietDonHang
-                // Lưu ý: Cần đảm bảo Repository trả về IQueryable để EF dịch sang SQL
-                // Nếu UnitOfWork của bạn .GetAll() trả về IEnumerable thì buộc phải sửa Repository hoặc dùng DbContext trực tiếp.
-                // Ở đây tôi giả định bạn có thể truy cập DbSet hoặc Repository hỗ trợ IQueryable.
-
-                // Cách an toàn nhất với mô hình Repository hiện tại của bạn (chấp nhận query in-memory nhưng lọc kỹ):
-                // Hoặc nếu Repository của bạn trả về IQueryable, bỏ .ToList() ở dòng dưới đi.
 
                 var bestSellerStats = _unitOfWork.Repository<ChiTietDonHang>().GetAll()
                     // Chỉ lấy đơn thành công
@@ -62,10 +49,10 @@ namespace DoAn_Ver2.Controllers
                     {
                         SanPhamID = group.Key,
                         TotalSold = group.Sum(ct => ct.SoLuong),
-                        // [THÊM MỚI] Lấy ngày đặt hàng gần nhất của sản phẩm này
+                        //Lấy ngày đặt hàng gần nhất của sản phẩm này
                         LastOrderDate = group.Max(ct => ct.DonHang.NgayDat)
                     })
-                    // [THAY ĐỔI] Sắp xếp ưu tiên SL bán -> Sau đó đến Ngày bán gần nhất
+                    // ắp xếp ưu tiên SL bán -> Sau đó đến Ngày bán gần nhất
                     .OrderByDescending(x => x.TotalSold)
                     .ThenByDescending(x => x.LastOrderDate)
                     .Take(15)
@@ -80,8 +67,7 @@ namespace DoAn_Ver2.Controllers
                                                 .GetMany(p => productIds.Contains(p.ID) && p.TrangThai == 1)
                                                 .ToList();
 
-                    // Bước 3: Join lại để giữ đúng thứ tự (Quan trọng)
-                    // Join giữa danh sách thống kê (đã sort chuẩn) và danh sách sản phẩm
+                    // Bước 3: Join lại để giữ đúng thứ tự
                     ViewBag.BestSellers = bestSellerStats
                         .Join(products,
                               stat => stat.SanPhamID,
@@ -100,7 +86,6 @@ namespace DoAn_Ver2.Controllers
             }
             catch (Exception ex)
             {
-                // Fallback an toàn
                 ViewBag.BestSellers = new List<SanPham>();
             }
 
@@ -117,8 +102,6 @@ namespace DoAn_Ver2.Controllers
 
             var aiService = new DoAn_Ver2.Services.RecommendationService();
             var repoGoiY = _unitOfWork.Repository<GoiYSanPham>();
-
-            // Lấy danh sách ID đã tính toán từ DB
             var recommendIds = repoGoiY.GetMany(x =>
                     (userId.HasValue ? x.NguoiDungID == userId.Value : x.SessionID == sessionId)
                     && x.LoaiGoiY == "ForYou"
@@ -166,11 +149,9 @@ namespace DoAn_Ver2.Controllers
 
         public ActionResult About()
         {
-            // Lấy thông tin cấu hình để hiển thị dynamic
             string hotline = "1900 xxxx";
             string email = "contact@menstore.com";
             string address = "Hà Nội";
-            // Giá trị mặc định
             string banner = "https://theme.hstatic.net/200000690725/1001078549/14/slide_2_img.jpg?v=235";
             string image = "https://images.unsplash.com/photo-1490578474895-699cd4e2cf59";
 
@@ -181,8 +162,6 @@ namespace DoAn_Ver2.Controllers
                 var confHotline = repo.GetById("Hotline");
                 var confEmail = repo.GetById("Email");
                 var confAddress = repo.GetById("FooterInfo");
-
-                // [MỚI] Lấy Banner và Ảnh
                 var confBanner = repo.GetById("BannerAbout");
                 var confImage = repo.GetById("ImageAbout");
 
@@ -198,8 +177,6 @@ namespace DoAn_Ver2.Controllers
             ViewBag.Hotline = hotline;
             ViewBag.Email = email;
             ViewBag.Address = address;
-
-            // Truyền sang View
             ViewBag.BannerAbout = banner;
             ViewBag.ImageAbout = image;
 
@@ -208,7 +185,6 @@ namespace DoAn_Ver2.Controllers
 
         public ActionResult Contact()
         {
-            // Lấy thông tin từ cấu hình chung để hiển thị
             string address = "Hà Nội";
             string hotline = "1900 xxxx";
             string email = "contact@menstore.com";
@@ -232,8 +208,7 @@ namespace DoAn_Ver2.Controllers
             return View();
         }
 
-        // 2. XỬ LÝ GỬI LIÊN HỆ (POST AJAX) - ĐÃ SỬA LỖI MAIL
-        // 2. XỬ LÝ GỬI LIÊN HỆ (POST AJAX) - DÙNG MAILSETTINGS TRONG WEBCONFIG
+        // 2. XỬ LÝ GỬI LIÊN HỆ 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult SubmitContact(LienHeViewModel model)
@@ -242,13 +217,8 @@ namespace DoAn_Ver2.Controllers
             {
                 try
                 {
-                    // Lấy email người nhận từ Web.config (AppSettings) hoặc fix cứng
                     string toEmail = ConfigurationManager.AppSettings["EmailUserName"];
-                    // Hoặc string toEmail = "hoconline2k4@gmail.com";
-
                     var message = new MailMessage();
-                    // Không cần set From thủ công nếu Web.config đã có attribute 'from'
-                    // Nhưng để chắc chắn, ta vẫn set From = toEmail (vì toEmail là mail server gửi đi)
                     message.From = new MailAddress(toEmail, "MEN STORE");
                     message.To.Add(new MailAddress(toEmail));
 
@@ -269,10 +239,10 @@ namespace DoAn_Ver2.Controllers
                         </div>
                     </div>";
 
-                    // [QUAN TRỌNG] Khởi tạo SmtpClient không tham số -> Nó sẽ tự đọc <mailSettings>
+                    //  Khởi tạo SmtpClient không tham số -> Nó sẽ tự đọc <mailSettings>
                     using (var client = new SmtpClient())
                     {
-                        // [LƯU Ý]: Mặc dù đọc từ config, nhưng Gmail đôi khi vẫn cần set lại Credentials bằng code để chắc chắn
+                        // Mặc dù đọc từ config, nhưng Gmail đôi khi vẫn cần set lại Credentials bằng code để chắc chắn
                         // Nếu chỉ new SmtpClient() mà vẫn lỗi, hãy bỏ comment dòng dưới để override
                         /*
                         client.Host = "smtp.gmail.com";
@@ -297,7 +267,7 @@ namespace DoAn_Ver2.Controllers
             return Json(new { success = false, msg = "Vui lòng kiểm tra lại thông tin!" });
         }
 
-        // Action PartialView để render Menu Danh mục động trên Layout
+
         [ChildActionOnly]
         public ActionResult _MenuPartial()
         {
@@ -305,7 +275,6 @@ namespace DoAn_Ver2.Controllers
             return PartialView(danhMucs);
         }
 
-        // Action render Header User Info (để Layout gọn hơn)
         [ChildActionOnly]
         public ActionResult _HeaderUserPartial()
         {
@@ -355,11 +324,7 @@ namespace DoAn_Ver2.Controllers
         public ActionResult TestTrangThaiDuLieuAI()
         {
             AIDataService aiService = new AIDataService();
-
-            // Gọi hàm lấy dữ liệu text
             var lstData = aiService.ExtractDataForAI();
-
-            // In thẳng ra màn hình trình duyệt dưới dạng JSON để kiểm tra kết quả
             return Json(lstData, JsonRequestBehavior.AllowGet);
         }
 
@@ -371,8 +336,6 @@ namespace DoAn_Ver2.Controllers
 
             if (lstData.Count == 0) return Content("Không có sản phẩm nào!");
             string textSanPhamDauTien = lstData[0];
-
-            // GỌI COHERE SERVICE CHUYÊN NGHIỆP
             CohereService cohere = new CohereService();
 
             try
@@ -456,9 +419,6 @@ namespace DoAn_Ver2.Controllers
                 List<string> top3ProductIds = await pinecone.SearchVectorAsync(questionVector, 3);
 
                 if (top3ProductIds.Count == 0) return Content("Không tìm thấy sản phẩm nào trong Pinecone.");
-
-                // 3. Lấy thông tin chi tiết của 3 sản phẩm đó (Giả lập việc lấy từ list hoặc query DB)
-                // Ở đây để nhanh, ta lấy từ hàm ExtractDataForAI (thực tế em có thể query Entity Framework)
                 var allProductsText = aiDataService.ExtractDataForAI();
                 string contextForAI = "";
 
@@ -471,7 +431,7 @@ namespace DoAn_Ver2.Controllers
                     }
                 }
 
-                // 4. GỌI GEMINI ĐỂ CHAT (THAY VÌ COHERE)
+                // 4. GỌI GEMINI ĐỂ CHAT
                 GeminiService gemini = new GeminiService();
                 string botReply = await gemini.ChatAsync(cauHoi, contextForAI, null);
 
@@ -502,8 +462,6 @@ namespace DoAn_Ver2.Controllers
                 PineconeService pinecone = new PineconeService();
                 AIDataService aiDataService = new AIDataService();
                 GeminiService gemini = new GeminiService();
-
-                // 1. Giải mã lịch sử chat
                 List<dynamic> chatHistory = new List<dynamic>();
                 if (!string.IsNullOrEmpty(historyJson))
                 {
@@ -560,7 +518,7 @@ namespace DoAn_Ver2.Controllers
                         // Lọc theo Tên Sản Phẩm (Vì tên thường chứa từ khóa như 'Áo Sơ Mi...')
                         query = query.Where(ct => ct.BienTheSanPham.SanPham.TenSanPham.ToLower().Contains(tuKhoa));
 
-                        // Ghi chú: Nếu bảng SanPham của em có khóa ngoại đến DanhMuc, em có thể làm xịn hơn bằng cách dùng:
+                        // Ghi chú: bảng SanPham  có khóa ngoại đến DanhMuc, có thể làm xịn hơn bằng cách dùng:
                         // query = query.Where(ct => ct.BienTheSanPham.SanPham.TenSanPham.ToLower().Contains(tuKhoa) || ct.BienTheSanPham.SanPham.DanhMuc.TenDanhMuc.ToLower().Contains(tuKhoa));
                     }
 

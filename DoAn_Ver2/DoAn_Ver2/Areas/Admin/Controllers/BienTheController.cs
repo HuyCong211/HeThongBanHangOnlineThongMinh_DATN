@@ -46,12 +46,10 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
             ViewBag.MauSacID = new SelectList(_unitOfWork.Repository<MauSac>().GetAll(), "ID", "TenMau");
             ViewBag.KichThuocID = new SelectList(_unitOfWork.Repository<KichThuoc>().GetAll(), "ID", "TenSize");
 
-            // --- MỚI: Lấy danh sách ảnh của sản phẩm để chọn ---
+            //  Lấy danh sách ảnh của sản phẩm để chọn ---
             ViewBag.ListAnhSanPham = _unitOfWork.Repository<AnhSanPham>()
                                                 .GetMany(x => x.SanPhamID == sanPhamId)
                                                 .ToList();
-            // ---------------------------------------------------
-
             return View();
         }
 
@@ -98,7 +96,7 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
                         model.SoLuongTamGiu = 0;
                         _unitOfWork.Repository<BienTheSanPham>().Add(model);
 
-                        // 4. XỬ LÝ ẢNH ĐẠI DIỆN CHO MÀU (Nếu có upload)
+                        // 4. XỬ LÝ ẢNH ĐẠI DIỆN CHO MÀU 
                         if (ImageFile != null && ImageFile.ContentLength > 0)
                         {
                             string fileName = Path.GetFileName(ImageFile.FileName);
@@ -122,7 +120,7 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
                                 var anhMau = new AnhSanPham()
                                 {
                                     SanPhamID = model.SanPhamID,
-                                    MauSacID = model.MauSacID, // Gán ảnh này cho Màu
+                                    MauSacID = model.MauSacID, 
                                     URL = "/Content/images/sanpham/" + newFileName,
                                     MacDinh = false
                                 };
@@ -138,13 +136,9 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
                         // TH2: Người dùng CHỌN ẢNH CÓ SẴN
                         else if (SelectedImageId.HasValue)
                         {
-                            // Tìm ảnh đó trong DB
                             var existingPhoto = _unitOfWork.Repository<AnhSanPham>().GetById(SelectedImageId.Value);
                             if (existingPhoto != null)
                             {
-                                // Cập nhật MauSacID cho ảnh này (để biết ảnh này thuộc màu nào)
-                                // Lưu ý: Một ảnh có thể dùng cho nhiều Size, nhưng thường chỉ thuộc 1 Màu.
-                                // Nếu logic của bạn là 1 ảnh chỉ thuộc 1 màu, thì gán đè.
                                 existingPhoto.MauSacID = model.MauSacID;
                                 _unitOfWork.Repository<AnhSanPham>().Update(existingPhoto);
                             }
@@ -157,7 +151,6 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
                 }
             }
 
-            // Nếu lỗi reload View
             ViewBag.SanPham = sanPham;
             ViewBag.MauSacID = new SelectList(_unitOfWork.Repository<MauSac>().GetAll(), "ID", "TenMau", model.MauSacID);
             ViewBag.KichThuocID = new SelectList(_unitOfWork.Repository<KichThuoc>().GetAll(), "ID", "TenSize", model.KichThuocID);
@@ -166,7 +159,7 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
         }
 
         // ==========================================
-        // 3. CẬP NHẬT BIẾN THỂ (EDIT)
+        // 3. CẬP NHẬT BIẾN THỂ 
         // ==========================================
 
         // GET: Hiển thị form sửa
@@ -185,7 +178,7 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
             var listAnh = _unitOfWork.Repository<AnhSanPham>().GetMany(x => x.SanPhamID == model.SanPhamID).ToList();
             ViewBag.ListAnhSanPham = listAnh;
 
-            // --- LOGIC MỚI: Tìm ID ảnh đang được chọn cho MÀU hiện tại ---
+            // --- Tìm ID ảnh đang được chọn cho MÀU hiện tại ---
             var currentImg = listAnh.FirstOrDefault(x => x.MauSacID == model.MauSacID);
             ViewBag.SelectedImageId = currentImg != null ? currentImg.ID : (int?)null;
             // -------------------------------------------------------------
@@ -269,13 +262,9 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
                         // TH2: Người dùng CHỌN ẢNH CÓ SẴN
                         else if (SelectedImageId.HasValue)
                         {
-                            // Tìm ảnh đó trong DB
                             var existingPhoto = _unitOfWork.Repository<AnhSanPham>().GetById(SelectedImageId.Value);
                             if (existingPhoto != null)
                             {
-                                // Cập nhật MauSacID cho ảnh này (để biết ảnh này thuộc màu nào)
-                                // Lưu ý: Một ảnh có thể dùng cho nhiều Size, nhưng thường chỉ thuộc 1 Màu.
-                                // Nếu logic của bạn là 1 ảnh chỉ thuộc 1 màu, thì gán đè.
                                 existingPhoto.MauSacID = model.MauSacID;
                                 _unitOfWork.Repository<AnhSanPham>().Update(existingPhoto);
                             }

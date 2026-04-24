@@ -23,19 +23,12 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
             ViewBag.Title = "Dashboard";
 
             // 1. THỐNG KÊ SỐ LIỆU (CARD)
-            // Tổng sản phẩm (Đếm số bản ghi trong bảng SanPham)
             ViewBag.CountProduct = _unitOfWork.Repository<SanPham>().GetAll().Count();
-
-            // Tổng đơn hàng (Đếm số bản ghi trong bảng DonHang)
             ViewBag.CountOrder = _unitOfWork.Repository<DonHang>().GetAll().Count();
-
-            // Tổng người dùng (Đếm số bản ghi trong bảng NguoiDung)
             ViewBag.CountUser = _unitOfWork.Repository<NguoiDung>().GetAll().Count();
-
-            // Tổng tồn kho (Đếm số bản ghi SKU/Biến thể trong kho - theo yêu cầu của bạn)
             ViewBag.CountStock = _unitOfWork.Repository<BienTheSanPham>().GetAll().Count();
 
-            // 2. LẤY TÊN ADMIN (Hiển thị lời chào)
+            // 2. LẤY TÊN ADMIN 
             if (Session["UserAdmin"] != null)
             {
                 var admin = (NguoiDung)Session["UserAdmin"];
@@ -46,17 +39,17 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
                 ViewBag.AdminName = "Quản trị viên";
             }
 
-            // --- 3. ĐƠN HÀNG MỚI (CHỈ LẤY ĐƠN CHỜ XÁC NHẬN) ---
+            // --- 3. ĐƠN HÀNG MỚI  ---
             var newOrders = _unitOfWork.Repository<DonHang>().GetAll()
-                .Where(x => x.TrangThaiDonHang == 0) // [SỬA] Chỉ lấy đơn Chờ xác nhận (0)
+                .Where(x => x.TrangThaiDonHang == 0) 
                 .OrderByDescending(x => x.NgayDat)
                 .ToList();
 
-            // 4. CẢNH BÁO SẮP HẾT HÀNG (Lấy SP có số lượng < 10)
+            // 4. CẢNH BÁO SẮP HẾT HÀNG
             var lowStockProducts = _unitOfWork.Repository<BienTheSanPham>().GetAll()
-                .Include(x => x.SanPham)   // Nạp tên sản phẩm
-                .Include(x => x.MauSac)    // Nạp tên màu
-                .Include(x => x.KichThuoc) // Nạp tên size
+                .Include(x => x.SanPham)   
+                .Include(x => x.MauSac)    
+                .Include(x => x.KichThuoc) 
                 .Where(x => x.SoLuong < 5)
                 .OrderBy(x => x.SoLuong)
                 .Take(5)
@@ -67,7 +60,7 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
 
 
             // ==========================================
-            // [PHẦN MỚI] GỌI AI LẤY INSIGHT CHO BẢNG ĐIỀU KHIỂN
+            // GỌI AI LẤY INSIGHT CHO BẢNG ĐIỀU KHIỂN
             // ==========================================
             try
             {
@@ -83,7 +76,7 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
 
                         if (aiData.success == true)
                         {
-                            // Truyền dữ liệu phân tích ra View
+                           
                             ViewBag.WarningProducts = aiData.warning_products;
                             ViewBag.TrendingKeywords = aiData.trending_keywords;
                             ViewBag.BestSellers = aiData.best_sellers;
