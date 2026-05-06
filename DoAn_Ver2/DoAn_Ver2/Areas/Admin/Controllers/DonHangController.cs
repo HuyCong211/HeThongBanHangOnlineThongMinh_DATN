@@ -110,6 +110,24 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
                 int trangThaiCu = donHang.TrangThaiDonHang ?? 0;
                 if (trangThaiCu == trangThai) return Json(new { success = true });
 
+                // 1. Không cho phép đổi trạng thái nếu đơn đã Hoàn thành (3) hoặc Đã hủy (4)
+                if (trangThaiCu == 3 || trangThaiCu == 4)
+                {
+                    return Json(new { success = false, message = "Đơn hàng đã chốt (Hoàn thành / Hủy) không thể thay đổi!" });
+                }
+
+                // 2. Không cho phép lùi trạng thái (ví dụ 2 về 1). Trừ trường hợp chọn sang Hủy (4)
+                if (trangThai != 4 && trangThai < trangThaiCu)
+                {
+                    return Json(new { success = false, message = "Không được phép lùi trạng thái đơn hàng!" });
+                }
+
+                // 3. Chỉ cho phép Hủy (4) khi đang ở trạng thái 0 (Chờ xác nhận) hoặc 1 (Đã xác nhận)
+                if (trangThai == 4 && trangThaiCu >= 2)
+                {
+                    return Json(new { success = false, message = "Chỉ được hủy khi đơn hàng đang chờ hoặc đã xác nhận!" });
+                }
+
                 var chiTietDH = _unitOfWork.Repository<ChiTietDonHang>().GetMany(x => x.DonHangID == id).ToList();
 
                 // --- LOGIC 1: DUYỆT ĐƠN (Trừ kho tạm giữ) ---

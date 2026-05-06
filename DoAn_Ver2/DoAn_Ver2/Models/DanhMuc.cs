@@ -32,6 +32,7 @@
 
         [StringLength(255)]
         public string HinhAnh { get; set; }
+        public int? TrangThai { get; set; }
 
         public DateTime? NgayTao { get; set; }
 

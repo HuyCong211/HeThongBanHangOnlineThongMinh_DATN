@@ -28,14 +28,14 @@ namespace DoAn_Ver2.Controllers
 
             if (id == null) return RedirectToAction("Index", "Home");
             var danhMuc = _unitOfWork.Repository<DanhMuc>().GetById(id.Value); 
-            if (danhMuc == null) return HttpNotFound();
+            if (danhMuc == null || danhMuc.TrangThai != 1) return HttpNotFound();
             ViewBag.CurrentCategory = danhMuc;
             var listId = new List<int> { id.Value };
             var subIds = _unitOfWork.Repository<DanhMuc>()
-                            .GetMany(x => x.DanhMucChaID == id.Value)
+                            .GetMany(x => x.DanhMucChaID == id.Value && x.TrangThai == 1)
                             .Select(x => x.ID).ToList();
             listId.AddRange(subIds);
-            var query = _unitOfWork.Repository<SanPham>().GetMany(x => listId.Contains(x.DanhMucID.Value) && x.TrangThai == 1);
+            var query = _unitOfWork.Repository<SanPham>().GetMany(x => listId.Contains(x.DanhMucID.Value) && x.TrangThai == 1 && x.DanhMuc.TrangThai == 1);
 
             // --- A. LỌC THEO GIÁ (Slider gửi lên string "100000" hoặc null) ---
             decimal? min = null, max = null;
@@ -131,7 +131,8 @@ namespace DoAn_Ver2.Controllers
             var query = _unitOfWork.Repository<SanPham>()
                            .GetMany(x => (x.TenSanPham.Contains(keyword) ||
                                          (x.DanhMuc != null && x.DanhMuc.TenDanhMuc.Contains(keyword)))
-                                         && x.TrangThai == 1);
+                                         && x.TrangThai == 1
+                                         && x.DanhMuc.TrangThai == 1);
 
             // --- A. BỔ SUNG LỌC CHO TÌM KIẾM (Để khách search xong vẫn lọc giá/màu được) ---
             decimal? min = null, max = null;
@@ -303,7 +304,7 @@ namespace DoAn_Ver2.Controllers
         public ActionResult Detail(int id)
         {
             var sp = _unitOfWork.Repository<SanPham>().GetById(id);
-            if (sp == null) return HttpNotFound();
+            if (sp == null || sp.TrangThai != 1 || sp.DanhMuc.TrangThai != 1) return HttpNotFound();
             sp.LuotXem++;
             _unitOfWork.Repository<SanPham>().Update(sp);
             _unitOfWork.Save();

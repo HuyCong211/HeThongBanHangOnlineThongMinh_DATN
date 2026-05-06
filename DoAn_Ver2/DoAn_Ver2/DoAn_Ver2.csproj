@@ -188,6 +188,7 @@
     <Compile Include="Models\AI_Services\AIDataService.cs" />
     <Compile Include="Models\AI_Services\CohereService.cs" />
     <Compile Include="Models\AI_Services\GeminiService.cs" />
+    <Compile Include="Models\AI_Services\GroqService.cs" />
     <Compile Include="Models\AI_Services\PineconeService.cs" />
     <Compile Include="Models\AI_Services\SanPhamAIModel.cs" />
     <Compile Include="Models\AnhSanPham.cs" />

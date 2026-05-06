@@ -1,44 +1,92 @@
 ﻿@model DoAn_Ver2.Models.DanhMuc
 
 @{
-    ViewBag.Title = "Xác nhận xóa";
+    ViewBag.Title = "Xác nhận xóa danh mục";
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    bool canNotDelete = ViewBag.CanNotDelete != null && (bool)ViewBag.CanNotDelete;
 }
 
 <div class="card shadow mb-4">
     <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-danger">Bạn có chắc muốn xóa Danh mục này?</h6>
+        <h6 class="m-0 font-weight-bold text-danger text-uppercase">Xác nhận xóa danh mục</h6>
     </div>
     <div class="card-body">
-        <div class="alert alert-warning" role="alert">
-            <i class="fas fa-exclamation-triangle"></i> Cảnh báo: Hành động này không thể hoàn tác!
-        </div>
 
-        <dl class="row">
-            <dt class="col-sm-3">Tên danh mục:</dt>
-            <dd class="col-sm-9 font-weight-bold">@Model.TenDanhMuc</dd>
-
-            <dt class="col-sm-3">Slug:</dt>
-            <dd class="col-sm-9">@Model.Slug</dd>
-
-            <dt class="col-sm-3">Ngày tạo:</dt>
-            <dd class="col-sm-9">@(Model.NgayTao.HasValue ? Model.NgayTao.Value.ToString("dd/MM/yyyy HH:mm") : "")</dd>
-
-            <dt class="col-sm-3">Mô tả:</dt>
-            <dd class="col-sm-9">@Model.MoTa</dd>
-        </dl>
-
-        @using (Html.BeginForm())
+        @if (canNotDelete)
         {
-            @Html.AntiForgeryToken()
-            <div class="form-actions no-color mt-4">
-                <a href="@Url.Action("Index")" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left"></i> Quay lại
-                </a>
-                <button type="submit" class="btn btn-danger">
-                    <i class="fas fa-trash"></i> Xác nhận Xóa
-                </button>
+            <div class="alert alert-warning border-left-warning" role="alert">
+                <h4 class="alert-heading"><i class="fas fa-exclamation-triangle"></i> Cảnh báo hệ thống!</h4>
+                <p>
+                    Danh mục <strong>"@Model.TenDanhMuc"</strong> hiện không thể xóa vĩnh viễn vì:
+                </p>
+                <ul>
+                    @if (ViewBag.HasChild)
+                    {
+                        <li>Đang chứa các danh mục con trực thuộc.</li>
+}
+                    @if (ViewBag.HasProducts)
+                    {
+                        <li>Đang có sản phẩm thuộc danh mục này.</li>
+}
+                </ul>
+                <hr>
+                <p class="mb-0">Hệ thống đề xuất: Bạn nên <strong>"Tạm ẩn"</strong> danh mục này để không hiển thị ngoài website mà vẫn giữ được tính toàn vẹn dữ liệu.</p>
             </div>
         }
+        else
+        {
+            <div class="alert alert-danger border-left-danger" role="alert">
+                <i class="fas fa-info-circle"></i> <strong>Lưu ý:</strong> Danh mục này không có dữ liệu liên quan, bạn có thể xóa vĩnh viễn. Hành động này không thể hoàn tác!
+            </div>
+        }
+
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <dl class="row">
+                    <dt class="col-sm-3 text-muted">Tên danh mục:</dt>
+                    <dd class="col-sm-9 font-weight-bold text-primary">@Model.TenDanhMuc</dd>
+
+                    <dt class="col-sm-3 text-muted">Trạng thái hiện tại:</dt>
+                    <dd class="col-sm-9">
+                        @if (Model.TrangThai == 1)
+                        {<span class="badge badge-success">Đang hiển thị</span> }
+                        else
+                        { <span class="badge badge-secondary">Đang ẩn</span>}
+                    </dd>
+
+                    <dt class="col-sm-3 text-muted">Mô tả:</dt>
+                    <dd class="col-sm-9 small">@Model.MoTa</dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end mt-4">
+            <a href="@Url.Action("Index")" class="btn btn-secondary mr-2">
+                <i class="fas fa-arrow-left"></i> Quay lại
+            </a>
+
+            @if (canNotDelete)
+            {
+                using (Html.BeginForm("Deactivate", "DanhMuc", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.Hidden("id", Model.ID)
+                    <button type="submit" class="btn btn-warning text-dark font-weight-bold">
+                        <i class="fas fa-eye-slash"></i> Chuyển sang "Tạm ẩn"
+                    </button>
+                }
+            }
+            else
+            {
+                using (Html.BeginForm("Delete", "DanhMuc", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.Hidden("id", Model.ID)
+                    <button type="submit" class="btn btn-danger font-weight-bold">
+                        <i class="fas fa-trash"></i> Xác nhận xóa vĩnh viễn
+                    </button>
+                }
+            }
+        </div>
     </div>
 </div>

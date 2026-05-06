@@ -93,6 +93,7 @@
                         <th>Slug</th>
                         <th>Mô tả</th>
                         <th>Danh mục cha</th>
+                        <th class="text-center">Trạng thái</th>
                         <th class="text-center" style="width: 150px;">Thao tác</th>
                     </tr>
                 </thead>
@@ -129,7 +130,7 @@
                                 <td>
                                     @if (item.DanhMucChaID != null)
                                     {
-                                        
+
                                         if (tenChaMap != null && tenChaMap.ContainsKey(item.DanhMucChaID.Value))
                                         {
                                             <span class="badge badge-info">@tenChaMap[item.DanhMucChaID.Value]</span>
@@ -142,6 +143,16 @@
                                     else
                                     {
                                         <span class="text-muted small">-- Gốc --</span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    @if (item.TrangThai == 1)
+                                    {
+                                        <span class="badge badge-success">Hiển thị</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-secondary">Ẩn</span>
                                     }
                                 </td>
                                 <td class="text-center">

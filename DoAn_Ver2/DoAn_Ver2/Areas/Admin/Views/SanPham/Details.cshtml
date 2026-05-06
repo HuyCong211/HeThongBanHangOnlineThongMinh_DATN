@@ -126,6 +126,26 @@
                                     </td>
                                 </tr>
                                 <tr>
+                                    <th>Từ khóa (Tags):</th>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(Model.Tags))
+                                        {
+                                            // Tách chuỗi Tags thành danh sách mảng để duyệt
+                                            var listTags = Model.Tags.Split(',').Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
+                                            foreach (var tag in listTags)
+                                            {
+                                                <span class="badge badge-pill badge-light border text-primary mr-1 mb-1">
+                                                    <i class="fas fa-tag fa-xs"></i> @tag.Trim()
+                                                </span>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted font-italic small">Chưa có thẻ gắn kèm</span>
+                                        }
+                                    </td>
+                                </tr>
+                                <tr>
                                     <th>Trạng thái:</th>
                                     <td>
                                         @if (Model.TrangThai == 1)

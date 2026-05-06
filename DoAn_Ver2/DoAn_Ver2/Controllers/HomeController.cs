@@ -25,13 +25,13 @@ namespace DoAn_Ver2.Controllers
         {
             // 1. CHỈ LẤY DANH MỤC GỐC (DanhMucChaID == null)
             ViewBag.Categories = _unitOfWork.Repository<DanhMuc>()
-                                    .GetMany(x => x.DanhMucChaID == null)
+                                    .GetMany(x => x.DanhMucChaID == null && x.TrangThai == 1)
                                     .OrderBy(x => x.ID)
                                     .ToList();
 
             // 2. Lấy sản phẩm MỚI NHẤT
             var newProducts = _unitOfWork.Repository<SanPham>()
-                            .GetMany(x => x.TrangThai == 1)
+                            .GetMany(x => x.TrangThai == 1 && x.DanhMuc.TrangThai == 1)
                             .OrderByDescending(x => x.NgayTao)
                             .Take(8)
                             .ToList();
@@ -64,7 +64,7 @@ namespace DoAn_Ver2.Controllers
                     var productIds = bestSellerStats.Select(x => x.SanPhamID).ToList();
 
                     var products = _unitOfWork.Repository<SanPham>()
-                                                .GetMany(p => productIds.Contains(p.ID) && p.TrangThai == 1)
+                                                .GetMany(p => productIds.Contains(p.ID) && p.TrangThai == 1 && p.DanhMuc.TrangThai == 1)
                                                 .ToList();
 
                     // Bước 3: Join lại để giữ đúng thứ tự
@@ -79,7 +79,7 @@ namespace DoAn_Ver2.Controllers
                 {
                     // Fallback: Nếu chưa có đơn hàng nào thì lấy theo Lượt xem
                     ViewBag.BestSellers = _unitOfWork.Repository<SanPham>()
-                                                     .GetMany(x => x.TrangThai == 1)
+                                                     .GetMany(x => x.TrangThai == 1 && x.DanhMuc.TrangThai == 1)
                                                      .OrderByDescending(x => x.LuotXem)
                                                      .Take(15).ToList();
                 }
@@ -135,7 +135,7 @@ namespace DoAn_Ver2.Controllers
             var recommendedProducts = new List<SanPham>();
             if (recommendIds.Any())
             {
-                var raw = _unitOfWork.Repository<SanPham>().GetMany(x => recommendIds.Contains(x.ID) && x.TrangThai == 1).ToList();
+                var raw = _unitOfWork.Repository<SanPham>().GetMany(x => recommendIds.Contains(x.ID) && x.TrangThai == 1 && x.DanhMuc.TrangThai == 1).ToList();
                 recommendedProducts = recommendIds.Select(id => raw.FirstOrDefault(p => p.ID == id))
                                                 .Where(p => p != null)
                                                 .ToList();
@@ -242,15 +242,7 @@ namespace DoAn_Ver2.Controllers
                     //  Khởi tạo SmtpClient không tham số -> Nó sẽ tự đọc <mailSettings>
                     using (var client = new SmtpClient())
                     {
-                        // Mặc dù đọc từ config, nhưng Gmail đôi khi vẫn cần set lại Credentials bằng code để chắc chắn
-                        // Nếu chỉ new SmtpClient() mà vẫn lỗi, hãy bỏ comment dòng dưới để override
-                        /*
-                        client.Host = "smtp.gmail.com";
-                        client.Port = 587;
-                        client.EnableSsl = true;
-                        client.UseDefaultCredentials = false;
-                        client.Credentials = new NetworkCredential("hoconline2k4@gmail.com", "clifscenvwbvvaip");
-                        */
+                     
 
                         client.Send(message);
                     }
@@ -271,7 +263,7 @@ namespace DoAn_Ver2.Controllers
         [ChildActionOnly]
         public ActionResult _MenuPartial()
         {
-            var danhMucs = _unitOfWork.Repository<DanhMuc>().GetAll().ToList();
+            var danhMucs = _unitOfWork.Repository<DanhMuc>().GetMany(x => x.TrangThai == 1).ToList();
             return PartialView(danhMucs);
         }
 
@@ -462,20 +454,101 @@ namespace DoAn_Ver2.Controllers
                 PineconeService pinecone = new PineconeService();
                 AIDataService aiDataService = new AIDataService();
                 GeminiService gemini = new GeminiService();
+
                 List<dynamic> chatHistory = new List<dynamic>();
                 if (!string.IsNullOrEmpty(historyJson))
                 {
                     chatHistory = JsonConvert.DeserializeObject<List<dynamic>>(historyJson);
                 }
 
+                // =========================================================
+                // 1. THUẬT TOÁN CHỐNG TRÙNG LẶP (QUÉT LỊCH SỬ LẤY ID ĐÃ XEM)
+                // =========================================================
+                List<string> shownIds = new List<string>();
+                foreach (var msg in chatHistory)
+                {
+                    if (msg.role.ToString().ToLower() == "model")
+                    {
+                        var matches = System.Text.RegularExpressions.Regex.Matches(msg.text.ToString(), @"Mã sản phẩm:\s*(?:<[^>]+>\s*)*(\d+)");
+                        foreach (System.Text.RegularExpressions.Match m in matches)
+                        {
+                            string id = m.Groups[1].Value;
+                            if (!shownIds.Contains(id)) shownIds.Add(id);
+                        }
+                    }
+                }
+
                 string contextForAI = "";
                 string msgLower = userMessage.ToLower();
 
-                // 2. ĐỊNH TUYẾN TƯ DUY (ROUTING LOGIC)
+                // =========================================================
+                // 2. THUẬT TOÁN "NEO TRÍ NHỚ" - TRUY VẾT TỪ KHÓA GỐC
+                // =========================================================
+                string rootQuery = userMessage;
+                bool isRequestingMore = msgLower.Contains("xem thêm") || msgLower.Contains("tiếp")
+                    || msgLower.Contains("nữa") || msgLower.Contains("mẫu khác")
+                    || msgLower.Contains("cái khác") || msgLower.Contains("loại khác")
+                    || (msgLower.Contains("khác") && !msgLower.Contains("khác không"));
+
+
+                // Tập từ khóa "câu lệnh rác" - dùng HashSet để check nhanh hơn
+                var commandKeywords = new HashSet<string> { "khác", "thêm", "nữa", "tiếp", "mẫu", "cái", "loại", "xem" };
+                // Mở rộng danh sách từ khóa sản phẩm - bao gồm cả từ mô tả phong cách như "biển", "công sở"
+                var productNouns = new HashSet<string> {
+                    "áo", "quần", "giày", "dép", "phụ kiện", "balo", "túi", "thắt lưng",
+                    "sơ mi", "polo", "jean", "kaki", "blazer", "vest", "khoác", "sweater",
+                    "biển", "công sở", "đi chơi","nam", "mùa hè", "mùa đông", "hè", "đông",
+                    "đi tiệc", "Đi biển", "Đi làm", "Đi học", "Đi chơi", "Thể thao", "Dự tiệc", "Mặc nhà", "Dạo phố"
+                };
+
+
+                if (isRequestingMore)
+                {
+                    // Vòng lặp tìm ngược - logic mới rõ ràng hơn
+                    // Câu "rác" = tất cả các từ đều là command keyword, không có product noun nào
+                    for (int i = chatHistory.Count - 1; i >= 0; i--)
+                    {
+                        if (chatHistory[i].role.ToString().ToLower() != "user") continue;
+
+                        string pastMsg = chatHistory[i].text.ToString();
+                        string pastMsgLower = pastMsg.ToLower();
+
+                        // Kiểm tra xem câu này có chứa từ khóa sản phẩm thực sự không
+                        bool hasProductNoun = productNouns.Any(noun => pastMsgLower.Contains(noun));
+
+                        if (!hasProductNoun)
+                        {
+                            // Câu này chỉ là lệnh ngắn như "xem mẫu khác", "tiếp đi" -> bỏ qua, tìm lên trên
+                            continue;
+                        }
+                        else
+                        {
+                            // Câu này có chứa danh từ sản phẩm -> Đây là câu gốc thực sự
+                            rootQuery = pastMsg;
+                            break;
+                        }
+                    }
+                    System.Diagnostics.Debug.WriteLine($"[RAG LOG] Yêu cầu xem thêm. rootQuery = '{rootQuery}'");
+                }
+
+
+
+                // NẾU LÀ YÊU CẦU XEM THÊM -> RA LỆNH TỐI CAO ĐỂ ÉP GEMINI KIỂM TRA CHÉO TAGS
+                if (isRequestingMore)
+                {
+                    contextForAI += $"[LỆNH TỐI CAO TỪ HỆ THỐNG]: Khách hàng đang muốn xem thêm các mẫu phù hợp với từ khóa '{rootQuery}'. " +
+                                    $"BẠN BẮT BUỘC phải đối chiếu các sản phẩm dưới đây xem Tên, Mô tả hoặc Tags có thực sự khớp với '{rootQuery}' hay không. " +
+                                    $"NẾU KHÔNG KHỚP HOẶC LẠC ĐỀ (VD: khách tìm áo đi biển nhưng list dưới toàn quần tây, áo khoác), TUYỆT ĐỐI KHÔNG HIỂN THỊ SẢN PHẨM ĐÓ. " +
+                                    $"Lúc này hãy trả lời nhẹ nhàng: 'Dạ hiện tại hệ thống bên em đã hiển thị hết các mẫu {rootQuery} rồi ạ. Anh/chị có muốn tham khảo sang mẫu khác không ạ?'.\n\n";
+                }
+                // Lấy trước toàn bộ text dữ liệu kho hàng chuẩn
+                var allProductsText = aiDataService.ExtractDataForAI();
+
+                // 3. ĐỊNH TUYẾN TƯ DUY (ROUTING LOGIC)
                 // Kiểm tra xem khách có nhắc đến các từ khóa về "bán chạy" không
                 if (msgLower.Contains("bán chạy") || msgLower.Contains("hot") || msgLower.Contains("nhiều người mua") || msgLower.Contains("top"))
                 {
-                    contextForAI += "[TOP BÁN CHẠY TỪ DB THỰC TẾ]:\n";
+                    contextForAI += "[TOP BÁN CHẠY TỪ DB THỰC TẾ - DANH SÁCH TOP BÁN CHẠY - CHƯA XEM]:\n";
 
                     // Khởi tạo Query lấy toàn bộ hóa đơn thành công
                     var query = _unitOfWork.Repository<ChiTietDonHang>().GetAll()
@@ -523,7 +596,7 @@ namespace DoAn_Ver2.Controllers
                     }
 
                     // Sau khi LỌC xong, mới bắt đầu ĐẾM ĐƠN HÀNG
-                    var topSellingStats = query
+                    var allTopSelling = query
                         .GroupBy(ct => ct.BienTheSanPham.SanPhamID)
                         .Select(group => new
                         {
@@ -533,51 +606,105 @@ namespace DoAn_Ver2.Controllers
                         })
                         .OrderByDescending(x => x.TotalSold)
                         .ThenByDescending(x => x.LastOrderDate)
-                        .Take(5)
+                        //.Take(5)
                         .ToList();
 
-                    if (topSellingStats.Any())
+                    // TIẾN HÀNH LỌC: Bỏ ID đã xem, chỉ lấy đúng 3 sản phẩm tiếp theo
+                    var filteredTopSelling = allTopSelling
+                        .Where(x => !shownIds.Contains(x.SanPhamID.ToString()))
+                        .Take(3)
+                        .ToList();
+
+
+                    if (filteredTopSelling.Any())
                     {
-                        var productIds = topSellingStats.Select(x => x.SanPhamID).ToList();
+                        var productIds = filteredTopSelling.Select(x => x.SanPhamID).ToList();
                         var products = _unitOfWork.Repository<SanPham>()
                             .GetMany(p => productIds.Contains(p.ID) && p.TrangThai == 1)
                             .ToList();
 
-                        foreach (var stat in topSellingStats)
+                        foreach (var stat in filteredTopSelling)
                         {
                             var sp = products.FirstOrDefault(p => p.ID == stat.SanPhamID);
                             if (sp != null)
                             {
-                                // Truyền nguyên liệu chuẩn xác cho AI
-                                contextForAI += $"- [ID: {sp.ID}] Tên: {sp.TenSanPham}, Giá: {sp.GiaBan:N0} VNĐ, Đã bán: {stat.TotalSold} sản phẩm.\n";
+                                contextForAI += $"[ID: {sp.ID}] Tên: {sp.TenSanPham}, Giá: {sp.GiaBan:N0} VNĐ, Đã bán: {stat.TotalSold} sản phẩm.\n";
                             }
                         }
                     }
                     else
                     {
-                        // Xử lý đúng trường hợp mảng ngách (Edge case)
-                        contextForAI += $"Dạ hiện tại nhóm hàng '{tuKhoa}' chưa có sản phẩm nào lọt top bán chạy hoặc đang tạm hết hàng ạ.\n";
+                        contextForAI += $"Dạ hiện tại các mẫu '{tuKhoa}' bán chạy nhất em đã giới thiệu hết phía trên rồi ạ.\n";
                     }
                 }
                 else
                 {
-                    // Nếu khách hỏi bình thường (tìm đồ đi tiệc, tư vấn phối đồ...), dùng Pinecone Vector Search
-                    var questionVector = await cohere.GetEmbeddingAsync(userMessage);
-                    List<string> top3ProductIds = await pinecone.SearchVectorAsync(questionVector, 3);
+                    // TÌM KIẾM THÔNG MINH DÙNG VECTOR SEARCH
+                    var questionVector = await cohere.GetEmbeddingAsync(rootQuery);
+                    // Lấy 50 kết quả phù hợp nhất từ Pinecone để có tập dữ liệu đủ lớn sau khi lọc
+                    List<string> pineconeIds = await pinecone.SearchVectorAsync(questionVector, 50);
 
-                    if (top3ProductIds.Count > 0)
+                    // Pinecone trả về theo thứ tự similarity giảm dần.
+                    // Các ID cuối danh sách (index cao) có similarity thấp -> có thể lạc đề.
+                    // Giới hạn tối đa chỉ lấy trong TOP 20 để tránh kéo sản phẩm không liên quan vào.
+                    int maxRelevantResults = Math.Min(20, pineconeIds.Count);
+                    List<string> relevantPineconeIds = pineconeIds.Take(maxRelevantResults).ToList();
+
+                    // LỌC: Loại bỏ ID đã xem trong phạm vi relevant, chỉ lấy đúng 3 cái mới
+                    List<string> finalSearchIds = relevantPineconeIds
+                        .Where(id => !shownIds.Contains(id))
+                        .Take(3)
+                        .ToList();
+
+                    System.Diagnostics.Debug.WriteLine($"[RAG LOG] Pinecone trả về {pineconeIds.Count} ID. Relevant pool: {maxRelevantResults}. ShownIds: {shownIds.Count}. FinalIds: {finalSearchIds.Count}");
+
+                    if (finalSearchIds.Count > 0)
                     {
-                        var allProductsText = aiDataService.ExtractDataForAI();
-                        foreach (var idStr in top3ProductIds)
+                        foreach (var idStr in finalSearchIds)
                         {
                             var productInfo = allProductsText.FirstOrDefault(p => p.Contains($"[ID: {idStr}]"));
-                            if (productInfo != null) contextForAI += productInfo + "\n";
+                            if (productInfo != null)
+                            {
+                                contextForAI += productInfo + "\n";
+                            }
                         }
+                    }
+                    else
+                    {
+                        // Dù shownIds có hay không, nếu không còn sản phẩm mới phù hợp -> báo hết
+                        contextForAI += $"[Hệ thống thông báo: Đã hết sản phẩm phù hợp với yêu cầu '{rootQuery}'. " +
+                                        $"Tất cả mẫu liên quan đã được giới thiệu ở các lượt trước. " +
+                                        $"Vui lòng báo khách đã hết mẫu và mời họ tìm loại hàng khác.]";
                     }
                 }
 
-                // 3. Truyền cho Gemini xử lý
-                string botReply = await gemini.ChatAsync(userMessage, contextForAI, chatHistory);
+                // =========================================================
+                // 3. TRUYỀN CHO AI XỬ LÝ (TÍCH HỢP FALLBACK API - GROQ)
+                // =========================================================
+                string botReply = "";
+                try
+                {
+                    // Cố gắng gọi Gemini trước
+                    botReply = await gemini.ChatAsync(userMessage, contextForAI, chatHistory);
+                }
+                catch (Exception exGemini)
+                {
+                    // In log ra cửa sổ Output để dev biết Gemini vừa chết
+                    System.Diagnostics.Debug.WriteLine($"Gemini lỗi: {exGemini.Message}. Đang chuyển sang Groq Fallback...");
+
+                    try
+                    {
+                        // Kích hoạt AI Dự phòng (Grok/Llama)
+                        GroqService groq = new GroqService();
+                        botReply = await groq.ChatAsync(userMessage, contextForAI, chatHistory);
+                    }
+                    catch (Exception exGroq)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Groq cũng lỗi: {exGroq.Message}");
+                        // Chết cả 2 AI thì throw lỗi ra ngoài để bắt ở Catch tổng
+                        throw new Exception("Hệ thống tư vấn đang quá tải đôi chút, anh/chị vui lòng thử lại sau vài giây nhé!");
+                    }
+                }
 
                 return Json(new { success = true, reply = botReply });
             }

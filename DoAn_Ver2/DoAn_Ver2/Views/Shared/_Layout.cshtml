@@ -197,9 +197,9 @@
             var iconClass = type === 'success' ? 'fa-check-circle' : 'fa-trash-alt';
 
             var toastHTML = ` <div class="custom-toast ${type}">
-                                                            <i class="fas ${iconClass}"></i>
-                                                            <span>${message}</span>
-                                                            </div>`;
+                                                                <i class="fas ${iconClass}"></i>
+                                                                <span>${message}</span>
+                                                                </div>`;
 
             var toast = $(toastHTML);
             container.append(toast);
@@ -255,15 +255,20 @@
     @*================================================
         CHATBOT AI
         ================================================*@
+  
     <button id="chatbot-toggle-btn" style="position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; border-radius: 50%; background-color: #000; color: #fff; border: none; font-size: 24px; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.3); z-index: 9999; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;">
         <i class="fas fa-robot"></i>
     </button>
 
-    <div id="chatbot-window" style="display: none; position: fixed; bottom: 90px; right: 20px; width: 350px; height: 450px; background-color: #fff; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); z-index: 9999; display: flex; flex-direction: column; overflow: hidden; border: 1px solid #ddd;">
+    <div id="chatbot-window" style="display: none; position: fixed; bottom: 90px; right: 20px; width: 350px; height: 450px; background-color: #fff; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); z-index: 9999; display: flex; flex-direction: column; overflow: hidden; border: 1px solid #ddd; transition: all 0.3s ease;">
 
         <div style="background-color: #000; color: #fff; padding: 15px; font-weight: bold; display: flex; justify-content: space-between; align-items: center;">
             <span><i class="fas fa-robot mr-2"></i> Trợ lý AI MenStore</span>
-            <button id="chatbot-close-btn" style="background: none; border: none; color: #fff; font-size: 16px; cursor: pointer;">✖</button>
+            <div>
+                <button id="chatbot-expand-btn" style="background: none; border: none; color: #fff; font-size: 14px; cursor: pointer; margin-right: 12px;" title="Mở rộng khung chat"><i class="fas fa-expand-arrows-alt"></i></button>
+                <button id="chatbot-clear-btn" style="background: none; border: none; color: #fff; font-size: 14px; cursor: pointer; margin-right: 12px;" title="Xóa lịch sử chat"><i class="fas fa-trash-alt"></i></button>
+                <button id="chatbot-close-btn" style="background: none; border: none; color: #fff; font-size: 16px; cursor: pointer;" title="Thu nhỏ">✖</button>
+            </div>
         </div>
 
         <div id="chatbot-messages" style="flex: 1; padding: 15px; overflow-y: auto; background-color: #f9f9f9; display: flex; flex-direction: column; gap: 10px;">
@@ -274,99 +279,141 @@
 
         <div style="padding: 10px; border-top: 1px solid #ddd; background-color: #fff; display: flex;">
             <input type="text" id="chatbot-input" placeholder="Nhập câu hỏi của bạn..." style="flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 20px; outline: none; font-size: 14px;">
-            <button id="chatbot-send-btn" style="margin-left: 10px; background-color: #000; color: #fff; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer;">➤</button>
+            <button id="chatbot-send-btn" style="margin-left: 10px; background-color: #000; color: #fff; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer;"><i class="fas fa-paper-plane"></i></button>
         </div>
     </div>
 
     <script>
         $(document).ready(function () {
+
             $('#chatbot-window').hide();
 
-            $('#chatbot-toggle-btn').click(function () { $('#chatbot-window').toggle(); });
-            $('#chatbot-close-btn').click(function () { $('#chatbot-window').hide(); });
+        // =========================================================================
+        // 1. STATE MANAGEMENT (V3): XỬ LÝ TRIỆT ĐỂ: TẮT TRÌNH DUYỆT / ĐĂNG NHẬP / ĐĂNG XUẤT
+        // =========================================================================
+        
+        // Lấy ID người dùng hiện tại từ Server Render (Guest hoặc ID số)
+        var currentUserId = '@(Session["KhachHang"] != null ? ((DoAn_Ver2.Models.NguoiDung)Session["KhachHang"]).ID.ToString() : "guest")';
+        
+        // Lấy ID người dùng đã lưu ở lần truy cập trước
+        var savedUserId = localStorage.getItem('aiChatUserId');
+        
+        // Kiểm tra xem đây có phải là một phiên làm việc mới của trình duyệt không (dựa vào Session Cookie)
+        var isNewBrowserSession = document.cookie.indexOf("ai_session_active=true") === -1;
+        
+        // ĐIỀU KIỆN QUYẾT ĐỊNH:
+        // 1. Nếu savedUserId khác currentUserId -> Nghĩa là vừa có hành động Đăng nhập hoặc Đăng xuất.
+        // 2. Nếu isNewBrowserSession là true -> Nghĩa là trình duyệt vừa được mở lại sau khi đã tắt hẳn.
+        if (savedUserId !== currentUserId || isNewBrowserSession) {
+        
+            // THỰC THI: Xóa sạch dấu vết cũ
+            localStorage.removeItem('aiChatSession');
+        
+            // Cập nhật danh tính mới vào bộ nhớ
+            localStorage.setItem('aiChatUserId', currentUserId);
+        
+            // Đặt lại "Dấu chứng nhận phiên": Cookie này không có ngày hết hạn (Expires)
+            // nên nó sẽ tự động bị xóa sạch ngay khi người dùng tắt trình duyệt (Close Browser).
+            document.cookie = "ai_session_active=true; path=/";
+        
+            console.log("[AI-Bot] Trạng thái thay đổi: Đã dọn dẹp lịch sử chat.");
+        }
 
-            // =========================================================================
-            // THUẬT TOÁN BỘ NHỚ TRÌNH DUYỆT (Giữ lịch sử xuyên suốt, tắt trình duyệt mới xóa)
-            // =========================================================================
+        // 2. TẢI LỊCH SỬ CHAT TỪ LOCAL STORAGE
+        var chatHistory = JSON.parse(localStorage.getItem('aiChatSession')) || [];
+        if (chatHistory.length > 0) {
+            $('#chatbot-messages').empty();
+            chatHistory.forEach(function (msg) {
+                if (msg.role === "user") {
+                    $('#chatbot-messages').append('<div style="align-self: flex-end; background-color: #007bff; color: #fff; padding: 10px 15px; border-radius: 15px; max-width: 80%; font-size: 14px;">' + msg.text + '</div>');
+                } else if (msg.role === "model") {
+                    var formattedReply = msg.text.replace(/\n/g, "<br>");
+                    $('#chatbot-messages').append('<div style="align-self: flex-start; background-color: #e5e5ea; color: #000; padding: 10px 15px; border-radius: 15px; max-width: 80%; font-size: 14px;">' + formattedReply + '</div>');
+                }
+            });
+            scrollToBottom();
+        }
 
-            // 1. Kiểm tra xem có Cookie đánh dấu phiên làm việc chưa
-            if (document.cookie.indexOf("ai_session_active=true") === -1) {
-                // Nếu chưa có (Nghĩa là khách vừa mới mở trình duyệt lên) -> Xóa sạch lịch sử cũ
+        // 3. UX CONTROLS (Đóng/Mở/Phóng to/Xóa)
+        $('#chatbot-toggle-btn').click(function () { $('#chatbot-window').toggle(); scrollToBottom(); });
+        $('#chatbot-close-btn').click(function () { $('#chatbot-window').hide(); });
+
+        var isExpanded = false;
+        $('#chatbot-expand-btn').click(function () {
+            if (!isExpanded) {
+                $('#chatbot-window').css({ 'width': '450px', 'height': '650px' });
+                $(this).html('<i class="fas fa-compress-arrows-alt"></i>');
+                $(this).attr('title', 'Thu nhỏ khung chat');
+            } else {
+                $('#chatbot-window').css({ 'width': '350px', 'height': '450px' });
+                $(this).html('<i class="fas fa-expand-arrows-alt"></i>');
+                $(this).attr('title', 'Mở rộng khung chat');
+            }
+            isExpanded = !isExpanded;
+            scrollToBottom();
+        });
+
+        $('#chatbot-clear-btn').click(function () {
+            if (confirm("Bạn có chắc chắn muốn xóa cuộc trò chuyện này không?")) {
                 localStorage.removeItem('aiChatSession');
-
-                // Tạo lại Cookie Session (Đặc tính của Cookie này là sẽ tự hủy khi khách tắt hẳn trình duyệt)
-                document.cookie = "ai_session_active=true; path=/";
+                chatHistory = [];
+                $('#chatbot-messages').empty();
+                $('#chatbot-messages').append('<div style="align-self: flex-start; background-color: #e5e5ea; color: #000; padding: 10px 15px; border-radius: 15px; max-width: 80%; font-size: 14px;">Dạ em chào anh/chị, em là trợ lý AI của MEN STORE. Em đã dọn dẹp bộ nhớ, em có thể giúp gì tiếp cho anh/chị ạ?</div>');
             }
+        });
 
-            // 2. TẢI LỊCH SỬ CHAT TỪ LOCAL STORAGE (Dùng chung cho mọi Tab, mọi Trang)
-            var chatHistory = JSON.parse(localStorage.getItem('aiChatSession')) || [];
-
-            // In lại lịch sử cũ ra màn hình khi khách chuyển trang hoặc tải lại trang
-            if (chatHistory.length > 0) {
-                $('#chatbot-messages').empty(); // Xóa câu chào mặc định
-
-                chatHistory.forEach(function (msg) {
-                    if (msg.role === "user") {
-                        $('#chatbot-messages').append('<div style="align-self: flex-end; background-color: #007bff; color: #fff; padding: 10px 15px; border-radius: 15px; max-width: 80%; font-size: 14px;">' + msg.text + '</div>');
-                    } else if (msg.role === "model") {
-                        var formattedReply = msg.text.replace(/\n/g, "<br>");
-                        $('#chatbot-messages').append('<div style="align-self: flex-start; background-color: #e5e5ea; color: #000; padding: 10px 15px; border-radius: 15px; max-width: 80%; font-size: 14px;">' + formattedReply + '</div>');
-                    }
-                });
+        function scrollToBottom() {
+            setTimeout(function() {
                 $('#chatbot-messages').scrollTop($('#chatbot-messages')[0].scrollHeight);
-            }
+            }, 100);
+        }
 
-            // ===================
-            // XỬ LÝ GỬI TIN NHẮN
-            // ===================
-            function sendMessage() {
-                var msg = $('#chatbot-input').val().trim();
-                if (msg === "") return;
+        // 4. XỬ LÝ GỬI TIN NHẮN
+        function sendMessage() {
+            var msg = $('#chatbot-input').val().trim();
+            if (msg === "") return;
 
-                // In tin nhắn khách lên UI
-                $('#chatbot-messages').append('<div style="align-self: flex-end; background-color: #007bff; color: #fff; padding: 10px 15px; border-radius: 15px; max-width: 80%; font-size: 14px;">' + msg + '</div>');
-                $('#chatbot-input').val('');
-                $('#chatbot-messages').scrollTop($('#chatbot-messages')[0].scrollHeight);
+            // In tin nhắn khách
+            $('#chatbot-messages').append('<div style="align-self: flex-end; background-color: #007bff; color: #fff; padding: 10px 15px; border-radius: 15px; max-width: 80%; font-size: 14px;">' + msg + '</div>');
+            $('#chatbot-input').val('');
+            scrollToBottom();
 
-                // Hiện loading "Đang suy nghĩ..."
-                var loadingId = "loading-" + Date.now();
-                $('#chatbot-messages').append('<div id="' + loadingId + '" style="align-self: flex-start; background-color: #e5e5ea; color: #555; padding: 10px 15px; border-radius: 15px; max-width: 80%; font-size: 14px;"><i>Đang suy nghĩ...</i></div>');
-                $('#chatbot-messages').scrollTop($('#chatbot-messages')[0].scrollHeight);
+            // Hiện loading
+            var loadingId = "loading-" + Date.now();
+            $('#chatbot-messages').append('<div id="' + loadingId + '" style="align-self: flex-start; background-color: #e5e5ea; color: #555; padding: 10px 15px; border-radius: 15px; max-width: 80%; font-size: 14px;"><i>Đang suy nghĩ...</i></div>');
+            scrollToBottom();
 
-                // Gọi API lên Controller
-                $.ajax({
-                    url: '/Home/SendMessage',
-                    type: 'POST',
-                    data: {
-                        userMessage: msg,
-                        historyJson: JSON.stringify(chatHistory) // Gửi toàn bộ lịch sử lên cho AI đọc
-                    },
-                    success: function (response) {
-                        $('#' + loadingId).remove(); // Xóa chữ loading
+            $.ajax({
+                url: '/Home/SendMessage',
+                type: 'POST',
+                data: { userMessage: msg, historyJson: JSON.stringify(chatHistory) },
+                success: function (response) {
+                    $('#' + loadingId).remove();
+                    if(response.success) {
                         var formattedReply = response.reply.replace(/\n/g, "<br>");
-
-                        // In câu trả lời AI lên UI
                         $('#chatbot-messages').append('<div style="align-self: flex-start; background-color: #e5e5ea; color: #000; padding: 10px 15px; border-radius: 15px; max-width: 80%; font-size: 14px;">' + formattedReply + '</div>');
-                        $('#chatbot-messages').scrollTop($('#chatbot-messages')[0].scrollHeight);
 
-                        // 3. LƯU LỊCH SỬ VÀO TRÍ NHỚ TRÌNH DUYỆT (LOCAL STORAGE)
+                        // Lưu lịch sử
                         chatHistory.push({ role: "user", text: msg });
                         chatHistory.push({ role: "model", text: response.reply });
                         localStorage.setItem('aiChatSession', JSON.stringify(chatHistory));
-                    },
-                    error: function () {
-                        $('#' + loadingId).remove();
-                        $('#chatbot-messages').append('<div style="align-self: flex-start; color: red; font-size: 14px;">Lỗi kết nối máy chủ AI.</div>');
+                    } else {
+                        $('#chatbot-messages').append('<div style="align-self: flex-start; color: red; font-size: 14px; padding: 10px;">' + response.reply + '</div>');
                     }
-                });
-            }
+                    scrollToBottom();
+                },
+                error: function () {
+                    $('#' + loadingId).remove();
+                    $('#chatbot-messages').append('<div style="align-self: flex-start; color: red; font-size: 14px; padding: 10px;">Lỗi kết nối máy chủ AI.</div>');
+                    scrollToBottom();
+                }
+            });
+        }
 
-            // Lắng nghe sự kiện click và gõ Enter
-            $('#chatbot-send-btn').click(function () { sendMessage(); });
-            $('#chatbot-input').keypress(function (e) { if (e.which == 13) sendMessage(); });
-        });
+        $('#chatbot-send-btn').click(function () { sendMessage(); });
+        $('#chatbot-input').keypress(function (e) { if (e.which == 13) sendMessage(); });
+    });
     </script>
-
 
     @*================================================
         HIỆU ỨNG RƠI (Hoa, Tuyết, Điểm) + MƯA + PHÁO HOA

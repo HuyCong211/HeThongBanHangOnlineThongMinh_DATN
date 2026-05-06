@@ -84,6 +84,12 @@
                             </td>
                         </tr>
                         <tr>
+                            <th>Trạng thái</th>
+                            <td>
+                                @(Model.TrangThai == 1 ? Html.Raw("<span class='text-success'>Đang hoạt động</span>") : Html.Raw("<span class='text-danger'>Đang tạm ẩn</span>"))
+                            </td>
+                        </tr>
+                        <tr>
                             <th>Thống kê</th>
                             <td>
                                 Tổng cộng <span class="text-danger font-weight-bold" style="font-size: 1.1rem;">@ViewBag.SoLuongSanPham</span> sản phẩm

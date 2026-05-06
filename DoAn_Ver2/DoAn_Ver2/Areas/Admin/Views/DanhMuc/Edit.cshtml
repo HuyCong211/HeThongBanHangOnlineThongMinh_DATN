@@ -73,6 +73,13 @@
                     </span>
                 </div>
             </div>
+            <div class="form-group col-md-2">
+                @Html.LabelFor(model => model.TrangThai, "Trạng thái", new { @class = "control-label font-weight-bold" })
+                @Html.DropDownListFor(model => model.TrangThai, new List<SelectListItem> {
+                    new SelectListItem { Text = "Hiển thị", Value = "1" },
+                    new SelectListItem { Text = "Tạm ẩn", Value = "0" }
+                }, new { @class = "form-control" })
+            </div>
 
             <div class="form-group text-left">
                 <a href="@Url.Action("Index")" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Quay lại</a>

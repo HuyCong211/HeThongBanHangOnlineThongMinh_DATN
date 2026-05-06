@@ -300,6 +300,9 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
             ViewBag.OldBienThes = BienThes; 
             ViewBag.OldImageIndexes = ImageIndexes;
             ViewBag.OldKichThuocIDs = KichThuocIDs;
+            // THÊM DÒNG NÀY VÀO ĐỂ FIX LỖI:
+            ViewBag.AllTags = new List<string> { "Đi biển", "Đi làm", "Đi học", "Đi chơi", "Thể thao", "Dự tiệc", "Mặc nhà", "Dạo phố" };
+
             return View(model);
         }
 

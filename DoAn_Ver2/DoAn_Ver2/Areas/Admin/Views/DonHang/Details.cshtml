@@ -168,20 +168,52 @@
                 <h6 class="m-0 font-weight-bold">Xử lý đơn hàng</h6>
             </div>
             <div class="card-body">
+                @{
+                    // Lấy trạng thái hiện tại để xét điều kiện UI
+                    int currentStatus = Model.TrangThaiDonHang ?? 0;
+
+                    // Khóa hẳn toàn bộ chức năng nếu đơn đã Hoàn thành (3) hoặc Đã hủy (4)
+                    bool isLocked = (currentStatus == 3 || currentStatus == 4);
+                }
+
                 <div class="form-group">
                     <label>Trạng thái hiện tại:</label>
-                    <select id="ddlTrangThai" class="form-control font-weight-bold text-dark">
-                        <option value="0" @(Model.TrangThaiDonHang == 0 ? "selected" : "")>Chờ xác nhận</option>
-                        <option value="1" @(Model.TrangThaiDonHang == 1 ? "selected" : "")>Đã xác nhận (Chuẩn bị hàng)</option>
-                        <option value="2" @(Model.TrangThaiDonHang == 2 ? "selected" : "")>Đang giao hàng</option>
-                        <option value="3" @(Model.TrangThaiDonHang == 3 ? "selected" : "")>Hoàn thành</option>
-                        <option value="4" @(Model.TrangThaiDonHang == 4 ? "selected" : "") class="text-danger font-weight-bold">Hủy đơn hàng</option>
+                    <select id="ddlTrangThai" class="form-control font-weight-bold text-dark" @(isLocked ? "disabled" : "")>
+
+                        <option value="0" @(currentStatus == 0 ? "selected" : "") @(currentStatus > 0 ? "disabled" : "")>
+                            Chờ xác nhận
+                        </option>
+                        <option value="1" @(currentStatus == 1 ? "selected" : "") @(currentStatus > 1 ? "disabled" : "")>
+                            Đã xác nhận (Chuẩn bị hàng)
+                        </option>
+                        <option value="2" @(currentStatus == 2 ? "selected" : "") @(currentStatus > 2 ? "disabled" : "")>
+                            Đang giao hàng
+                        </option>
+                        <option value="3" @(currentStatus == 3 ? "selected" : "")>
+                            Hoàn thành
+                        </option>
+
+                        <option value="4" @(currentStatus == 4 ? "selected" : "") class="text-danger font-weight-bold" @(currentStatus >= 2 && currentStatus != 4 ? "disabled" : "")>
+                            Hủy đơn hàng
+                        </option>
                     </select>
                 </div>
-                <button class="btn btn-success btn-block font-weight-bold" onclick="UpdateStatus()">
-                    <i class="fas fa-save mr-2"></i> CẬP NHẬT TRẠNG THÁI
-                </button>
-                <hr /> <a href="@Url.Action("PrintInvoice", "DonHang", new { id = Model.ID })" target="_blank" class="btn btn-danger btn-block font-weight-bold">
+
+                @if (isLocked)
+                {
+                    <button class="btn btn-secondary btn-block font-weight-bold" disabled>
+                        <i class="fas fa-lock mr-2"></i> ĐƠN HÀNG ĐÃ ĐÓNG
+                    </button>
+                }
+                else
+                {
+                    <button class="btn btn-success btn-block font-weight-bold" onclick="UpdateStatus()">
+                        <i class="fas fa-save mr-2"></i> CẬP NHẬT TRẠNG THÁI
+                    </button>
+                }
+
+                <hr />
+                <a href="@Url.Action("PrintInvoice", "DonHang", new { id = Model.ID })" target="_blank" class="btn btn-danger btn-block font-weight-bold">
                     <i class="fas fa-file-pdf mr-2"></i> IN / XUẤT HÓA ĐƠN PDF
                 </a>
                 <a href="@Url.Action("Index")" class="btn btn-outline-secondary btn-block mt-3">
@@ -197,7 +229,7 @@
         function UpdateStatus() {
             var status = $('#ddlTrangThai').val();
             var id = '@Model.ID';
-            var statusText = $("#ddlTrangThai option:selected").text();
+            var statusText = $("#ddlTrangThai option:selected").text().trim();
             var reason = "";
 
             

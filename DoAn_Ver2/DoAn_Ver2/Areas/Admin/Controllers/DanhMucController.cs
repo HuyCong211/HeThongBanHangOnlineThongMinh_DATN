@@ -155,7 +155,7 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
                         ImageFile.SaveAs(path);
                         model.HinhAnh = "/Content/images/danhmuc/" + newFileName;
                     }
-
+                    model.TrangThai = 1;
                     model.NgayTao = DateTime.Now;
 
                     _unitOfWork.Repository<DanhMuc>().Add(model);
@@ -209,6 +209,7 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
                     // CẬP NHẬT DANH MỤC CHA
                     existItem.DanhMucChaID = model.DanhMucChaID;
                     existItem.MoTa = model.MoTa;
+                    existItem.TrangThai = model.TrangThai;
                     existItem.NgayCapNhat = DateTime.Now;
 
                     if (ImageFile != null && ImageFile.ContentLength > 0)
@@ -240,6 +241,14 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
             {
                 return HttpNotFound();
             }
+            // Kiểm tra xem có danh mục con hoặc sản phẩm không
+            bool hasChild = _unitOfWork.Repository<DanhMuc>().GetAll().Any(x => x.DanhMucChaID == id);
+            bool hasProducts = _unitOfWork.Repository<SanPham>().GetAll().Any(x => x.DanhMucID == id);
+
+            // Biến tổng hợp: Nếu có 1 trong 2 thì không cho xóa
+            ViewBag.CanNotDelete = hasChild || hasProducts;
+            ViewBag.HasChild = hasChild;
+            ViewBag.HasProducts = hasProducts;
             return View(model);
         }
 
@@ -253,6 +262,22 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
             return RedirectToAction("Index");
         }
 
+
+        // Thêm Action xử lý Ẩn danh mục (tương tự Deactive bên sản phẩm)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Deactivate(int id)
+        {
+            var model = _unitOfWork.Repository<DanhMuc>().GetById(id);
+            if (model != null)
+            {
+                model.TrangThai = 0; // 0 là Ẩn/Ngừng hoạt động
+                _unitOfWork.Repository<DanhMuc>().Update(model);
+                _unitOfWork.Save();
+                TempData["Success"] = "Đã chuyển danh mục sang trạng thái tạm ẩn.";
+            }
+            return RedirectToAction("Index");
+        }
 
         // --- HELPER: Hàm đệ quy lấy tất cả ID con cháu ---
         private List<int> GetChildCategoryIDs(List<DanhMuc> allCats, int parentId)

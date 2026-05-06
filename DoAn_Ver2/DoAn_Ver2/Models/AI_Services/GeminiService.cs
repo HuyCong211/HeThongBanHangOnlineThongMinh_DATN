@@ -12,7 +12,6 @@ namespace DoAn_Ver2.Models.AI_Services
 {
     public class GeminiService
     {
-        // Dán API Key Google AI Studio của em vào đây
         private readonly string _apiKey = "AIzaSyCutGufD0msvMjcSTK4T2gxzZKkJvIKlWM";
 
         // HÀM ĐÃ ĐƯỢC NÂNG CẤP LÊN 3 THAM SỐ (Thêm chatHistory)
@@ -21,10 +20,12 @@ namespace DoAn_Ver2.Models.AI_Services
             System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12;
             using (var client = new HttpClient())
             {
-                client.Timeout = TimeSpan.FromSeconds(60);
+                client.Timeout = TimeSpan.FromSeconds(8);
 
                 string url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={_apiKey}";
-
+                //string url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent?key={_apiKey}";
+                //string url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-tts-preview:generateContent?key={_apiKey}";
+                //string url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={_apiKey}";
                 string systemInstruction =
                     "Bạn là chuyên gia tư vấn thời trang nam. Bạn đang trò chuyện liên tục với khách hàng.\n\n" +
                     "--- 📏 BÍ KÍP TƯ VẤN SIZE ---\n" +
@@ -32,6 +33,10 @@ namespace DoAn_Ver2.Models.AI_Services
                     "- QUẦN: Dưới 60kg -> Size 29,30 | 60-70kg -> Size 31 | Trên 70kg -> Size 32.\n" +
                     "- GIÀY: 24.5cm -> Size 40 | 25.5cm -> Size 41 | 26.5cm -> Size 42 | 27.5cm -> Size 43.\n" +
                     "- CHÍNH SÁCH: Đổi trả 7 ngày. Freeship từ 500k.\n\n" +
+                    "--- 🛑 QUY TẮC SỐNG CÒN (ANTI-HALLUCINATION) - BẮT BUỘC TUÂN THỦ ---\n" +
+                    "1. DỮ LIỆU ĐỘC QUYỀN: BẠN CHỈ ĐƯỢC PHÉP giới thiệu, báo giá và mô tả các sản phẩm NẰM TRONG phần [DỮ LIỆU SẢN PHẨM TỪ DB] bên dưới hoặc các sản phẩm bạn đã tư vấn trong lịch sử trò chuyện.\n" +
+                    "2. NGHIÊM CẤM BỊA ĐẶT (ZERO HALLUCINATION): TUYỆT ĐỐI KHÔNG tự sáng tạo ra tên sản phẩm, màu sắc, kiểu dáng, hoặc giá tiền không có trong [DỮ LIỆU SẢN PHẨM TỪ DB]. TUYỆT ĐỐI KHÔNG lấy ID của sản phẩm này gán cho tên một sản phẩm không tồn tại.\n" +
+                    "3. XỬ LÝ TỪ CHỐI: Nếu khách hàng tìm kiếm một sản phẩm KHÔNG KHỚP với bất kỳ thông tin nào trong [DỮ LIỆU SẢN PHẨM TỪ DB], hãy từ chối khéo léo: 'Dạ hiện tại bên em đang tạm hết hoặc không có mẫu [tên món đồ khách hỏi] ạ. Anh/chị có muốn tham khảo các mẫu tương tự em đang có sẵn không ạ?'. KHÔNG cố gắng gượng ép giới thiệu nếu dữ liệu không liên quan.\n\n" +
                     "--- 🧠 TƯ DUY XỬ LÝ NGỮ CẢNH (RẤT QUAN TRỌNG) ---\n" +
                     "1. ƯU TIÊN LỊCH SỬ CHAT: Nếu câu hỏi của khách là câu hỏi nối tiếp về các sản phẩm bạn ĐÃ GIỚI THIỆU ở câu trả lời ngay trước đó, bạn PHẢI TƯ VẤN TIẾP dựa trên các sản phẩm trong Lịch sử Chat.\n" +
                     "2. KẾT QUẢ MỚI: BẠN CHỈ ĐƯỢC DÙNG mục [KẾT QUẢ TÌM KIẾM MỚI TỪ DB] bên dưới khi khách yêu cầu tìm một món đồ HOÀN TOÀN MỚI.\n" +
@@ -39,13 +44,13 @@ namespace DoAn_Ver2.Models.AI_Services
                     "--- 🎨 QUY TẮC TRÌNH BÀY GIAO DIỆN (BẮT BUỘC TUÂN THỦ) ---\n" +
                     "Mỗi khi liệt kê sản phẩm, PHẢI trình bày theo đúng cấu trúc HTML dưới đây:\n" +
                     "<b>Mã sản phẩm: [ID]</b>\n" +
-                    "🏷️ <b>[Tên Sản Phẩm]</b>\n" +
-                    "💰 Giá: <b>[Giá VNĐ]</b>\n" +
-                    "📝 [Tóm tắt 1 câu mô tả ngắn gọn, hấp dẫn]\n" +
+                    "🏷️ <b>[Tên Sản Phẩm chính xác từ DB]</b>\n" +
+                    "💰 Giá: <b>[Giá VNĐ chính xác từ DB]</b>\n" +
+                    "📝 [Tóm tắt 1 câu mô tả ngắn gọn, hấp dẫn dựa trên thông tin DB cung cấp]\n" +
                     "<a href='https://localhost:44338/Product/Detail/[ID]' target='_blank' style='display:inline-block; margin-top:5px; padding:6px 12px; background-color:#d70018; color:#fff; text-decoration:none; border-radius:4px; font-weight:bold; font-size:12px;'>🛒 Xem chi tiết & Đặt hàng</a>\n" +
                     "<hr style='border: 0px; border-top: 1px dashed #ccc; margin: 15px 0;'>\n" +
-                    "LƯU Ý: Thay [ID] bằng ID thực tế của sản phẩm.\n\n" +
-                    "[KẾT QUẢ TÌM KIẾM MỚI TỪ DB (Chỉ dùng khi khách hỏi món đồ mới)]:\n" + contextData;
+                    "LƯU Ý: Thay [ID] bằng ID thực tế của sản phẩm, phải đúng ID là số nguyên theo đúng sản phẩm, không được tự bịa ra ID khác.\n\n" +
+                    "[DỮ LIỆU SẢN PHẨM TỪ DB (Chỉ sử dụng thông tin chính xác từ đây)]:\n" + contextData;
 
                 var systemInstructionObj = new JObject(
                     new JProperty("parts", new JArray(new JObject(new JProperty("text", systemInstruction))))

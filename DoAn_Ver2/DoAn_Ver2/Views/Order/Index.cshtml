@@ -34,11 +34,39 @@
                 </div>
             </div>
 
+
+            @if (isLoggedIn && Model != null && Model.Count > 0)
+            {
+                <div class="mb-4">
+                    <ul class="nav nav-pills nav-fill bg-white shadow-sm rounded p-2" id="orderStatusTabs">
+                        <li class="nav-item">
+                            <a class="nav-link active font-weight-bold" href="#" data-filter="all">Tất cả</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link font-weight-bold" href="#" data-filter="0">Chờ xác nhận</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link font-weight-bold" href="#" data-filter="1">Đã xác nhận</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link font-weight-bold" href="#" data-filter="2">Đang giao</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link font-weight-bold" href="#" data-filter="3">Hoàn thành</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-danger font-weight-bold" href="#" data-filter="4">Đã hủy</a>
+                        </li>
+                    </ul>
+                </div>
+            }
+
+
             @if (Model != null && Model.Count > 0)
             {
                 foreach (var item in Model)
                 {
-                    <div class="card shadow-sm border-0 mb-3">
+                    <div class="card shadow-sm border-0 mb-3 order-item" data-status="@item.TrangThaiDonHang">
                         <div class="card-header bg-white d-flex justify-content-between align-items-center">
                             <div>
                                 <span class="font-weight-bold text-primary">#@item.MaDonHang</span>
@@ -92,6 +120,12 @@
                         </div>
                     </div>
                 }
+                <div id="empty-filter-message" class="text-center py-5 shadow-sm bg-white rounded" style="display:none;">
+                    <img src="https://cdn-icons-png.flaticon.com/512/4076/4076432.png" style="width: 80px; opacity: 0.5" class="mb-3">
+                    <p class="text-muted">Không có đơn hàng nào ở trạng thái này.</p>
+                </div>
+
+
             }
             else if (isLoggedIn)
             {
@@ -103,6 +137,37 @@
 
 @section scripts {
     <script>
+        $(document).ready(function () {
+            $('#orderStatusTabs .nav-link').click(function (e) {
+                e.preventDefault();
+
+                // 1. Đổi UI cho Tab
+                $('#orderStatusTabs .nav-link').removeClass('active bg-primary text-white');
+                $(this).addClass('active bg-primary text-white');
+
+                var filterValue = $(this).data('filter');
+                var $orderItems = $('.order-item');
+                var $emptyMsg = $('#empty-filter-message');
+
+                // 2. Xử lý ẩn/hiện dựa trên filter
+                if (filterValue === 'all') {
+                    $orderItems.show();
+                } else {
+                    $orderItems.hide();
+                    // Chỉ hiện các item có data-status khớp
+                    $orderItems.filter('[data-status="' + filterValue + '"]').show();
+                }
+
+                // 3. KIỂM TRA TRỐNG: Đếm số lượng item đang hiển thị (:visible)
+                if ($('.order-item:visible').length === 0) {
+                    $emptyMsg.fadeIn(200); // Hiện thông báo trống nếu không có gì
+                } else {
+                    $emptyMsg.hide(); // Ẩn thông báo nếu có đơn hàng
+                }
+            });
+        });
+
+
         function loadOrderDetail(id) {
             var $detailBox = $('#order-detail-' + id);
             if ($detailBox.is(':visible')) {
