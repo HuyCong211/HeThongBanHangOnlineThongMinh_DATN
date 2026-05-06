@@ -1,10 +1,10 @@
 # 🛍️ Xây dựng Hệ Thống Bán Hàng Online Thông Minh Cho Cửa Hàng Thời Trang
 
 <div align="center">
-
 > **Đồ án Tốt nghiệp** — Hệ thống thương mại điện tử tích hợp trí tuệ nhân tạo hỗ trợ tư vấn thời trang và cá nhân hóa trải nghiệm mua sắm.
+</div>
+<div align="center">
 > **Sinh viên thực hiện: Nguyễn Huy Công**
-
 </div>
 
 ---
