@@ -187,6 +187,12 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
                     }
                 }
 
+                // --- LOGIC 3: GỬI MAIL KHI CHUYỂN SANG ĐANG GIAO (2) HOẶC HOÀN THÀNH (3) ---
+                if (trangThai == 2)
+                    SendShippingEmail(donHang);
+                else if (trangThai == 3)
+                    SendCompletedEmail(donHang);
+
                 // Cập nhật trạng thái
                 donHang.TrangThaiDonHang = trangThai;
                 _unitOfWork.Repository<DonHang>().Update(donHang);
@@ -248,6 +254,96 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
                 System.Diagnostics.Debug.WriteLine("Lỗi gửi mail hủy: " + ex.Message);
             }
         }
+
+        // --- HELPER: GỬI MAIL ĐANG GIAO ---
+        private void SendShippingEmail(DonHang dh)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(dh.EmailNguoiNhan)) return;
+
+                string host = ConfigurationManager.AppSettings["EmailHost"];
+                int port = int.Parse(ConfigurationManager.AppSettings["EmailPort"]);
+                string fromEmail = ConfigurationManager.AppSettings["EmailUserName"];
+                string password = ConfigurationManager.AppSettings["EmailPassword"];
+                string fromName = ConfigurationManager.AppSettings["EmailFromName"];
+
+                var message = new MailMessage();
+                message.From = new MailAddress(fromEmail, fromName);
+                message.To.Add(new MailAddress(dh.EmailNguoiNhan));
+                message.Subject = $"[Men Store] Đơn hàng #{dh.MaDonHang} đang được giao đến bạn";
+                message.IsBodyHtml = true;
+                message.Body = $@"
+            <div style='font-family:Arial,sans-serif;padding:20px;border:1px solid #ddd;'>
+                <h2 style='color:#007bff;'>Đơn hàng đang trên đường giao đến bạn 🚚</h2>
+                <p>Xin chào <strong>{dh.TenNguoiNhan}</strong>,</p>
+                <p>Đơn hàng <strong>#{dh.MaDonHang}</strong> của bạn đã được bàn giao cho đơn vị vận chuyển và đang trên đường giao đến địa chỉ:</p>
+                <div style='background:#e8f4fd;padding:15px;border-radius:5px;margin:10px 0;'>
+                    <strong>{dh.DiaChiGiaoHang}</strong>
+                </div>
+                <p>Vui lòng chú ý điện thoại để nhận hàng. Nếu cần hỗ trợ, liên hệ hotline: <strong>1900 xxxx</strong>.</p>
+                <hr/>
+                <p style='color:#888;font-size:13px;'>Men Store – Cảm ơn bạn đã mua hàng!</p>
+            </div>";
+
+                using (var client = new SmtpClient(host, port))
+                {
+                    client.EnableSsl = true;
+                    client.UseDefaultCredentials = false;
+                    client.Credentials = new NetworkCredential(fromEmail, password);
+                    client.Send(message);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Lỗi gửi mail đang giao: " + ex.Message);
+            }
+        }
+
+        // --- HELPER: GỬI MAIL HOÀN THÀNH ---
+        private void SendCompletedEmail(DonHang dh)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(dh.EmailNguoiNhan)) return;
+
+                string host = ConfigurationManager.AppSettings["EmailHost"];
+                int port = int.Parse(ConfigurationManager.AppSettings["EmailPort"]);
+                string fromEmail = ConfigurationManager.AppSettings["EmailUserName"];
+                string password = ConfigurationManager.AppSettings["EmailPassword"];
+                string fromName = ConfigurationManager.AppSettings["EmailFromName"];
+
+                var message = new MailMessage();
+                message.From = new MailAddress(fromEmail, fromName);
+                message.To.Add(new MailAddress(dh.EmailNguoiNhan));
+                message.Subject = $"[Men Store] Đơn hàng #{dh.MaDonHang} đã giao thành công";
+                message.IsBodyHtml = true;
+                message.Body = $@"
+            <div style='font-family:Arial,sans-serif;padding:20px;border:1px solid #ddd;'>
+                <h2 style='color:#28a745;'>Đơn hàng đã giao thành công ✅</h2>
+                <p>Xin chào <strong>{dh.TenNguoiNhan}</strong>,</p>
+                <p>Đơn hàng <strong>#{dh.MaDonHang}</strong> (tổng thanh toán: <strong>{dh.TongThanhToan:N0} đ</strong>) đã được giao thành công.</p>
+                <p>Cảm ơn bạn đã tin tưởng mua sắm tại <strong>Men Store</strong>. Hy vọng bạn hài lòng với sản phẩm!</p>
+                <p>Nếu cần hỗ trợ hoặc đổi trả, liên hệ hotline: <strong>1900 xxxx</strong>.</p>
+                <hr/>
+                <p style='color:#888;font-size:13px;'>Men Store – Cảm ơn bạn đã mua hàng!</p>
+            </div>";
+
+                using (var client = new SmtpClient(host, port))
+                {
+                    client.EnableSsl = true;
+                    client.UseDefaultCredentials = false;
+                    client.Credentials = new NetworkCredential(fromEmail, password);
+                    client.Send(message);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Lỗi gửi mail hoàn thành: " + ex.Message);
+            }
+        }
+
+
 
         // ==============================================================
         // XUẤT HÓA ĐƠN PDF (IN HÓA ĐƠN)

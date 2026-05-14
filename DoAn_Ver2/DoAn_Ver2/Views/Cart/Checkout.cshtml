@@ -4,12 +4,22 @@
     ViewBag.Title = "Thanh toán";
     Layout = "~/Views/Shared/_Layout.cshtml";
     var selectedIds = ViewBag.SelectedIds as string;
+
+    // Tính toán server-side để render trạng thái ban đầu
+    long baseTotal = (long)Model.TongTienHang;
+    long shipFee = (long)Model.PhiShip;
+    long initFreeshipSaving = !string.IsNullOrEmpty(Model.MaFreeShip) ? shipFee : 0;
+    long initVoucherSaving = (long)Model.SoTienGiamVoucher;
+    long initShipDisplay = initFreeshipSaving > 0 ? 0 : shipFee;
+    long initTotal = baseTotal + initShipDisplay - initVoucherSaving;
 }
 
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
 <style>
+    /* ---- Select2 fix ---- */
     .select2-container .select2-selection--single {
-        height: 38px !important; 
+        height: 38px !important;
         border: 1px solid #ced4da !important;
     }
 
@@ -22,7 +32,102 @@
     }
 
     .select2-search__field {
-        outline: none !important; 
+        outline: none !important;
+    }
+
+    /* ---- Voucher card ---- */
+    .voucher-item {
+        cursor: pointer;
+        transition: all 0.18s ease;
+        border: 2px solid #e9ecef !important;
+    }
+
+        .voucher-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 .4rem .8rem rgba(0,0,0,.12) !important;
+            border-color: #28a745 !important;
+        }
+
+        .voucher-item.selected-voucher {
+            border: 2px solid #28a745 !important;
+            background-color: #f0fff4 !important;
+        }
+
+        .voucher-item.disabled-voucher {
+            opacity: 0.45;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+    /* ---- Voucher section tabs ---- */
+    .voucher-section-title {
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: .05em;
+        text-transform: uppercase;
+        padding: 6px 10px;
+        border-radius: 4px;
+        margin-bottom: 8px;
+    }
+
+    .freeship-title {
+        background: #e8f5e9;
+        color: #2e7d32;
+    }
+
+    .discount-title {
+        background: #fff3e0;
+        color: #e65100;
+    }
+
+    /* ---- Slot badges ---- */
+    .slot-box {
+        border: 1.5px dashed #dee2e6;
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-size: 0.85rem;
+        min-height: 42px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #fafafa;
+    }
+
+        .slot-box.has-voucher {
+            border-color: #28a745;
+            background: #f0fff4;
+            color: #155724;
+        }
+
+        .slot-box .slot-placeholder {
+            color: #adb5bd;
+            font-style: italic;
+        }
+
+    /* ---- Best badge ---- */
+    .badge-best {
+        background: linear-gradient(135deg, #ff416c, #ff4b2b);
+        color: #fff;
+        font-size: 0.7rem;
+        padding: 2px 7px;
+        border-radius: 20px;
+        font-weight: 700;
+        letter-spacing: .03em;
+    }
+
+    /* ---- Summary rows ---- */
+    .saving-highlight {
+        color: #28a745;
+        font-weight: 600;
+    }
+
+    .freeship-tag {
+        font-size: 0.78rem;
+        background: #28a745;
+        color: #fff;
+        border-radius: 4px;
+        padding: 1px 6px;
+        margin-left: 4px;
     }
 </style>
 
@@ -32,9 +137,12 @@
         @Html.AntiForgeryToken()
         <input type="hidden" name="selectedIds" value="@selectedIds" />
 
-        <input type="hidden" name="MaVoucher" id="selectedVoucherCode" value="@Model.MaVoucher" />
+        @* Hidden inputs cho 2 mã voucher *@
+        <input type="hidden" name="MaFreeShip" id="hiddenMaFreeShip" value="@Model.MaFreeShip" />
+        <input type="hidden" name="MaVoucherGiam" id="hiddenMaVoucherGiam" value="@Model.MaVoucherGiam" />
 
         <div class="row">
+            @* ===== CỘT TRÁI: THÔNG TIN GIAO HÀNG ===== *@
             <div class="col-lg-7 mb-4">
                 <div class="card shadow-sm border-0 h-100">
                     <div class="card-header bg-white font-weight-bold text-uppercase py-3">
@@ -117,13 +225,16 @@
                 </div>
             </div>
 
+            @* ===== CỘT PHẢI: ĐƠN HÀNG + VOUCHER ===== *@
             <div class="col-lg-5">
                 <div class="card shadow-sm border-0 sticky-top" style="top: 20px; z-index: 1;">
                     <div class="card-header bg-dark text-white text-uppercase font-weight-bold py-3">
                         <i class="fas fa-shopping-cart mr-2"></i> Đơn hàng của bạn
                     </div>
                     <div class="card-body p-4">
-                        <div class="checkout-product-list mb-3 pr-2" style="max-height: 300px; overflow-y: auto;">
+
+                        @* Danh sách sản phẩm *@
+                        <div class="checkout-product-list mb-3 pr-2" style="max-height: 260px; overflow-y: auto;">
                             <ul class="list-group list-group-flush">
                                 @foreach (var item in Model.CartItems)
                                 {
@@ -138,46 +249,114 @@
                             </ul>
                         </div>
 
-                        <div class="mb-4">
-                            <label class="font-weight-bold"><i class="fas fa-ticket-alt text-warning mr-2"></i>Mã giảm giá</label>
-
-                            <div class="input-group mb-2">
-                                <input type="text" class="form-control text-primary font-weight-bold bg-white" id="displayVoucherCode" placeholder="Chưa chọn mã nào" readonly value="@Model.MaVoucher">
-                                <div class="input-group-append">
-                                    <button class="btn btn-outline-primary" type="button" data-toggle="modal" data-target="#voucherModal">
-                                        <i class="fas fa-list mr-1"></i> Chọn mã
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div id="removeVoucherBlock" style="display: none;">
-                                <button type="button" class="btn btn-sm btn-link text-danger p-0" id="btnRemoveVoucher">
-                                    <i class="fas fa-times-circle"></i> Bỏ dùng voucher này
+                        @* ===== KHU VỰC VOUCHER MỚI ===== *@
+                        <div class="mb-3 p-3 border rounded" style="background: #f8f9fa;">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <label class="font-weight-bold mb-0">
+                                    <i class="fas fa-ticket-alt text-warning mr-1"></i> Ưu đãi
+                                </label>
+                                <button type="button" class="btn btn-sm btn-outline-primary py-0 px-2"
+                                        data-toggle="modal" data-target="#voucherModal">
+                                    <i class="fas fa-list mr-1"></i> Chọn mã
                                 </button>
                             </div>
-                        </div>
 
+                            @* Slot 1: Free Ship *@
+                            @if (Model.DuDieuKienFreeShip)
+                            {
+                                <div class="mb-2">
+                                    <div class="voucher-section-title freeship-title">
+                                        <i class="fas fa-shipping-fast mr-1"></i> Mã miễn phí vận chuyển
+                                    </div>
+                                    <div class="slot-box @(!string.IsNullOrEmpty(Model.MaFreeShip) ? "has-voucher" : "")"
+                                         id="slotFreeShip">
+                                        @if (!string.IsNullOrEmpty(Model.MaFreeShip))
+                                        {
+                                            <span><i class="fas fa-check-circle mr-1"></i><strong>@Model.MaFreeShip</strong> — Miễn phí ship</span>
+                                            <button type="button" class="btn btn-link text-danger p-0 small" id="btnRemoveFreeship">
+                                                <i class="fas fa-times-circle"></i>
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <span class="slot-placeholder">Chưa chọn mã freeship</span>
+                                            <span class="badge badge-success badge-pill">Đủ điều kiện!</span>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="mb-2 text-muted small">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    Mua thêm <strong class="text-danger" id="stillNeedAmount">
+                                        @((500000m - Model.TongTienHang).ToString("N0"))đ
+                                    </strong> để được chọn mã miễn phí vận chuyển.
+                                </div>
+                            }
+
+                            @* Slot 2: Voucher giảm giá *@
+                            <div>
+                                <div class="voucher-section-title discount-title">
+                                    <i class="fas fa-tag mr-1"></i> Mã giảm giá
+                                </div>
+                                <div class="slot-box @(!string.IsNullOrEmpty(Model.MaVoucherGiam) ? "has-voucher" : "")"
+                                     id="slotVoucherGiam">
+                                    @if (!string.IsNullOrEmpty(Model.MaVoucherGiam))
+                                    {
+                                        <span>
+                                            <i class="fas fa-check-circle mr-1"></i><strong>@Model.MaVoucherGiam</strong>
+                                            — Giảm <strong>@Model.SoTienGiamVoucher.ToString("N0")đ</strong>
+                                        </span>
+                                        <button type="button" class="btn btn-link text-danger p-0 small" id="btnRemoveVoucherGiam">
+                                            <i class="fas fa-times-circle"></i>
+                                        </button>
+                                    }
+                                    else if (Model.DsVoucherGiamGia != null && Model.DsVoucherGiamGia.Any())
+                                    {
+                                        <span class="slot-placeholder">Chưa chọn mã giảm giá</span>
+                                        <span class="badge badge-warning badge-pill text-dark">@Model.DsVoucherGiamGia.Count mã khả dụng</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="slot-placeholder">Không có mã phù hợp</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        @* ===== KẾT THÚC KHU VỰC VOUCHER ===== *@
+
+
+                        @* Tóm tắt tổng tiền *@
                         <ul class="list-group list-group-flush mb-4 border-top pt-3">
                             <li class="list-group-item d-flex justify-content-between px-0 py-1 border-0">
                                 <span>Tạm tính</span>
                                 <strong>@Model.TongTienHang.ToString("N0")đ</strong>
                             </li>
                             <li class="list-group-item d-flex justify-content-between px-0 py-1 border-0">
-                                <span>Phí vận chuyển</span>
-                                <strong class="text-dark">@Model.PhiShip.ToString("N0")đ</strong>
+                                <span>
+                                    Phí vận chuyển
+                                    <span id="freeshipTag" class="freeship-tag" style="display:@(!string.IsNullOrEmpty(Model.MaFreeShip) ? "inline" : "none")">Miễn phí</span>
+                                </span>
+                                <strong id="shipDisplay">
+                                    @(string.IsNullOrEmpty(Model.MaFreeShip) ? Model.PhiShip.ToString("N0") + "đ" : "0đ")
+                                </strong>
                             </li>
-
-                            <li class="list-group-item d-flex justify-content-between px-0 py-1 border-0 text-success" id="discountRow" style="display:none;">
+                            <li class="list-group-item d-flex justify-content-between px-0 py-1 border-0 text-success"
+                                id="voucherGiamRow"
+                                style="display:@(!string.IsNullOrEmpty(Model.MaVoucherGiam) ? "flex" : "none")">
                                 <span><i class="fas fa-tag mr-1"></i>Voucher giảm giá</span>
-                                <strong id="discountDisplay">-0đ</strong>
+                                <strong id="voucherGiamDisplay">-@Model.SoTienGiamVoucher.ToString("N0")đ</strong>
                             </li>
-
                             <li class="list-group-item d-flex justify-content-between px-0 py-3 border-top mt-2">
                                 <span class="text-success font-weight-bold h5 mb-0">Tổng thanh toán</span>
-                                <span class="text-danger h4 mb-0 font-weight-bold" id="totalDisplay">@((Model.TongTienHang + Model.PhiShip).ToString("N0"))đ</span>
+                                <span class="text-danger h4 mb-0 font-weight-bold" id="totalDisplay">
+                                    @string.Format("{0:N0}", initTotal)đ
+                                </span>
                             </li>
                         </ul>
 
+                        @* Phương thức thanh toán *@
                         <h6 class="font-weight-bold mb-3 border-bottom pb-2">Phương thức thanh toán</h6>
                         <div class="payment-methods">
                             <div class="custom-control custom-radio mb-3 p-3 border rounded">
@@ -194,7 +373,7 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-danger btn-block btn-lg mt-4 font-weight-bold shadow-sm hover-up">
+                        <button type="submit" class="btn btn-danger btn-block btn-lg mt-4 font-weight-bold shadow-sm">
                             ĐẶT HÀNG NGAY <i class="fas fa-check ml-2"></i>
                         </button>
                     </div>
@@ -204,238 +383,399 @@
     </form>
 </div>
 
+
+@* ===== MODAL CHỌN VOUCHER ===== *@
 <div class="modal fade" id="voucherModal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
         <div class="modal-content">
-            <div class="modal-header bg-light">
-                <h5 class="modal-title font-weight-bold">Chọn MenStore Voucher</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title font-weight-bold"><i class="fas fa-ticket-alt mr-2"></i>Chọn Mã Ưu Đãi</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
 
-            <div class="modal-body bg-light p-2" style="max-height: 400px; overflow-y: auto;">
-                @if (Model.DsVoucherKhaDung != null && Model.DsVoucherKhaDung.Any())
+            <div class="modal-body p-3" style="max-height: 520px; overflow-y: auto;">
+
+                @* ---- TAB 1: FREE SHIP ---- *@
+                @if (Model.DuDieuKienFreeShip && Model.DsVoucherFreeShip != null && Model.DsVoucherFreeShip.Any())
                 {
-                    <div class="voucher-list">
-                        @foreach (var voucher in Model.DsVoucherKhaDung)
-                        {
-                            decimal giaTriGiamThucTe = 0;
-                            string textGiamGia = "";
-                            string subText = "";
+                    <div class="voucher-section-title freeship-title mb-2">
+                        <i class="fas fa-shipping-fast mr-1"></i> Miễn phí vận chuyển
+                        <small class="font-weight-normal ml-2">(Chọn tối đa 1 mã)</small>
+                    </div>
 
-                            if (voucher.LoaiGiam == "PERCENT")
-                            {
-                                giaTriGiamThucTe = (Model.TongTienHang * (voucher.GiaTri ?? 0)) / 100;
-                                textGiamGia = $"Giảm {voucher.GiaTri}%";
-                                subText = $"Giảm tối đa {string.Format("{0:N0}", giaTriGiamThucTe)}đ";
-                            }
-                            else
-                            {
-                                giaTriGiamThucTe = voucher.GiaTri ?? 0;
-                                textGiamGia = $"Giảm {voucher.GiaTri:N0}đ";
-                            }
+                    foreach (var v in Model.DsVoucherFreeShip)
+                    {
+                        bool isSelectedFS = v.MaCode == Model.MaFreeShip;
+                        long savingFS = (long)Model.PhiShip; // freeship = tiết kiệm 30k
 
-                            if (giaTriGiamThucTe > Model.TongTienHang) { giaTriGiamThucTe = Model.TongTienHang; }
+                        <div class="voucher-item card mb-2 shadow-sm @(isSelectedFS ? "selected-voucher" : "")"
+                             data-type="freeship"
+                             data-code="@v.MaCode"
+                             data-money="@savingFS">
 
-                            bool isBest = voucher == Model.DsVoucherKhaDung.First();
-                            long moneyInt = (long)giaTriGiamThucTe;
-
-                            <div class="voucher-item card mb-2 border-0 shadow-sm"
-                                 data-code="@voucher.MaCode"
-                                 data-money="@moneyInt"
-                                 style="cursor: pointer; transition: all 0.2s;">
-
-                                <div class="card-body p-0 d-flex">
-                                    <div class="bg-warning text-white p-3 d-flex flex-column justify-content-center align-items-center" style="width: 100px; min-width: 100px;">
-                                        <i class="fas fa-gift fa-2x mb-1"></i>
-                                        <span class="font-weight-bold small">CODE</span>
-                                    </div>
-                                    <div class="p-3 flex-grow-1 d-flex flex-column justify-content-center">
-                                        <div class="d-flex justify-content-between align-items-start">
-                                            <div>
-                                                <h6 class="font-weight-bold text-dark mb-1">@textGiamGia</h6>
-                                                <div class="small text-muted mb-1">Đơn tối thiểu @string.Format("{0:N0}", voucher.DonToiThieu)đ</div>
-                                                @if (!string.IsNullOrEmpty(subText) && voucher.LoaiGiam == "PERCENT")
-                                                {
-                                                    <div class="small text-muted font-italic">(@subText)</div>
-                                                }
+                            <div class="card-body p-0 d-flex">
+                                <div class="d-flex flex-column justify-content-center align-items-center p-3 text-white"
+                                     style="width:90px; min-width:90px; background:linear-gradient(135deg,#43a047,#66bb6a); border-radius: 4px 0 0 4px;">
+                                    <i class="fas fa-shipping-fast fa-2x mb-1"></i>
+                                    <span class="font-weight-bold" style="font-size:.7rem;">FREE SHIP</span>
+                                </div>
+                                <div class="p-3 flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="font-weight-bold text-dark mb-1">Miễn phí vận chuyển</h6>
+                                            <div class="small text-muted">Đơn tối thiểu @string.Format("{0:N0}", v.DonToiThieu)đ</div>
+                                            <div class="small saving-highlight mt-1">
+                                                <i class="fas fa-piggy-bank mr-1"></i>Tiết kiệm @string.Format("{0:N0}", savingFS)đ
                                             </div>
-                                            <div class="check-mark text-success d-none">
+                                        </div>
+                                        <div class="text-right">
+                                            <div class="check-mark text-success @(isSelectedFS ? "" : "d-none") mb-1">
                                                 <i class="fas fa-check-circle fa-lg"></i>
                                             </div>
                                         </div>
-                                        <div class="mt-2 d-flex align-items-center">
-                                            <span class="badge badge-light border text-secondary mr-2">@voucher.MaCode</span>
-                                            @if (isBest)
-                                            {<span class="badge badge-danger">Tốt nhất</span>}
-                                        </div>
+                                    </div>
+                                    <div class="mt-2 d-flex align-items-center flex-wrap">
+                                        <span class="badge badge-light border text-secondary mr-2">@v.MaCode</span>
+                                        <span class="badge badge-success">Đủ điều kiện</span>
+                                        @if (v == Model.DsVoucherFreeShip.First())
+                                        {<span class="badge-best ml-1">Tốt nhất</span>}
+                                        <small class="text-muted ml-auto">HSD: @string.Format("{0:dd/MM/yyyy}", v.NgayHetHan)</small>
                                     </div>
                                 </div>
                             </div>
-                        }
+                        </div>
+                    }
+                    <hr class="my-3" />
+                }
+                else if (!Model.DuDieuKienFreeShip)
+                {
+                    <div class="alert alert-light border mb-3 py-2 small">
+                        <i class="fas fa-lock text-muted mr-1"></i>
+                        Mua thêm <strong class="text-danger">@((500000m - Model.TongTienHang).ToString("N0"))đ</strong>
+                        để mở khóa mã miễn phí vận chuyển.
                     </div>
+                }
+
+                @* ---- TAB 2: VOUCHER GIẢM GIÁ ---- *@
+                <div class="voucher-section-title discount-title mb-2">
+                    <i class="fas fa-tag mr-1"></i> Mã giảm giá
+                    <small class="font-weight-normal ml-2">(Chọn tối đa 1 mã)</small>
+                </div>
+
+                @if (Model.DsVoucherGiamGia != null && Model.DsVoucherGiamGia.Any())
+                {
+                    bool bestFlagged = false;
+                    foreach (var v in Model.DsVoucherGiamGia)
+                    {
+                        decimal giaTriGiam = 0;
+                        string textGiam = "";
+                        string subText = "";
+
+                        if (v.LoaiGiam == "PERCENT")
+                        {
+                            giaTriGiam = (Model.TongTienHang * (v.GiaTri ?? 0)) / 100;
+                            if (giaTriGiam > Model.TongTienHang) { giaTriGiam = Model.TongTienHang; }
+                            textGiam = "Giảm " + v.GiaTri + "%";
+                            subText = "Tiết kiệm " + giaTriGiam.ToString("N0") + "đ với đơn này";
+                        }
+                        else
+                        {
+                            giaTriGiam = v.GiaTri ?? 0;
+                            if (giaTriGiam > Model.TongTienHang) { giaTriGiam = Model.TongTienHang; }
+                            textGiam = "Giảm " + giaTriGiam.ToString("N0") + "đ";
+                        }
+
+                        long moneyInt = (long)giaTriGiam;
+                        bool isSelected = v.MaCode == Model.MaVoucherGiam;
+                        bool isBest = !bestFlagged;
+                        if (isBest) { bestFlagged = true; }
+
+                        <div class="voucher-item card mb-2 shadow-sm @(isSelected ? "selected-voucher" : "")"
+                             data-type="discount"
+                             data-code="@v.MaCode"
+                             data-money="@moneyInt">
+
+                            <div class="card-body p-0 d-flex">
+                                <div class="d-flex flex-column justify-content-center align-items-center p-3 text-white"
+                                     style="width:90px; min-width:90px; background:linear-gradient(135deg,#f57c00,#ffa726); border-radius: 4px 0 0 4px;">
+                                    <i class="fas fa-gift fa-2x mb-1"></i>
+                                    <span class="font-weight-bold" style="font-size:.7rem;">GIẢM GIÁ</span>
+                                </div>
+                                <div class="p-3 flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="font-weight-bold text-dark mb-1">@textGiam</h6>
+                                            <div class="small text-muted">Đơn tối thiểu @string.Format("{0:N0}", v.DonToiThieu)đ</div>
+                                            @if (!string.IsNullOrEmpty(subText))
+                                            {
+                                                <div class="small saving-highlight mt-1">
+                                                    <i class="fas fa-piggy-bank mr-1"></i>@subText
+                                                </div>
+                                            }
+                                        </div>
+                                        <div class="check-mark text-success @(isSelected ? "" : "d-none")">
+                                            <i class="fas fa-check-circle fa-lg"></i>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2 d-flex align-items-center flex-wrap">
+                                        <span class="badge badge-light border text-secondary mr-2">@v.MaCode</span>
+                                        @if (isBest)
+                                        {<span class="badge-best">Tốt nhất</span>}
+                                        <small class="text-muted ml-auto">HSD: @string.Format("{0:dd/MM/yyyy}", v.NgayHetHan)</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
                 }
                 else
                 {
-                    <div class="text-center py-5">
-                        <i class="fas fa-ticket-alt fa-3x text-muted mb-3"></i>
-                        <p class="mb-0">Không có mã giảm giá nào phù hợp.</p>
+                    <div class="text-center py-4">
+                        <i class="fas fa-ticket-alt fa-3x text-muted mb-2"></i>
+                        <p class="mb-0 text-muted">Không có mã giảm giá nào phù hợp với đơn hàng.</p>
                     </div>
                 }
-            </div>
-            <div class="modal-footer bg-white">
-                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Đóng</button>
+
+            </div>@* end modal-body *@
+
+            <div class="modal-footer bg-light">
+                <small class="text-muted mr-auto">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    Bạn có thể chọn <strong>1 mã freeship</strong> + <strong>1 mã giảm giá</strong> cùng lúc.
+                </small>
+                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">Xác nhận</button>
             </div>
         </div>
     </div>
 </div>
 
+
 @section scripts {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
     <script src="~/Content/data/vietnam-regions.js"></script>
-
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <script>
-        $(document).ready(function () {
-            $('.select2-search').select2({
-                width: '100%',
-                placeholder: "-- Tìm kiếm --",
-                allowClear: true
-            });
+    // =============================================
+    //  KHỞI TẠO GIÁ TRỊ TỪ SERVER
+    // =============================================
+    var baseTotal  = @((long)Model.TongTienHang);
+    var shipFee    = @((long)Model.PhiShip);
 
-            const allCommunes = vietnamDataV2.communes;
-            const provinceMap = new Map();
-            allCommunes.forEach(item => { if (!provinceMap.has(item.provinceCode)) provinceMap.set(item.provinceCode, item.provinceName); });
-            const sortedProvinces = Array.from(provinceMap).sort((a, b) => a[1].localeCompare(b[1]));
+    // Trạng thái hiện tại (sync với server-rendered)
+    var state = {
+        freeshipCode:   '@Html.Raw(Model.MaFreeShip ?? "")',
+        freeshipMoney:  @((long)(string.IsNullOrEmpty(Model.MaFreeShip) ? 0 : Model.PhiShip)),
+        discountCode:   '@Html.Raw(Model.MaVoucherGiam ?? "")',
+        discountMoney:  @((long)Model.SoTienGiamVoucher)
+    };
 
-            sortedProvinces.forEach(([code, name]) => {
-                $('#province').append(`<option value="${name}" data-code="${code}">${name}</option>`);
-            });
+    // =============================================
+    //  HÀM TÍNH VÀ CẬP NHẬT UI TỔNG TIỀN
+    // =============================================
+    function recalcAndRender() {
+        var shipDisplay = (state.freeshipCode !== '') ? 0 : shipFee;
+        var total = baseTotal + shipDisplay - state.discountMoney;
+        if (total < 0) total = 0;
 
-            $('#province').on('select2:select', function (e) {
-                const selectedOption = $(this).find(':selected');
-                const selectedProvinceCode = selectedOption.data('code');
-
-                const $wardSelect = $('#ward');
-                $wardSelect.empty().append('<option value="">-- Chọn Phường/Xã --</option>');
-
-                if (selectedProvinceCode) {
-                    const filteredWards = allCommunes.filter(c => c.provinceCode == selectedProvinceCode);
-                    filteredWards.sort((a, b) => a.name.localeCompare(b.name));
-
-                    filteredWards.forEach(w => {
-                        $wardSelect.append(`<option value="${w.name}">${w.name}</option>`);
-                    });
-
-                    $wardSelect.prop('disabled', false);
-                } else {
-                    $wardSelect.prop('disabled', true);
-                }
-
-                $wardSelect.trigger('change.select2');
-            });
-
-            $('#province').on('select2:unselecting', function() {
-                 $('#ward').empty().append('<option value="">-- Chọn Phường/Xã --</option>').prop('disabled', true).trigger('change');
-            });
-        });
-
-        function fillAddressFromBook() {
-            var opt = $('#addressBook').find(':selected');
-
-            if (opt.val() === "") {
-                $('#checkoutForm')[0].reset();
-                $('#address-selection').show(); $('#address-display').hide();
-                $('#province').val('').trigger('change').prop('disabled', false);
-                $('#ward').empty().append('<option value="">-- Chọn Phường/Xã --</option>').trigger('change').prop('disabled', true);
-
-                return;
-            }
-
-            $('#inputName').val(opt.data('name'));
-            $('#inputPhone').val(opt.data('phone'));
-            $('#inputDetail').val(opt.data('detail'));
-
-            $('#address-selection').hide();
-            $('#address-display').show();
-
-            let fullText = `${opt.data('detail')}, ${opt.data('ward')}, ${opt.data('province')}`;
-            $('#savedAddressText').text(fullText);
-
-            var prov = opt.data('province');
-            var ward = opt.data('ward');
-
-            if ($('#province option[value="' + prov + '"]').length == 0) {
-                $('#province').append(new Option(prov, prov, true, true));
-            }
-            $('#province').val(prov).trigger('change');
-
-            if ($('#ward option[value="' + ward + '"]').length == 0) {
-                $('#ward').append(new Option(ward, ward, true, true));
-            }
-            $('#ward').val(ward).trigger('change');
-
-            $('#province').prop('disabled', false);
-            $('#ward').prop('disabled', false);
+        // Phí ship
+        $('#shipDisplay').text(shipDisplay.toLocaleString('vi-VN') + 'đ');
+        if (state.freeshipCode !== '') {
+            $('#freeshipTag').show();
+        } else {
+            $('#freeshipTag').hide();
         }
-        // --- 2. SCRIPT VOUCHER  ---
-        $(document).ready(function() {
-            var baseTotal = @((long)Model.TongTienHang);
-            var shipFee = @((long)Model.PhiShip);
-            $(document).on('click', '.voucher-item', function() {
-                var self = $(this);
-                var code = self.data('code');
-                var discount = parseFloat(self.data('money'));
 
-                $('.voucher-item').removeClass('selected-voucher border-success').css('background-color', '#fff');
-                $('.check-mark').addClass('d-none');
+        // Dòng voucher giảm giá
+        if (state.discountMoney > 0) {
+            $('#voucherGiamRow').show();
+            $('#voucherGiamDisplay').text('-' + state.discountMoney.toLocaleString('vi-VN') + 'đ');
+        } else {
+            $('#voucherGiamRow').hide();
+        }
 
-                self.addClass('selected-voucher border-success').css('background-color', '#f0fff4');
-                self.find('.check-mark').removeClass('d-none');
-                $('#selectedVoucherCode').val(code); 
-                $('#displayVoucherCode').val(code);  
-                $('#removeVoucherBlock').show();     
+        // Tổng
+        $('#totalDisplay').text(total.toLocaleString('vi-VN') + 'đ');
 
-                $('#discountDisplay').text('-' + discount.toLocaleString('vi-VN') + 'đ');
-                $('#discountRow').show(); 
+        // Hidden inputs
+        $('#hiddenMaFreeShip').val(state.freeshipCode);
+        $('#hiddenMaVoucherGiam').val(state.discountCode);
+    }
 
-                var finalTotal = baseTotal + shipFee - discount;
-                if(finalTotal < 0) finalTotal = 0;
-                $('#totalDisplay').text(finalTotal.toLocaleString('vi-VN') + 'đ');
-                setTimeout(function(){
-                    $('#voucherModal').modal('hide');
-                }, 200);
-            });
+    // =============================================
+    //  CẬP NHẬT SLOT HIỂN THỊ TRONG CARD
+    // =============================================
+    function renderSlotFreeship() {
+        var $slot = $('#slotFreeShip');
+        if (!$slot.length) return;
+        if (state.freeshipCode !== '') {
+            $slot.addClass('has-voucher').html(
+                '<span><i class="fas fa-check-circle mr-1"></i><strong>' + state.freeshipCode + '</strong> — Miễn phí ship</span>' +
+                '<button type="button" class="btn btn-link text-danger p-0 small" id="btnRemoveFreeship"><i class="fas fa-times-circle"></i></button>'
+            );
+        } else {
+            $slot.removeClass('has-voucher').html(
+                '<span class="slot-placeholder">Chưa chọn mã freeship</span>' +
+                '<span class="badge badge-success badge-pill">Đủ điều kiện!</span>'
+            );
+        }
+    }
 
-            // BẮT SỰ KIỆN NÚT BỎ CHỌN 
-            $('#btnRemoveVoucher').click(function(e) {
-                e.preventDefault();
-                $('#selectedVoucherCode').val('');
-                $('#displayVoucherCode').val('');
-                $('#removeVoucherBlock').hide();
+    function renderSlotVoucherGiam() {
+        var $slot = $('#slotVoucherGiam');
+        if (state.discountCode !== '') {
+            $slot.addClass('has-voucher').html(
+                '<span><i class="fas fa-check-circle mr-1"></i><strong>' + state.discountCode + '</strong> — Giảm <strong>' +
+                state.discountMoney.toLocaleString('vi-VN') + 'đ</strong></span>' +
+                '<button type="button" class="btn btn-link text-danger p-0 small" id="btnRemoveVoucherGiam"><i class="fas fa-times-circle"></i></button>'
+            );
+        } else {
+            $slot.removeClass('has-voucher').html(
+                '<span class="slot-placeholder">Chưa chọn mã giảm giá</span>'
+            );
+        }
+    }
 
-                $('.voucher-item').removeClass('selected-voucher border-success').css('background-color', '#fff');
-                $('.check-mark').addClass('d-none');
-                $('#discountRow').hide(); 
-                $('#discountDisplay').text('-0đ'); 
+    // =============================================
+    //  SỰ KIỆN CLICK VOUCHER TRONG MODAL
+    // =============================================
+    $(document).on('click', '.voucher-item', function () {
+        var $self  = $(this);
+        var type   = $self.data('type');   // 'freeship' hoặc 'discount'
+        var code   = $self.data('code');
+        var money  = parseInt($self.data('money')) || 0;
 
-                var finalTotal = baseTotal + shipFee;
-                $('#totalDisplay').text(finalTotal.toLocaleString('vi-VN') + 'đ');
-            });
+        if (type === 'freeship') {
+            // Toggle: nếu đang chọn mã này rồi thì bỏ chọn
+            if (state.freeshipCode === code) {
+                state.freeshipCode  = '';
+                state.freeshipMoney = 0;
+            } else {
+                state.freeshipCode  = code;
+                state.freeshipMoney = money;
+            }
+            // Cập nhật UI check-mark trong modal
+            $('[data-type="freeship"]').removeClass('selected-voucher');
+            $('[data-type="freeship"] .check-mark').addClass('d-none');
+            if (state.freeshipCode !== '') {
+                $self.addClass('selected-voucher');
+                $self.find('.check-mark').removeClass('d-none');
+            }
+            renderSlotFreeship();
+
+        } else if (type === 'discount') {
+            // Toggle
+            if (state.discountCode === code) {
+                state.discountCode  = '';
+                state.discountMoney = 0;
+            } else {
+                state.discountCode  = code;
+                state.discountMoney = money;
+            }
+            $('[data-type="discount"]').removeClass('selected-voucher');
+            $('[data-type="discount"] .check-mark').addClass('d-none');
+            if (state.discountCode !== '') {
+                $self.addClass('selected-voucher');
+                $self.find('.check-mark').removeClass('d-none');
+            }
+            renderSlotVoucherGiam();
+        }
+
+        recalcAndRender();
+    });
+
+    // =============================================
+    //  NÚT BỎ CHỌN (SLOT TRONG CARD)
+    // =============================================
+    $(document).on('click', '#btnRemoveFreeship', function (e) {
+        e.stopPropagation();
+        state.freeshipCode  = '';
+        state.freeshipMoney = 0;
+        $('[data-type="freeship"]').removeClass('selected-voucher');
+        $('[data-type="freeship"] .check-mark').addClass('d-none');
+        renderSlotFreeship();
+        recalcAndRender();
+    });
+
+    $(document).on('click', '#btnRemoveVoucherGiam', function (e) {
+        e.stopPropagation();
+        state.discountCode  = '';
+        state.discountMoney = 0;
+        $('[data-type="discount"]').removeClass('selected-voucher');
+        $('[data-type="discount"] .check-mark').addClass('d-none');
+        renderSlotVoucherGiam();
+        recalcAndRender();
+    });
+
+    // =============================================
+    //  SELECT2 & ĐỊA CHỈ (giữ nguyên)
+    // =============================================
+    $(document).ready(function () {
+        $('.select2-search').select2({
+            width: '100%',
+            placeholder: "-- Tìm kiếm --",
+            allowClear: true
         });
+
+        const allCommunes = vietnamDataV2.communes;
+        const provinceMap = new Map();
+        allCommunes.forEach(item => { if (!provinceMap.has(item.provinceCode)) provinceMap.set(item.provinceCode, item.provinceName); });
+        const sortedProvinces = Array.from(provinceMap).sort((a, b) => a[1].localeCompare(b[1]));
+
+        sortedProvinces.forEach(([code, name]) => {
+            $('#province').append(`<option value="${name}" data-code="${code}">${name}</option>`);
+        });
+
+        $('#province').on('select2:select', function (e) {
+            const selectedOption = $(this).find(':selected');
+            const selectedProvinceCode = selectedOption.data('code');
+            const $wardSelect = $('#ward');
+            $wardSelect.empty().append('<option value="">-- Chọn Phường/Xã --</option>');
+            if (selectedProvinceCode) {
+                const filteredWards = allCommunes.filter(c => c.provinceCode == selectedProvinceCode);
+                filteredWards.sort((a, b) => a.name.localeCompare(b.name));
+                filteredWards.forEach(w => { $wardSelect.append(`<option value="${w.name}">${w.name}</option>`); });
+                $wardSelect.prop('disabled', false);
+            } else {
+                $wardSelect.prop('disabled', true);
+            }
+            $wardSelect.trigger('change.select2');
+        });
+
+        $('#province').on('select2:unselecting', function () {
+            $('#ward').empty().append('<option value="">-- Chọn Phường/Xã --</option>').prop('disabled', true).trigger('change');
+        });
+
+        // Render ban đầu
+        recalcAndRender();
+    });
+
+    function fillAddressFromBook() {
+        var opt = $('#addressBook').find(':selected');
+        if (opt.val() === "") {
+            $('#checkoutForm')[0].reset();
+            $('#address-selection').show(); $('#address-display').hide();
+            $('#province').val('').trigger('change').prop('disabled', false);
+            $('#ward').empty().append('<option value="">-- Chọn Phường/Xã --</option>').trigger('change').prop('disabled', true);
+            return;
+        }
+        $('#inputName').val(opt.data('name'));
+        $('#inputPhone').val(opt.data('phone'));
+        $('#inputDetail').val(opt.data('detail'));
+        $('#address-selection').hide();
+        $('#address-display').show();
+        let fullText = `${opt.data('detail')}, ${opt.data('ward')}, ${opt.data('province')}`;
+        $('#savedAddressText').text(fullText);
+        var prov = opt.data('province');
+        var ward = opt.data('ward');
+        if ($('#province option[value="' + prov + '"]').length == 0) { $('#province').append(new Option(prov, prov, true, true)); }
+        $('#province').val(prov).trigger('change');
+        if ($('#ward option[value="' + ward + '"]').length == 0) { $('#ward').append(new Option(ward, ward, true, true)); }
+        $('#ward').val(ward).trigger('change');
+        $('#province').prop('disabled', false);
+        $('#ward').prop('disabled', false);
+    }
     </script>
-
-    <style>
-        .voucher-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 .5rem 1rem rgba(0,0,0,.15) !important;
-            border-color: #28a745 !important;
-        }
-
-        .selected-voucher {
-            border: 2px solid #28a745 !important;
-        }
-    </style>
 }

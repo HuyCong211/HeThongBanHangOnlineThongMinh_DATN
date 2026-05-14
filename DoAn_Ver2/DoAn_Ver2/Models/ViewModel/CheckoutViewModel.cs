@@ -41,22 +41,51 @@ namespace DoAn_Ver2.Models.ViewModel
         public decimal TongTienHang { get; set; }
         public decimal PhiShip { get; set; } = 30000;
         // --- [MỚI] THÊM CÁC TRƯỜNG CHO VOUCHER ---
-        public string MaVoucher { get; set; } // Mã code khách chọn (gửi lên server)
-        public decimal SoTienGiam { get; set; } = 0; // Hiển thị số tiền được giảm
+        // --- VOUCHER: TÁCH THÀNH 2 LOẠI ---
+        // Mã freeship (chỉ áp dụng khi đơn > 500k)
+        public string MaFreeShip { get; set; }
 
-        // Danh sách voucher phù hợp để hiển thị cho khách chọn
-        public List<MaGiamGia> DsVoucherKhaDung { get; set; }
-        // Tính tổng cuối cùng (Logic hiển thị)
-        public decimal TongThanhToan => (TongTienHang + PhiShip) - SoTienGiam;
+        // Mã giảm giá thông thường (PERCENT hoặc AMOUNT)
+        public string MaVoucherGiam { get; set; }
+
+        // Giữ field MaVoucher để tương thích với form cũ (sẽ không dùng trong logic mới)
+        // Nếu muốn xóa hẳn thì remove dòng này và cập nhật form POST
+        public string MaVoucher => MaVoucherGiam; // alias để không break code cũ
+
+        // Số tiền được giảm (từ voucher giảm giá)
+        public decimal SoTienGiamVoucher { get; set; } = 0;
+
+        // Phí ship thực tế (sau khi áp freeship = 0)
+        public decimal PhiShipThucTe => !string.IsNullOrEmpty(MaFreeShip) ? 0 : PhiShip;
+
+        // Tổng số tiền giảm (freeship + voucher giảm giá)
+        public decimal TongSoTienGiam => SoTienGiamVoucher + (PhiShip - PhiShipThucTe);
+
+        // Tổng thanh toán cuối cùng
+        public decimal TongThanhToan => (TongTienHang + PhiShipThucTe) - SoTienGiamVoucher;
+
+        // --- DANH SÁCH VOUCHER PHÂN LOẠI ---
+        // Voucher free ship (LoaiGiam == "FREE_SHIP") — hiển thị khi đơn > 500k
+        public List<MaGiamGia> DsVoucherFreeShip { get; set; }
+
+        // Voucher giảm giá thông thường (PERCENT / AMOUNT)
+        public List<MaGiamGia> DsVoucherGiamGia { get; set; }
 
         // 5. Dành cho Member (Sổ địa chỉ)
         public List<DiaChi> SoDiaChi { get; set; }
+
+        // Ngưỡng free ship
+        public const decimal NGUONG_FREE_SHIP = 500000;
+
+        // Computed helpers cho View
+        public bool DuDieuKienFreeShip => TongTienHang >= NGUONG_FREE_SHIP;
 
         public CheckoutViewModel()
         {
             CartItems = new List<CartItemViewModel>();
             SoDiaChi = new List<DiaChi>();
-            DsVoucherKhaDung = new List<MaGiamGia>();
+            DsVoucherFreeShip = new List<MaGiamGia>();
+            DsVoucherGiamGia = new List<MaGiamGia>();
         }
     }
 }

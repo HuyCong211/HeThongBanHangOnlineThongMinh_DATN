@@ -38,7 +38,7 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
             int pageSize = 10;
             int pageNumber = (page ?? 1);
             var listOrders = _unitOfWork.Repository<DonHang>().GetAll()
-                                .Where(x => x.MaGiamGiaApDung == item.MaCode)
+                                .Where(x => x.MaGiamGiaApDung != null && x.MaGiamGiaApDung.Contains(item.MaCode))
                                 .OrderByDescending(x => x.NgayDat);
             ViewBag.OrderHistory = listOrders.ToPagedList(pageNumber, pageSize);
 
@@ -106,14 +106,43 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
             return View(model);
         }
 
-        // 4. XÓA MÃ (POST)
+        // 4a. KIỂM TRA TRƯỚC KHI XÓA
+        [HttpPost]
+        public JsonResult CheckDelete(int id)
+        {
+            var item = _unitOfWork.Repository<MaGiamGia>().GetById(id);
+            if (item == null)
+                return Json(new { found = false });
+
+            bool hasOrders = _unitOfWork.Repository<DonHang>()
+                                .GetMany(x => x.MaGiamGiaApDung == item.MaCode)
+                                .Any();
+
+            return Json(new
+            {
+                found = true,
+                hasOrders = hasOrders,
+                maCode = item.MaCode,
+                editUrl = Url.Action("Edit", "Marketing", new { area = "Admin", id = item.ID })
+            });
+        }
+
+        // 4b. XÓA MÃ (POST) - chỉ được gọi khi đã qua check
         [HttpPost]
         public JsonResult Delete(int id)
         {
             try
             {
                 var item = _unitOfWork.Repository<MaGiamGia>().GetById(id);
-                if (item == null) return Json(new { success = false, message = "Không tìm thấy mã" });
+                if (item == null)
+                    return Json(new { success = false, message = "Không tìm thấy mã" });
+
+                // Chặn lần nữa phòng bypass
+                bool hasOrders = _unitOfWork.Repository<DonHang>()
+                                    .GetMany(x => x.MaGiamGiaApDung == item.MaCode)
+                                    .Any();
+                if (hasOrders)
+                    return Json(new { success = false, message = "Mã đã có đơn hàng, không thể xóa." });
 
                 _unitOfWork.Repository<MaGiamGia>().Delete(item);
                 _unitOfWork.Save();

@@ -16,10 +16,11 @@
     var boughtTogetherProducts = ViewBag.BoughtTogetherProducts as List<SanPham>;
 
     var reviews = ViewBag.Reviews as List<DanhGia>;
+    var reviewUsers = ViewBag.ReviewUsers as Dictionary<int, string> ?? new Dictionary<int, string>();
 
     double avgStar = ViewBag.AvgStar ?? 0;
     int reviewCount = ViewBag.ReviewCount ?? 0;
-    bool canReview = ViewBag.CanReview ?? false; 
+    bool canReview = ViewBag.CanReview ?? false;
     int remainingReviews = ViewBag.RemainingReviews ?? 0;
 
     var cartQtyDict = ViewBag.CartQtyDict as Dictionary<int, int> ?? new Dictionary<int, int>();
@@ -236,13 +237,16 @@
                                             <input type="hidden" name="SanPhamID" value="@Model.ID" />
                                             <div class="form-group">
                                                 <label>Đánh giá:</label>
-                                                <select name="SoSao" class="form-control w-auto">
-                                                    <option value="5">5 Sao (Tuyệt vời)</option>
-                                                    <option value="4">4 Sao (Tốt)</option>
-                                                    <option value="3">3 Sao (Bình thường)</option>
-                                                    <option value="2">2 Sao (Tệ)</option>
-                                                    <option value="1">1 Sao (Rất tệ)</option>
-                                                </select>
+                                                <div class="star-rating-input d-flex align-items-center">
+                                                    <input type="hidden" name="SoSao" id="soSaoInput" value="5" />
+                                                    @for (int s = 1; s <= 5; s++)
+                                                    {
+                                                        <i class="fas fa-star star-select @(s == 5 ? "active-star" : "")"
+                                                           data-val="@s"
+                                                           style="font-size: 28px; cursor: pointer; color: @(s == 5 ? "#f5c518" : "#ccc"); margin-right: 4px; transition: color 0.15s;"></i>
+                                                    }
+                                                    <span id="starLabel" class="ml-2 text-muted small">Tuyệt vời</span>
+                                                </div>
                                             </div>
                                             <div class="form-group">
                                                 <textarea name="BinhLuan" class="form-control" rows="3" placeholder="Sản phẩm thế nào?..." required></textarea>
@@ -264,7 +268,10 @@
                                                     </div>
                                                 </div>
                                                 <div class="media-body">
-                                                    <h6 class="mt-0 font-weight-bold mb-1">*****<small class="text-muted ml-2">@r.NgayDanhGia.Value.ToString("dd/MM/yyyy")</small></h6>
+                                                    <h6 class="mt-0 font-weight-bold mb-1">
+                                                        @(reviewUsers.ContainsKey(r.NguoiDungID) ? reviewUsers[r.NguoiDungID] : "Ẩn danh")
+                                                        <small class="text-muted ml-2">@r.NgayDanhGia.Value.ToString("dd/MM/yyyy")</small>
+                                                    </h6>
                                                     <div class="text-warning small mb-2">
                                                         @for (int i = 1; i <= 5; i++)
                                                         {
@@ -454,7 +461,47 @@
             alert('Đã thêm vào giỏ! (Màu ID: ' + selectedColor + ', Size ID: ' + selectedSize + ', SL: ' + $('#qtyInput').val() + ')');
         }
 
+        // === STAR RATING INPUT ===
+        var starLabels = { 1: 'Rất tệ', 2: 'Tệ', 3: 'Bình thường', 4: 'Tốt', 5: 'Tuyệt vời' };
 
+        $(document).on('mouseover', '.star-select', function () {
+            var val = $(this).data('val');
+            $('.star-select').each(function () {
+                $(this).css('color', $(this).data('val') <= val ? '#f5c518' : '#ccc');
+            });
+            $('#starLabel').text(starLabels[val]);
+        }).on('mouseleave', '.star-rating-input', function () {
+            var cur = parseInt($('#soSaoInput').val()) || 5;
+            $('.star-select').each(function () {
+                $(this).css('color', $(this).data('val') <= cur ? '#f5c518' : '#ccc');
+            });
+            $('#starLabel').text(starLabels[cur]);
+        }).on('click', '.star-select', function () {
+            var val = $(this).data('val');
+            $('#soSaoInput').val(val);
+            $('.star-select').each(function () {
+                $(this).css('color', $(this).data('val') <= val ? '#f5c518' : '#ccc');
+            });
+            $('#starLabel').text(starLabels[val]);
+        });
+
+        // === TOGGLE REVIEW NAME ===
+        $(document).on('click', '.toggle-name-btn', function () {
+            var $span = $(this).siblings('.review-display-name');
+            var isHidden = $span.data('hidden');
+            var $icon = $(this).find('i');
+            if (isHidden) {
+                $span.text($span.data('realname') || '*****');
+                $span.data('hidden', false);
+                $icon.removeClass('fa-eye-slash').addClass('fa-eye');
+                $(this).attr('title', 'Ẩn tên');
+            } else {
+                $span.text('*****');
+                $span.data('hidden', true);
+                $icon.removeClass('fa-eye').addClass('fa-eye-slash');
+                $(this).attr('title', 'Hiện tên');
+            }
+        });
 
         function addToCart() {
             // Validate

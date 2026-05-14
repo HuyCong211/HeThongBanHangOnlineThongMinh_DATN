@@ -114,7 +114,7 @@
                         foreach (var sub in subCats)
                         {
                             var subProds = db.Repository<SanPham>()
-                                             .GetMany(x => x.DanhMucID == sub.ID && x.TrangThai == 1 && x.DanhMuc.TrangThai == 1)
+                                             .GetMany(x => x.DanhMucID == sub.ID && x.TrangThai == 1)
                                              .OrderByDescending(x => x.NgayTao)
                                              .Take(2)
                                              .ToList();
@@ -124,7 +124,7 @@
                     else
                     {
                         var directProds = db.Repository<SanPham>()
-                                            .GetMany(x => x.DanhMucID == cat.ID && x.TrangThai == 1 && x.DanhMuc.TrangThai == 1)
+                                            .GetMany(x => x.DanhMucID == cat.ID && x.TrangThai == 1)
                                             .OrderByDescending(x => x.NgayTao)
                                             .Take(4)
                                             .ToList();

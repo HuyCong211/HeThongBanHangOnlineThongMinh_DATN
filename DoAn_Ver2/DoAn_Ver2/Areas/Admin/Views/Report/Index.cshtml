@@ -347,7 +347,7 @@
                             }
                         }
                     },
-                    legend: { display: false } 
+                    legend: { display: false }
                 }
             });
         }
@@ -355,9 +355,23 @@
         // EXPORT
         function ExportRevenue() {
             var mode = $('#selectMode').val();
-            var fDate = $('#fromDate').val();
-            var tDate = $('#toDate').val();
-            window.location.href = "/Admin/Report/ExportRevenue?fromDate=" + fDate + "&toDate=" + tDate;
+            var url = "/Admin/Report/ExportRevenue?mode=" + mode;
+
+            if (mode === 'MONTH') {
+                var m = $('#selectMonth').val();
+                var y = $('#inputYearMonth').val();
+                url += "&month=" + m + "&year=" + y;
+            } else if (mode === 'YEAR') {
+                var y = $('#inputYearOnly').val();
+                url += "&year=" + y;
+            } else {
+                // DAY
+                var fDate = $('#fromDate').val();
+                var tDate = $('#toDate').val();
+                url += "&fromDate=" + fDate + "&toDate=" + tDate;
+            }
+
+            window.location.href = url;
         }
         function ExportProduct() {
             window.location.href = "/Admin/Report/ExportProduct?type=" + currentProductType;

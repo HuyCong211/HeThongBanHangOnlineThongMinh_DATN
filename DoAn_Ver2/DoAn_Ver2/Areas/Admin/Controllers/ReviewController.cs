@@ -6,6 +6,7 @@ using System.Web.Mvc;
 using DoAn_Ver2.Infrastructure;
 using DoAn_Ver2.Models;
 using System.Data.Entity;
+using PagedList;
 
 namespace DoAn_Ver2.Areas.Admin.Controllers
 {
@@ -14,8 +15,11 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
         private UnitOfWork _unitOfWork = new UnitOfWork();
 
         // 1. HIỂN THỊ DANH SÁCH ĐÁNH GIÁ
-        public ActionResult Index()
+        public ActionResult Index(int? page, int? pageSize, string searchName = "", int? filterStar = null, string filterStatus = "")
         {
+            int currentPage = page ?? 1;
+            int size = pageSize ?? 10;
+
             var reviews = _unitOfWork.Repository<DanhGia>().GetAll()
                                      .OrderByDescending(x => x.NgayDanhGia)
                                      .ToList();
@@ -28,7 +32,29 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
                     r.NguoiDung = _unitOfWork.Repository<NguoiDung>().GetById(r.NguoiDungID);
             }
 
-            return View(reviews);
+            // Bộ lọc tìm kiếm
+            if (!string.IsNullOrWhiteSpace(searchName))
+                reviews = reviews.Where(x =>
+                    (x.SanPham != null && x.SanPham.TenSanPham.ToLower().Contains(searchName.ToLower())) ||
+                    (x.NguoiDung != null && x.NguoiDung.HoTen.ToLower().Contains(searchName.ToLower()))
+                ).ToList();
+
+            if (filterStar.HasValue)
+                reviews = reviews.Where(x => x.SoSao == filterStar.Value).ToList();
+
+            if (filterStatus == "show")
+                reviews = reviews.Where(x => x.TrangThai == true || x.TrangThai == null).ToList();
+            else if (filterStatus == "hide")
+                reviews = reviews.Where(x => x.TrangThai == false).ToList();
+
+            // Truyền ViewBag để giữ lại bộ lọc
+            ViewBag.SearchName = searchName;
+            ViewBag.FilterStar = filterStar;
+            ViewBag.FilterStatus = filterStatus;
+            ViewBag.PageSize = size;
+            ViewBag.TotalCount = reviews.Count;
+
+            return View(reviews.ToPagedList(currentPage, size));
         }
 
         // 2. ẨN / HIỆN ĐÁNH GIÁ 

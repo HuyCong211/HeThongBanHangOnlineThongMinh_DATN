@@ -40,7 +40,7 @@ namespace DoAn_Ver2.Areas.Admin.Controllers
             // Mã hóa pass nhập vào để so sánh với DB
             string md5Pass = SecurityHelper.MD5Hash(password);
 
-            var user = _unitOfWork.Repository<NguoiDung>().GetMany(x => x.TenDangNhap == username && x.MatKhau == md5Pass).FirstOrDefault();
+            var user = _unitOfWork.Repository<NguoiDung>().GetMany(x => (x.TenDangNhap == username || x.Email == username) && x.MatKhau == md5Pass).FirstOrDefault();
 
             if (user != null)
             {

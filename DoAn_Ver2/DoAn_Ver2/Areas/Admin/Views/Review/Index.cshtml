@@ -1,4 +1,5 @@
-﻿@model List<DoAn_Ver2.Models.DanhGia>
+﻿@model PagedList.IPagedList<DoAn_Ver2.Models.DanhGia>
+@using PagedList.Mvc
 
 @{
     ViewBag.Title = "Quản lý đánh giá khách hàng";
@@ -10,6 +11,56 @@
         <h6 class="m-0 font-weight-bold text-primary text-uppercase">Danh sách đánh giá sản phẩm</h6>
     </div>
     <div class="card-body">
+        <div class="row mb-3 align-items-end">
+            <div class="col-md-4">
+                <label class="font-weight-bold small text-muted">TÌM KIẾM</label>
+                <input type="text" id="searchName" class="form-control form-control-sm"
+                       placeholder="Tên sản phẩm / khách hàng..." value="@ViewBag.SearchName" />
+            </div>
+            <div class="col-md-2">
+                <label class="font-weight-bold small text-muted">SỐ SAO</label>
+                <select id="filterStar" class="form-control form-control-sm">
+                    <option value="">-- Tất cả --</option>
+                    @for (int i = 5; i >= 1; i--)
+                    {
+                        <option value="@i" @(ViewBag.FilterStar != null && ViewBag.FilterStar == i ? "selected" : "")>
+                            @i ★
+                        </option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="font-weight-bold small text-muted">TRẠNG THÁI</label>
+                <select id="filterStatus" class="form-control form-control-sm">
+                    <option value="">-- Tất cả --</option>
+                    <option value="show" @(ViewBag.FilterStatus == "show" ? "selected" : "")>Đang Hiện</option>
+                    <option value="hide" @(ViewBag.FilterStatus == "hide" ? "selected" : "")>Đang Ẩn</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="font-weight-bold small text-muted">SỐ DÒNG/TRANG</label>
+                <select id="pageSize" class="form-control form-control-sm">
+                    @foreach (var s in new[] { 5, 10, 20, 50 })
+                    {
+                        <option value="@s" @(ViewBag.PageSize == s ? "selected" : "")>@s dòng</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button class="btn btn-primary btn-sm btn-block" onclick="applyFilter()">
+                    <i class="fas fa-search mr-1"></i> Lọc
+                </button>
+                <button class="btn btn-outline-secondary btn-sm btn-block mt-0 ml-1" onclick="resetFilter()">
+                    <i class="fas fa-redo mr-1"></i> Reset
+                </button>
+            </div>
+        </div>
+
+        <div class="mb-2 small text-muted">
+            Tìm thấy <strong>@ViewBag.TotalCount</strong> đánh giá &nbsp;|&nbsp;
+            Trang <strong>@Model.PageNumber</strong> / <strong>@Model.PageCount</strong>
+        </div>
+
         <div class="table-responsive">
             <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
                 <thead class="thead-light">
@@ -64,7 +115,7 @@
                                 </td>
                                 <td class="text-center align-middle">
                                     @{
-                                        bool isShow = item.TrangThai ?? true; 
+                                        bool isShow = item.TrangThai ?? true;
                                     }
                                     @if (isShow)
                                     {
@@ -91,6 +142,42 @@
                     }
                 </tbody>
             </table>
+            @if (Model.PageCount > 1)
+            {
+                <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
+                    <div class="small text-muted">
+                        Hiển thị <strong>@((Model.PageNumber - 1) * Model.PageSize + 1)</strong>
+                        – <strong>@(Math.Min(Model.PageNumber * Model.PageSize, Model.TotalItemCount))</strong>
+                        trong tổng số <strong>@Model.TotalItemCount</strong> đánh giá
+                    </div>
+                    <div>
+                        @Html.PagedListPager(Model,
+                            page => Url.Action("Index", new
+                            {
+                                page,
+                                pageSize = ViewBag.PageSize,
+                                searchName = ViewBag.SearchName,
+                                filterStar = ViewBag.FilterStar,
+                                filterStatus = ViewBag.FilterStatus
+                            }),
+                            new PagedListRenderOptions
+                            {
+                                LiElementClasses = new[] { "page-item" },
+                                UlElementClasses = new[] { "pagination", "pagination-sm", "mb-0" },
+                                DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
+                                DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
+                                DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+                                DisplayLinkToNextPage = PagedListDisplayMode.Always,
+                                MaximumPageNumbersToDisplay = 5,
+                                LinkToFirstPageFormat = "«",
+                                LinkToPreviousPageFormat = "‹",
+                                LinkToNextPageFormat = "›",
+                                LinkToLastPageFormat = "»"
+                            }
+                        )
+                    </div>
+                </div>
+            }
         </div>
     </div>
 </div>
@@ -121,8 +208,64 @@
     </div>
 </div>
 
+
+<style>
+    .pagination li a,
+    .pagination li span {
+        display: block;
+        padding: .375rem .6rem;
+        color: #4e73df;
+        background-color: #fff;
+        border: 1px solid #dee2e6;
+        text-decoration: none;
+        line-height: 1.25;
+    }
+
+    .pagination li.active span,
+    .pagination li.active a {
+        background-color: #4e73df;
+        border-color: #4e73df;
+        color: #fff;
+    }
+
+    .pagination li.disabled span {
+        color: #adb5bd;
+        pointer-events: none;
+    }
+
+    .pagination li a:hover {
+        background-color: #eaecf4;
+        color: #224abe;
+    }
+</style>
+
 @section scripts {
     <script>
+        function applyFilter() {
+            var params = {
+                page:         1,
+                pageSize:     $('#pageSize').val(),
+                searchName:   $('#searchName').val().trim(),
+                filterStar:   $('#filterStar').val(),
+                filterStatus: $('#filterStatus').val()
+            };
+            // Xóa key rỗng để URL gọn
+            var qs = Object.entries(params)
+                .filter(([_, v]) => v !== '' && v !== null)
+                .map(([k, v]) => k + '=' + encodeURIComponent(v))
+                .join('&');
+            window.location.href = '@Url.Action("Index", "Review", new { area = "Admin" })?' + qs;
+        }
+
+        function resetFilter() {
+            window.location.href = '@Url.Action("Index", "Review", new { area = "Admin" })';
+        }
+        
+        // Nhấn Enter ở ô tìm kiếm cũng kích hoạt lọc
+        $('#searchName').on('keydown', function (e) {
+            if (e.key === 'Enter') applyFilter();
+        });
+
         $(document).ready(function () {
             // 1. Xử lý nút Ẩn/Hiện (AJAX)
             $('.btn-toggle').click(function () {

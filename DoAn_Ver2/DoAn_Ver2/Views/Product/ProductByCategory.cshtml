@@ -127,7 +127,8 @@
                 }
                 <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom bg-white p-2 rounded shadow-sm">
                     <div class="text-muted small">
-                        Tìm thấy <strong>@Model.Products.Count()</strong> sản phẩm
+                        Tìm thấy <strong>@Model.TotalItems</strong> sản phẩm
+                        &nbsp;|&nbsp; Trang <strong>@Model.PageNumber</strong>/<strong>@Model.TotalPages</strong>
                     </div>
                     <div class="form-inline">
                         <div class="form-group mb-0 mr-3">
@@ -195,6 +196,13 @@
                         </ul>
                     </nav>
                 }
+                @{
+                    int fromItem = Model.TotalItems == 0 ? 0 : (Model.PageNumber - 1) * Model.PageSize + 1;
+                    int toItem = Math.Min(Model.PageNumber * Model.PageSize, Model.TotalItems);
+                }
+                <div class="text-center text-muted small mt-2 mb-4">
+                    Hiển thị <strong>@fromItem–@toItem</strong> sản phẩm trong tổng số <strong>@Model.TotalItems</strong> sản phẩm
+                </div>
             </div>
         </div>
     </div>

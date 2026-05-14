@@ -25,7 +25,7 @@
                         <tr>
                             <td class="text-muted">Loại giảm:</td>
                             <td class="font-weight-bold">
-                                @(Model.LoaiGiam == "PERCENT" ? "Giảm theo phần trăm (%)" : "Giảm tiền mặt (VNĐ)")
+                                @(Model.LoaiGiam == "PERCENT" ? "Giảm theo phần trăm (%)" : Model.LoaiGiam == "FREESHIP" ? "Miễn phí vận chuyển" : "Giảm tiền mặt (VNĐ)")
                             </td>
                         </tr>
                         <tr>
@@ -34,6 +34,10 @@
                                 @if (Model.LoaiGiam == "PERCENT")
                                 {
                                     <span>@Model.GiaTri %</span>
+                                }
+                                else if (Model.LoaiGiam == "FREESHIP")
+                                {
+                                    <span class="text-success"><i class="fas fa-shipping-fast mr-1"></i>Miễn phí ship</span>
                                 }
                                 else
                                 {
@@ -95,13 +99,29 @@
                             {
                                 foreach (var donHang in orderHistory)
                                 {
+                                    @* Tính mức giảm riêng của mã đang xem (không phải tổng GiamGia) *@
+                                    decimal mucGiamRieng = 0;
+                                    if (Model.LoaiGiam == "FREESHIP")
+                                    {
+                                        mucGiamRieng = donHang.PhiVanChuyen.HasValue ? 30000 : 0;
+                                    }
+                                    else if (Model.LoaiGiam == "PERCENT")
+                                    {
+                                        mucGiamRieng = (donHang.TongTien ?? 0) * (Model.GiaTri ?? 0) / 100;
+                                    }
+                                    else
+                                    {
+                                        mucGiamRieng = Model.GiaTri ?? 0;
+                                        if (mucGiamRieng > (donHang.TongTien ?? 0)) { mucGiamRieng = donHang.TongTien ?? 0; }
+                                    }
+
                                     <tr class="text-center align-middle">
                                         <td class="font-weight-bold">
                                             <a href="@Url.Action("Details", "DonHang", new { id = donHang.ID })" target="_blank">@donHang.MaDonHang</a>
                                         </td>
                                         <td>@(donHang.NgayDat.HasValue ? donHang.NgayDat.Value.ToString("dd/MM/yyyy HH:mm") : "")</td>
                                         <td>@donHang.TenNguoiNhan</td>
-                                        <td class="text-danger font-weight-bold">-@string.Format("{0:N0}", donHang.GiamGia)đ</td>
+                                        <td class="text-danger font-weight-bold">-@string.Format("{0:N0}", mucGiamRieng)đ</td>
                                         <td class="text-success font-weight-bold">@string.Format("{0:N0}", donHang.TongThanhToan)đ</td>
                                         <td>
                                             @if (donHang.TrangThaiDonHang == 0)

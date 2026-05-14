@@ -51,7 +51,10 @@
             <button type="button" class="btn btn-outline-danger btn-sm mx-1" title="Yêu thích" onclick="toggleWishlist(@Model.ID, this)">
                 <i class="@(isLiked ? "fas" : "far") fa-heart"></i>
             </button>
-            <button class="btn btn-outline-primary btn-sm mx-1" title="Thêm vào giỏ"><i class="fas fa-shopping-cart"></i></button>
+            <a href="@Url.Action("Detail", "Product", new { id = Model.ID })"
+               class="btn btn-outline-primary btn-sm mx-1" title="Thêm vào giỏ">
+                <i class="fas fa-shopping-cart"></i>
+            </a>
             <a href="@Url.Action("Detail", "Product", new { id = Model.ID })" class="btn btn-outline-dark btn-sm mx-1" title="Xem chi tiết"><i class="far fa-eye"></i></a>
         </div>
         @if (Model.GiaGoc > Model.GiaBan)

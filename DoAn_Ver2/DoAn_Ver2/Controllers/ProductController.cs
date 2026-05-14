@@ -35,7 +35,8 @@ namespace DoAn_Ver2.Controllers
                             .GetMany(x => x.DanhMucChaID == id.Value && x.TrangThai == 1)
                             .Select(x => x.ID).ToList();
             listId.AddRange(subIds);
-            var query = _unitOfWork.Repository<SanPham>().GetMany(x => listId.Contains(x.DanhMucID.Value) && x.TrangThai == 1 && x.DanhMuc.TrangThai == 1);
+            var query = _unitOfWork.Repository<SanPham>()
+                    .GetMany(x => x.DanhMucID != null && listId.Contains(x.DanhMucID.Value) && x.TrangThai == 1);
 
             // --- A. LỌC THEO GIÁ (Slider gửi lên string "100000" hoặc null) ---
             decimal? min = null, max = null;
@@ -109,6 +110,7 @@ namespace DoAn_Ver2.Controllers
                 PageSize = pSize,
                 PageNumber = pNumber,
                 TotalPages = totalPages,
+                TotalItems = totalItems,
                 MinPrice = min,
                 MaxPrice = max,
                 SelectedColors = colorIds ?? new List<int>(), 
@@ -128,11 +130,18 @@ namespace DoAn_Ver2.Controllers
             int pNumber = page ?? 1;
             ViewBag.Keyword = keyword;
 
+            var activeCateIds = _unitOfWork.Repository<DanhMuc>()
+                        .GetMany(x => x.TrangThai == 1)
+                        .Select(x => x.ID).ToList();
+
+            var activeCateNames = _unitOfWork.Repository<DanhMuc>()
+                                    .GetMany(x => x.TrangThai == 1)
+                                    .Select(x => x.TenDanhMuc).ToList();
+
             var query = _unitOfWork.Repository<SanPham>()
-                           .GetMany(x => (x.TenSanPham.Contains(keyword) ||
-                                         (x.DanhMuc != null && x.DanhMuc.TenDanhMuc.Contains(keyword)))
-                                         && x.TrangThai == 1
-                                         && x.DanhMuc.TrangThai == 1);
+                .GetMany(x => (x.TenSanPham.Contains(keyword) || x.MoTa.Contains(keyword) || activeCateNames.Any(n => n.Contains(keyword)))
+                              && x.TrangThai == 1
+                              && x.DanhMucID != null && activeCateIds.Contains(x.DanhMucID.Value));
 
             // --- A. BỔ SUNG LỌC CHO TÌM KIẾM (Để khách search xong vẫn lọc giá/màu được) ---
             decimal? min = null, max = null;
@@ -174,6 +183,7 @@ namespace DoAn_Ver2.Controllers
                 PageNumber = pNumber,
                 PageSize = pSize,
                 TotalPages = totalPages,
+                TotalItems = totalItems,
                 SortBy = sort,
                 MinPrice = min,
                 MaxPrice = max,
@@ -304,7 +314,13 @@ namespace DoAn_Ver2.Controllers
         public ActionResult Detail(int id)
         {
             var sp = _unitOfWork.Repository<SanPham>().GetById(id);
-            if (sp == null || sp.TrangThai != 1 || sp.DanhMuc.TrangThai != 1) return HttpNotFound();
+            if (sp == null || sp.TrangThai != 1) return HttpNotFound();
+
+            // Load DanhMuc riêng để tránh lỗi lazy loading null
+            DanhMuc spDanhMuc = null;
+            if (sp.DanhMucID.HasValue)
+                spDanhMuc = _unitOfWork.Repository<DanhMuc>().GetById(sp.DanhMucID.Value);
+            if (spDanhMuc == null || spDanhMuc.TrangThai != 1) return HttpNotFound();
             sp.LuotXem++;
             _unitOfWork.Repository<SanPham>().Update(sp);
             _unitOfWork.Save();
@@ -326,6 +342,12 @@ namespace DoAn_Ver2.Controllers
                 .OrderByDescending(x => x.NgayDanhGia).ToList();
             double avgStar = reviews.Any() ? reviews.Average(x => x.SoSao ?? 0) : 0;
             int reviewCount = reviews.Count;
+
+            var reviewUserIds = reviews.Select(x => x.NguoiDungID).Distinct().ToList();
+            var reviewUsers = _unitOfWork.Repository<NguoiDung>()
+                .GetMany(x => reviewUserIds.Contains(x.ID))
+                .ToDictionary(x => x.ID, x => x.TenDangNhap);
+            ViewBag.ReviewUsers = reviewUsers;
 
             ViewBag.Reviews = reviews;
             ViewBag.AvgStar = avgStar;

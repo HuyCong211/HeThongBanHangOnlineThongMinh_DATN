@@ -179,20 +179,20 @@ def get_db_connection():
 # CATALOG CACHE — tránh query DB mỗi request
 # ==========================================
 
-_catalog_cache = {'df': None, 'ts': 0, 'vectorizer': None, 'tfidf_matrix': None}
+_catalog_cache = {'df': None, 'ts': 0, 'vectorizer': None, 'mota_tfidf_matrix': None}
 CATALOG_TTL = 300  # 5 phút
 
 
-def _build_tfidf(df: pd.DataFrame):
-    """Xây TF-IDF matrix từ toàn bộ đặc trưng văn bản của sản phẩm."""
-    corpus = (
-        df['Tags'].fillna('') + ' ' +
-        df['TenDanhMuc'].fillna('') + ' ' +
-        df['KieuDang'].fillna('') + ' ' +
-        df['ChatLieu'].fillna('') + ' ' +
-        df['MauSacHienCo'].fillna('') + ' ' +
-        df['KichThuocHienCo'].fillna('')
-    )
+def _build_mota_tfidf(df: pd.DataFrame):
+    """
+    Xây TF-IDF matrix từ trường MoTa (mô tả sản phẩm).
+
+    TF-IDF phù hợp với văn bản dài như mô tả sản phẩm, nơi tần suất và
+    độ hiếm của từ mang ý nghĩa phân biệt. Trường Tags (ví dụ: 'Đi biển',
+    'Đi học') là tập nhãn rời rạc có kích thước nhỏ — không đủ phong phú
+    để TF-IDF phát huy hiệu quả, nên Tags được xử lý riêng bằng Jaccard.
+    """
+    corpus = df['MoTa'].fillna('')
     vectorizer = TfidfVectorizer(max_features=500)
     matrix = vectorizer.fit_transform(corpus)
     return vectorizer, matrix
@@ -204,7 +204,7 @@ def load_catalog_cached(conn) -> pd.DataFrame:
     if _catalog_cache['df'] is not None and (now - _catalog_cache['ts']) < CATALOG_TTL:
         return _catalog_cache['df']
 
-    # [FIX] Thêm MauSacHienCo, KichThuocHienCo vào query
+    # [FIX] Thêm MauSacHienCo, KichThuocHienCo, MoTa vào query
     query = """
         SELECT
             v.SanPhamID AS ID,
@@ -215,21 +215,22 @@ def load_catalog_cached(conn) -> pd.DataFrame:
             v.GiaBan,
             v.MauSacHienCo,
             v.KichThuocHienCo,
-            s.Tags
+            s.Tags,
+            s.MoTa
         FROM v_AI_SanPham v
         JOIN SanPham s ON v.SanPhamID = s.ID
     """
     df = pd.read_sql(query, conn)
-    for col in ['TenDanhMuc', 'KieuDang', 'ChatLieu', 'Tags', 'MauSacHienCo', 'KichThuocHienCo']:
+    for col in ['TenDanhMuc', 'KieuDang', 'ChatLieu', 'Tags', 'MauSacHienCo', 'KichThuocHienCo', 'MoTa']:
         df[col] = df[col].fillna('')
     df['GiaBan'] = pd.to_numeric(df['GiaBan'], errors='coerce').fillna(0)
 
-    vectorizer, tfidf_matrix = _build_tfidf(df)
+    vectorizer, mota_tfidf_matrix = _build_mota_tfidf(df)
 
     _catalog_cache['df'] = df
     _catalog_cache['ts'] = now
     _catalog_cache['vectorizer'] = vectorizer
-    _catalog_cache['tfidf_matrix'] = tfidf_matrix
+    _catalog_cache['mota_tfidf_matrix'] = mota_tfidf_matrix
 
     return df
 
@@ -242,11 +243,12 @@ def load_catalog_cached(conn) -> pd.DataFrame:
 WEIGHTS = {
     'DanhMuc':    0.25,
     'KieuDang':   0.20,
-    'ChatLieu':   0.15,
-    'Tags':       0.15,   # Dùng TF-IDF cosine thay Jaccard
-    'MauSac':     0.12,   # [MỚI] Màu sắc quan trọng trong thời trang
-    'KichThuoc':  0.05,   # [MỚI] Kích thước ít ưu tiên hơn vì nhiều người mặc nhiều size
-    'GiaBan':     0.08,
+    'ChatLieu':   0.13,
+    'Tags':       0.12,   # Jaccard — Tags là tập nhãn rời rạc (vd: Đi biển/Đi học)
+    'MoTa':       0.10,   # [MỚI] TF-IDF Cosine — mô tả dài, phù hợp với TF-IDF
+    'MauSac':     0.10,   # Màu sắc quan trọng trong thời trang
+    'KichThuoc':  0.05,   # Kích thước ít ưu tiên hơn vì nhiều người mặc nhiều size
+    'GiaBan':     0.05,
 }
 
 
@@ -259,17 +261,33 @@ def compute_similarity_scores_vectorized(
     """
     Tính điểm tương đồng giữa sản phẩm mục tiêu và danh sách ứng viên.
 
-    [FIX] Dùng TF-IDF cosine similarity cho Tags thay vì Jaccard thuần.
-    [FIX] Bổ sung MauSac và KichThuoc vào scoring.
+    Chiến lược đo độ tương đồng theo bản chất từng đặc trưng:
+      - Danh mục         : Exact match (phân loại nhị phân)
+      - Kiểu dáng, Chất liệu,
+        Màu sắc, Kích thước,
+        Tags             : Jaccard Similarity — phù hợp với tập token/nhãn rời rạc
+      - Mô tả (MoTa)     : TF-IDF Cosine Similarity — phù hợp với văn bản dài
+      - Giá bán          : Linear decay ±50%
+
+    Lý do Tags dùng Jaccard thay TF-IDF:
+      Tags trong hệ thống là tập nhãn ngắn (ví dụ: "Đi biển", "Đi học", "Đi làm").
+      TF-IDF đòi hỏi kho văn bản đủ lớn và đa dạng để idf phân biệt được từ quan
+      trọng — điều kiện này không thỏa mãn với tập nhãn rời rạc. Jaccard đo trực tiếp
+      mức độ giao nhau của hai tập nhãn, phù hợp và chính xác hơn trong trường hợp này.
+
+    Lý do MoTa dùng TF-IDF:
+      Mô tả sản phẩm là đoạn văn bản dài, đa dạng từ vựng. TF-IDF có thể xác định
+      từ khóa đặc trưng (idf cao) và lọc nhiễu từ các từ phổ biến (idf thấp), giúp
+      cosine similarity phản ánh đúng độ tương đồng ngữ nghĩa.
     """
     target = _catalog_cache['df'].iloc[target_idx]
     df_all = _catalog_cache['df']
-    tfidf_matrix = _catalog_cache['tfidf_matrix']
+    mota_tfidf_matrix = _catalog_cache['mota_tfidf_matrix']
 
     # --- DanhMuc: exact match ---
     s_danhmuc = (df_candidates['TenDanhMuc'] == target['TenDanhMuc']).astype(float)
 
-    # --- Jaccard cho KieuDang, ChatLieu, MauSac, KichThuoc ---
+    # --- Jaccard cho KieuDang, ChatLieu, MauSac, KichThuoc, Tags ---
     def jaccard_series(series, target_val):
         if not target_val:
             return pd.Series(0.0, index=series.index)
@@ -285,16 +303,18 @@ def compute_similarity_scores_vectorized(
 
         return series.apply(_jaccard)
 
-    s_kieudang  = jaccard_series(df_candidates['KieuDang'],      target['KieuDang'])
-    s_chatlieu  = jaccard_series(df_candidates['ChatLieu'],      target['ChatLieu'])
-    s_mausac    = jaccard_series(df_candidates['MauSacHienCo'],  target['MauSacHienCo'])
-    s_kichthuoc = jaccard_series(df_candidates['KichThuocHienCo'], target['KichThuocHienCo'])
+    s_kieudang  = jaccard_series(df_candidates['KieuDang'],         target['KieuDang'])
+    s_chatlieu  = jaccard_series(df_candidates['ChatLieu'],         target['ChatLieu'])
+    s_mausac    = jaccard_series(df_candidates['MauSacHienCo'],     target['MauSacHienCo'])
+    s_kichthuoc = jaccard_series(df_candidates['KichThuocHienCo'],  target['KichThuocHienCo'])
+    # Tags là tập nhãn rời rạc → Jaccard phù hợp hơn TF-IDF
+    s_tags      = jaccard_series(df_candidates['Tags'],             target['Tags'])
 
-    # --- [FIX] TF-IDF cosine cho Tags ---
-    target_vec = tfidf_matrix[target_idx]
-    candidate_vecs = tfidf_matrix[candidates_idx]
-    s_tags_raw = cosine_similarity(target_vec, candidate_vecs).flatten()
-    s_tags = pd.Series(s_tags_raw, index=df_candidates.index)
+    # --- TF-IDF Cosine cho MoTa (mô tả sản phẩm — văn bản dài) ---
+    target_vec    = mota_tfidf_matrix[target_idx]
+    candidate_vecs = mota_tfidf_matrix[candidates_idx]
+    s_mota_raw    = cosine_similarity(target_vec, candidate_vecs).flatten()
+    s_mota        = pd.Series(s_mota_raw, index=df_candidates.index)
 
     # --- Giá: linear decay trong ±50% ---
     target_price = float(target['GiaBan'] or 0)
@@ -308,6 +328,7 @@ def compute_similarity_scores_vectorized(
         WEIGHTS['KieuDang']  * s_kieudang.values +
         WEIGHTS['ChatLieu']  * s_chatlieu.values +
         WEIGHTS['Tags']      * s_tags.values +
+        WEIGHTS['MoTa']      * s_mota.values +
         WEIGHTS['MauSac']    * s_mausac.values +
         WEIGHTS['KichThuoc'] * s_kichthuoc.values +
         WEIGHTS['GiaBan']    * s_gia.values

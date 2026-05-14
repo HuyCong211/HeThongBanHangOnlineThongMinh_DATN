@@ -30,7 +30,14 @@ namespace DoAn_Ver2.Controllers
                                     .ToList();
 
             // 2. Lấy sản phẩm MỚI NHẤT
+            var activeCateIds = _unitOfWork.Repository<DanhMuc>()
+                       .GetMany(x => x.TrangThai == 1)
+                       .Select(x => x.ID).ToList();
+
             var newProducts = _unitOfWork.Repository<SanPham>()
+                .GetMany(x => x.TrangThai == 1 && x.DanhMucID != null && activeCateIds.Contains(x.DanhMucID.Value))
+                .OrderByDescending(x => x.NgayTao)
+                .Take(8).ToList(); newProducts = _unitOfWork.Repository<SanPham>()
                             .GetMany(x => x.TrangThai == 1 && x.DanhMuc.TrangThai == 1)
                             .OrderByDescending(x => x.NgayTao)
                             .Take(8)
@@ -64,8 +71,9 @@ namespace DoAn_Ver2.Controllers
                     var productIds = bestSellerStats.Select(x => x.SanPhamID).ToList();
 
                     var products = _unitOfWork.Repository<SanPham>()
-                                                .GetMany(p => productIds.Contains(p.ID) && p.TrangThai == 1 && p.DanhMuc.TrangThai == 1)
-                                                .ToList();
+                                  .GetMany(p => productIds.Contains(p.ID) && p.TrangThai == 1
+                                           && p.DanhMucID != null && activeCateIds.Contains(p.DanhMucID.Value))
+                                  .ToList();
 
                     // Bước 3: Join lại để giữ đúng thứ tự
                     ViewBag.BestSellers = bestSellerStats
@@ -79,9 +87,8 @@ namespace DoAn_Ver2.Controllers
                 {
                     // Fallback: Nếu chưa có đơn hàng nào thì lấy theo Lượt xem
                     ViewBag.BestSellers = _unitOfWork.Repository<SanPham>()
-                                                     .GetMany(x => x.TrangThai == 1 && x.DanhMuc.TrangThai == 1)
-                                                     .OrderByDescending(x => x.LuotXem)
-                                                     .Take(15).ToList();
+                            .GetMany(x => x.TrangThai == 1 && x.DanhMucID != null && activeCateIds.Contains(x.DanhMucID.Value))
+                            .OrderByDescending(x => x.LuotXem).Take(15).ToList();
                 }
             }
             catch (Exception ex)
@@ -135,7 +142,10 @@ namespace DoAn_Ver2.Controllers
             var recommendedProducts = new List<SanPham>();
             if (recommendIds.Any())
             {
-                var raw = _unitOfWork.Repository<SanPham>().GetMany(x => recommendIds.Contains(x.ID) && x.TrangThai == 1 && x.DanhMuc.TrangThai == 1).ToList();
+                var raw = _unitOfWork.Repository<SanPham>()
+                            .GetMany(x => recommendIds.Contains(x.ID) && x.TrangThai == 1
+                                     && x.DanhMucID != null && activeCateIds.Contains(x.DanhMucID.Value))
+                            .ToList();
                 recommendedProducts = recommendIds.Select(id => raw.FirstOrDefault(p => p.ID == id))
                                                 .Where(p => p != null)
                                                 .ToList();

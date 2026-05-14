@@ -345,19 +345,32 @@ namespace DoAn_Ver2.Controllers
                 // 2. Còn số lượng (SoLuong > 0)
                 // 3. Đơn tối thiểu <= Tổng tiền hàng hiện tại
                 var today = DateTime.Now;
-                var validVouchers = _unitOfWork.Repository<MaGiamGia>()
-                    .GetMany(x => x.NgayHetHan >= today && x.SoLuong > 0 && x.DonToiThieu <= tongTienHang)
+                // --- [LOGIC VOUCHER MỚI] ---
+                // Lấy TẤT CẢ mã còn hiệu lực & còn số lượng
+                var allValidVouchers = _unitOfWork.Repository<MaGiamGia>()
+                    .GetMany(x => x.NgayHetHan >= today && x.SoLuong > 0)
                     .ToList();
 
-                // Sắp xếp: Ưu tiên giảm nhiều tiền nhất
-                // tính ra số tiền giảm thực tế để so sánh
-                model.DsVoucherKhaDung = validVouchers.OrderByDescending(v =>
+                // 1. Voucher FREE SHIP: loại "FREESHIP", đơn hàng phải >= 500k
+                if (tongTienHang >= CheckoutViewModel.NGUONG_FREE_SHIP)
                 {
-                    if (v.LoaiGiam == "PERCENT") 
-                        return (tongTienHang * (v.GiaTri ?? 0)) / 100;
-                    else
-                        return v.GiaTri ?? 0;
-                }).ToList();
+                    model.DsVoucherFreeShip = allValidVouchers
+                        .Where(v => v.LoaiGiam == "FREESHIP" && v.DonToiThieu <= tongTienHang)
+                        .OrderBy(v => v.DonToiThieu) // Ưu tiên mã điều kiện thấp hơn trước
+                        .ToList();
+                }
+
+                // 2. Voucher giảm giá: loại PERCENT hoặc AMOUNT, đơn tối thiểu thỏa
+                model.DsVoucherGiamGia = allValidVouchers
+                    .Where(v => v.LoaiGiam != "FREESHIP" && v.DonToiThieu <= tongTienHang)
+                    .OrderByDescending(v =>
+                    {
+                        if (v.LoaiGiam == "PERCENT")
+                            return (tongTienHang * (v.GiaTri ?? 0)) / 100;
+                        else
+                            return v.GiaTri ?? 0;
+                    })
+                    .ToList();
                 // ---------------------------
 
 
@@ -407,51 +420,89 @@ namespace DoAn_Ver2.Controllers
             model.CartItems = fullCart.Where(x => ids.Contains(x.SKU_ID)).ToList();
             model.TongTienHang = model.CartItems.Sum(x => x.ThanhTien);
 
-            // --- [XỬ LÝ VOUCHER SERVER-SIDE] ---
-            // --- [XỬ LÝ VOUCHER SERVER-SIDE] ---
-            decimal tienGiam = 0;
-            MaGiamGia appliedVoucher = null;
+            // --- [XỬ LÝ VOUCHER SERVER-SIDE — 2 MÃ] ---
+            decimal tienGiamVoucher = 0;
+            decimal phiShipThucTe = model.PhiShip; // mặc định = 30k
+            MaGiamGia appliedFreeShip = null;
+            MaGiamGia appliedVoucherGiam = null;
+            var today = DateTime.Now;
 
-            if (!string.IsNullOrEmpty(model.MaVoucher))
+            // XỬ LÝ MÃ FREE SHIP
+            if (!string.IsNullOrEmpty(model.MaFreeShip)
+                && model.TongTienHang >= CheckoutViewModel.NGUONG_FREE_SHIP)
             {
-                var today = DateTime.Now;
-                appliedVoucher = _unitOfWork.Repository<MaGiamGia>()
-                    .GetMany(x => x.MaCode == model.MaVoucher && x.NgayHetHan >= today && x.SoLuong > 0)
+                appliedFreeShip = _unitOfWork.Repository<MaGiamGia>()
+                    .GetMany(x => x.MaCode == model.MaFreeShip
+                               && x.NgayHetHan >= today
+                               && x.SoLuong > 0
+                               && x.LoaiGiam == "FREESHIP"
+                               && x.DonToiThieu <= model.TongTienHang)
                     .FirstOrDefault();
 
-                if (appliedVoucher != null && appliedVoucher.DonToiThieu <= model.TongTienHang)
+                if (appliedFreeShip != null)
                 {
-                    // Check đúng từ khóa "PERCENT" trong DB
-                    if (appliedVoucher.LoaiGiam == "PERCENT")
-                    {
-                        // Công thức: Tổng tiền * Giá trị % / 100
-                        tienGiam = (model.TongTienHang * (appliedVoucher.GiaTri ?? 0)) / 100;
-                    }
-                    else // Trường hợp "AMOUNT"
-                    {
-                        tienGiam = appliedVoucher.GiaTri ?? 0;
-                    }
-
-                    // Không giảm quá tổng tiền hàng
-                    if (tienGiam > model.TongTienHang) tienGiam = model.TongTienHang;
+                    phiShipThucTe = 0; // Miễn phí vận chuyển
                 }
             }
-            model.SoTienGiam = tienGiam;
-            // ----------------------------------
+
+            // XỬ LÝ MÃ GIẢM GIÁ (chỉ PERCENT hoặc AMOUNT, không phải FREESHIP)
+            if (!string.IsNullOrEmpty(model.MaVoucherGiam))
+            {
+                appliedVoucherGiam = _unitOfWork.Repository<MaGiamGia>()
+                    .GetMany(x => x.MaCode == model.MaVoucherGiam
+                               && x.NgayHetHan >= today
+                               && x.SoLuong > 0
+                               && x.LoaiGiam != "FREESHIP"
+                               && x.DonToiThieu <= model.TongTienHang)
+                    .FirstOrDefault();
+
+                if (appliedVoucherGiam != null)
+                {
+                    if (appliedVoucherGiam.LoaiGiam == "PERCENT")
+                        tienGiamVoucher = (model.TongTienHang * (appliedVoucherGiam.GiaTri ?? 0)) / 100;
+                    else
+                        tienGiamVoucher = appliedVoucherGiam.GiaTri ?? 0;
+
+                    // Không giảm quá tổng tiền hàng
+                    if (tienGiamVoucher > model.TongTienHang)
+                        tienGiamVoucher = model.TongTienHang;
+                }
+            }
+
+            model.SoTienGiamVoucher = tienGiamVoucher;
+            decimal tongGiamToanBo = tienGiamVoucher + (model.PhiShip - phiShipThucTe); // bao gồm cả freeship
+            decimal tongThanhToan = (model.TongTienHang + phiShipThucTe) - tienGiamVoucher;
+            // ------------------------------------------
 
 
             if (!ModelState.IsValid)
             {
+                // Reload lại danh sách voucher khi validation lỗi
+                var allValidVouchers = _unitOfWork.Repository<MaGiamGia>()
+                    .GetMany(x => x.NgayHetHan >= today && x.SoLuong > 0)
+                    .ToList();
+
+                if (model.TongTienHang >= CheckoutViewModel.NGUONG_FREE_SHIP)
+                {
+                    model.DsVoucherFreeShip = allValidVouchers
+                        .Where(v => v.LoaiGiam == "FREESHIP" && v.DonToiThieu <= model.TongTienHang)
+                        .OrderBy(v => v.DonToiThieu)
+                        .ToList();
+                }
+
+                model.DsVoucherGiamGia = allValidVouchers
+                    .Where(v => v.LoaiGiam != "FREESHIP" && v.DonToiThieu <= model.TongTienHang)
+                    .OrderByDescending(v => v.LoaiGiam == "PERCENT"
+                        ? (model.TongTienHang * (v.GiaTri ?? 0)) / 100
+                        : v.GiaTri ?? 0)
+                    .ToList();
+
                 if (Session["KhachHang"] != null)
                 {
                     var user = (NguoiDung)Session["KhachHang"];
                     model.SoDiaChi = _unitOfWork.Repository<DiaChi>().GetMany(x => x.NguoiDungID == user.ID).ToList();
-                    var today = DateTime.Now;
-                    model.DsVoucherKhaDung = _unitOfWork.Repository<MaGiamGia>()
-                        .GetMany(x => x.NgayHetHan >= today && x.SoLuong > 0 && x.DonToiThieu <= model.TongTienHang)
-                        .OrderByDescending(v => v.LoaiGiam == "PERCENT" ? (model.TongTienHang * v.GiaTri / 100) : v.GiaTri)
-                        .ToList();
                 }
+
                 ViewBag.SelectedIds = string.Join(",", ids);
                 return View(model);
             }
@@ -469,6 +520,12 @@ namespace DoAn_Ver2.Controllers
 
 
             // A. TẠO ĐƠN HÀNG
+
+            // Ghi nhận cả 2 mã vào DB (ghép lại hoặc tách field tùy schema DB)
+            string maGiamGiaApDung = string.Join("|",
+                new[] { appliedFreeShip?.MaCode, appliedVoucherGiam?.MaCode }
+                .Where(x => !string.IsNullOrEmpty(x)));
+
             var donHang = new DonHang
             {
                 MaDonHang = "ORD" + DateTime.Now.ToString("yyMMddHHmmss"),
@@ -478,10 +535,10 @@ namespace DoAn_Ver2.Controllers
                 EmailNguoiNhan = model.Email,
                 DiaChiGiaoHang = diaChiFull,
                 TongTien = model.TongTienHang,
-                PhiVanChuyen = model.PhiShip,
-                GiamGia = tienGiam,
-                TongThanhToan = (model.TongTienHang + model.PhiShip) - tienGiam,
-                MaGiamGiaApDung = appliedVoucher != null ? appliedVoucher.MaCode : null,
+                PhiVanChuyen = phiShipThucTe,
+                GiamGia = tongGiamToanBo,
+                TongThanhToan = tongThanhToan,
+                MaGiamGiaApDung = maGiamGiaApDung,
                 TrangThaiDonHang = 0,
                 TrangThaiThanhToan = false,
                 PhuongThucThanhToanID = model.PhuongThucThanhToan
@@ -537,10 +594,15 @@ namespace DoAn_Ver2.Controllers
             _unitOfWork.Save();
 
             // B. CẬP NHẬT SỐ LƯỢNG VOUCHER 
-            if (appliedVoucher != null)
+            if (appliedFreeShip != null)
             {
-                appliedVoucher.SoLuong = (appliedVoucher.SoLuong ?? 0) - 1;
-                _unitOfWork.Repository<MaGiamGia>().Update(appliedVoucher);
+                appliedFreeShip.SoLuong = (appliedFreeShip.SoLuong ?? 0) - 1;
+                _unitOfWork.Repository<MaGiamGia>().Update(appliedFreeShip);
+            }
+            if (appliedVoucherGiam != null)
+            {
+                appliedVoucherGiam.SoLuong = (appliedVoucherGiam.SoLuong ?? 0) - 1;
+                _unitOfWork.Repository<MaGiamGia>().Update(appliedVoucherGiam);
             }
 
 

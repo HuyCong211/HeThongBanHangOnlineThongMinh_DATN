@@ -22,6 +22,7 @@ namespace DoAn_Ver2.Models.ViewModel
         public int PageSize { get; set; }
         public int PageNumber { get; set; }
         public int TotalPages { get; set; }
+        public int TotalItems { get; set; }
 
         // Các giá trị đang lọc
         public decimal? MinPrice { get; set; }

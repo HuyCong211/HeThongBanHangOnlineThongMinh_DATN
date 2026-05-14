@@ -103,22 +103,97 @@
     </div>
 </div>
 
+<!-- MODAL: Cảnh báo có đơn hàng (chặn xóa) -->
+<div class="modal fade" id="modalHasOrders" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title"><i class="fas fa-ban mr-2"></i>Không thể xóa</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Mã <strong id="lblMaCode"></strong> đã được áp dụng trong đơn hàng — <strong class="text-danger">không thể xóa.</strong></p>
+                <div class="alert alert-info mb-0">
+                    <i class="fas fa-lightbulb mr-1"></i>
+                    <strong>Gợi ý:</strong> Vô hiệu hóa mã bằng cách chỉnh <em>Ngày hết hạn</em> về ngày trong quá khứ.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                <a href="#" id="btnGoEdit" class="btn btn-warning">
+                    <i class="fas fa-edit mr-1"></i> Vô hiệu hóa ngay
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: Xác nhận xóa (chỉ hiện khi không có đơn hàng) -->
+<div class="modal fade" id="modalConfirmDelete" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title"><i class="fas fa-exclamation-triangle mr-2"></i>Xác nhận xóa</h5>
+                <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                Bạn có chắc muốn <strong>xóa vĩnh viễn</strong> mã <strong id="lblMaCodeConfirm"></strong>?<br>
+                <small class="text-muted">Hành động này không thể hoàn tác.</small>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="btnConfirmDelete">
+                    <i class="fas fa-trash mr-1"></i> Xóa
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
+    var _deleteId = null;
+
     function DeleteVoucher(id) {
-        if (confirm('Bạn có chắc muốn xóa mã giảm giá này?')) {
-            $.ajax({
-                url: '/Admin/Marketing/Delete',
-                type: 'POST',
-                data: { id: id },
-                success: function (res) {
-                    if (res.success) {
-                        alert('Xóa thành công!');
-                        location.reload();
-                    } else {
-                        alert('Lỗi: ' + res.message);
-                    }
+        // Bước 1: Check có đơn hàng không TRƯỚC
+        $.ajax({
+            url: '/Admin/Marketing/CheckDelete',
+            type: 'POST',
+            data: { id: id },
+            success: function (res) {
+                if (!res.found) {
+                    alert('Không tìm thấy mã.');
+                    return;
                 }
-            });
-        }
+
+                if (res.hasOrders) {
+                    // Có đơn hàng → cảnh báo, chặn luôn
+                    $('#lblMaCode').text(res.maCode);
+                    $('#btnGoEdit').attr('href', res.editUrl);
+                    $('#modalHasOrders').modal('show');
+                } else {
+                    // Không có đơn hàng → hỏi xác nhận
+                    _deleteId = id;
+                    $('#lblMaCodeConfirm').text(res.maCode);
+                    $('#modalConfirmDelete').modal('show');
+                }
+            }
+        });
     }
+
+    // Bước 2: Xác nhận → mới gọi Delete
+    $('#btnConfirmDelete').on('click', function () {
+        $('#modalConfirmDelete').modal('hide');
+        $.ajax({
+            url: '/Admin/Marketing/Delete',
+            type: 'POST',
+            data: { id: _deleteId },
+            success: function (res) {
+                if (res.success) {
+                    location.reload();
+                } else {
+                    alert('Lỗi: ' + res.message);
+                }
+            }
+        });
+    });
 </script>
